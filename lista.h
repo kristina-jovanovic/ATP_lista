@@ -1,0 +1,39 @@
+#pragma once
+
+#include "defs.h"
+
+// ErrorList
+#ifndef ErrorList
+#define ErrorList  ((void *)(-1))
+#endif
+
+// domen
+#ifndef PODATAK
+#define PODATAK int
+#endif
+
+// tipovi
+typedef struct element* POKAZIVAC;
+typedef struct element {
+	POKAZIVAC prethodni; //ovo ce biti NULL kod JUL
+	PODATAK   podatak;
+	POKAZIVAC sledeci;
+} ELEMENT;
+typedef struct lista {
+	void* skladiste;
+	size_t kapacitet;
+	size_t broj_elemenata;
+};
+typedef struct lista* LISTA;
+
+// funkcije
+bool	kreiraj(LISTA*);
+bool	unisti(LISTA*);
+bool	ubaci_na_pocetak(LISTA*, PODATAK);
+bool	izbaci_sa_pocetka(LISTA*, PODATAK*);
+void	prikazi(LISTA);
+bool	sortiraj(LISTA*);
+bool	prazna(LISTA);
+bool	sadrzi(LISTA, PODATAK);
+
+
