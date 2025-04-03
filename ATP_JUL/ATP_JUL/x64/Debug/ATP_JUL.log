@@ -2,40 +2,4 @@
 C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\lista.h(26,2): warning C4091: 'typedef ': ignored on left of 'lista' when no variable is declared
   (compiling source file 'juol_pok.c')
   
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_JUL\ATP_JUL\juol_pok.c(116,28): warning C4473: 'printf' : not enough arguments passed for format string
-      C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_JUL\ATP_JUL\juol_pok.c(116,28):
-      placeholders and their parameters expect 1 variadic arguments, but 0 were provided
-      C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_JUL\ATP_JUL\juol_pok.c(116,28):
-      the missing variadic argument 1 is required by format string '%d'
-  
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_JUL\ATP_JUL\juol_pok.c(116,66): warning C4473: 'printf' : not enough arguments passed for format string
-      C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_JUL\ATP_JUL\juol_pok.c(116,66):
-      placeholders and their parameters expect 1 variadic arguments, but 0 were provided
-      C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_JUL\ATP_JUL\juol_pok.c(116,66):
-      the missing variadic argument 1 is required by format string '%d'
-  
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_JUL\ATP_JUL\juol_pok.c(122,28): warning C4473: 'printf' : not enough arguments passed for format string
-      C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_JUL\ATP_JUL\juol_pok.c(122,28):
-      placeholders and their parameters expect 1 variadic arguments, but 0 were provided
-      C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_JUL\ATP_JUL\juol_pok.c(122,28):
-      the missing variadic argument 1 is required by format string '%d'
-  
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_JUL\ATP_JUL\juol_pok.c(122,66): warning C4473: 'printf' : not enough arguments passed for format string
-      C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_JUL\ATP_JUL\juol_pok.c(122,66):
-      placeholders and their parameters expect 1 variadic arguments, but 0 were provided
-      C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_JUL\ATP_JUL\juol_pok.c(122,66):
-      the missing variadic argument 1 is required by format string '%d'
-  
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_JUL\ATP_JUL\juol_pok.c(125,29): warning C4473: 'printf' : not enough arguments passed for format string
-      C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_JUL\ATP_JUL\juol_pok.c(125,29):
-      placeholders and their parameters expect 1 variadic arguments, but 0 were provided
-      C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_JUL\ATP_JUL\juol_pok.c(125,29):
-      the missing variadic argument 1 is required by format string '%d'
-  
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_JUL\ATP_JUL\juol_pok.c(125,67): warning C4473: 'printf' : not enough arguments passed for format string
-      C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_JUL\ATP_JUL\juol_pok.c(125,67):
-      placeholders and their parameters expect 1 variadic arguments, but 0 were provided
-      C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_JUL\ATP_JUL\juol_pok.c(125,67):
-      the missing variadic argument 1 is required by format string '%d'
-  
   ATP_JUL.vcxproj -> C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_JUL\x64\Debug\ATP_JUL.exe

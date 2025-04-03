@@ -26,7 +26,7 @@ bool unisti(LISTA* lista) {
 }
 
 bool ubaci_na_pocetak(LISTA* lista, PODATAK podatak) {
-	if (*lista == ErrorList) return false;
+	if (*lista == ErrorList || (*lista)->broj_elemenata >= (*lista)->kapacitet) return false;
 	POKAZIVAC novi = malloc(sizeof(ELEMENT));
 	novi->prethodni = NULL; //jer je ovo JUL
 	novi->podatak = podatak;
@@ -113,16 +113,16 @@ int main(void) {
 	sortiraj(&lista);
 	prikazi(lista);
 
-	sadrzi(lista, 5) ? printf("Lista sadrzi podatak %d\n") : printf("Lista ne sadrzi podatak %d\n");
+	sadrzi(lista, 5) ? printf("Lista sadrzi podatak %d\n", 5) : printf("Lista ne sadrzi podatak %d\n", 5);
 
 	int izbaceni;
 	izbaci_sa_pocetka(&lista, &izbaceni);
 	printf("Izbacen: %d\n", izbaceni);
 	prikazi(lista);
-	sadrzi(lista, 5) ? printf("Lista sadrzi podatak %d\n") : printf("Lista ne sadrzi podatak %d\n");
+	sadrzi(lista, 5) ? printf("Lista sadrzi podatak %d\n", 5) : printf("Lista ne sadrzi podatak %d\n", 5);
 	prazna(lista) ? printf("Lista je prazna\n") : printf("Lista nije prazna\n");
 
-	sadrzi(lista, 15) ? printf("Lista sadrzi podatak %d\n") : printf("Lista ne sadrzi podatak %d\n");
+	sadrzi(lista, 15) ? printf("Lista sadrzi podatak %d\n", 15) : printf("Lista ne sadrzi podatak %d\n", 15);
 
 	unisti(&lista);
 	prikazi(lista);
