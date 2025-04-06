@@ -7,13 +7,18 @@
 #define ErrorList  ((void *)(-1))
 #endif
 
+// naziv datoteke
+#ifndef naziv_datoteke
+#define naziv_datoteke "lista.dat"
+#endif
+
 // domen
 #ifndef PODATAK
 #define PODATAK int
 #endif
 
 // tipovi
-typedef struct element* POKAZIVAC;
+typedef void* POKAZIVAC;
 typedef struct element {
 	POKAZIVAC prethodni; //ovo ce biti NULL kod JUL
 	PODATAK   podatak;
