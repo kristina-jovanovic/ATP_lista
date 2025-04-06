@@ -1,0 +1,160 @@
+﻿#include "defs.h"
+#include "lista.h"
+
+bool kreiraj(LISTA* lista) {
+	*lista = malloc(sizeof(struct lista));
+	FILE* datoteka = fopen(naziv_datoteke, "ab");
+	if (datoteka == NULL) {
+		printf("Greska pri otvaranju datoteke!\n");
+		return;
+	}
+	(*lista)->skladiste = datoteka;
+	fseek(datoteka, 0, SEEK_END);
+	int broj_bajtova = ftell(datoteka);
+	if (broj_bajtova == 0) {
+		(*lista)->broj_elemenata = 0;
+	}
+	else {
+		(*lista)->broj_elemenata = (broj_bajtova - sizeof(int) * 2) / sizeof(ELEMENT);
+	}
+	(*lista)->kapacitet = 100;
+	fclose(datoteka);
+	return true;
+}
+
+bool unisti(LISTA* lista) {
+	if (*lista == NULL || (*lista)->skladiste == NULL || (*lista)->skladiste == ErrorList) return false;
+	remove(naziv_datoteke);
+	(*lista)->broj_elemenata = 0;
+	(*lista)->skladiste = NULL;
+	return true;
+}
+
+bool ubaci_na_pocetak(LISTA* lista, PODATAK podatak) {
+	if (*lista == NULL || (*lista)->broj_elemenata >= (*lista)->kapacitet) return false;
+
+	FILE* datoteka = fopen(naziv_datoteke, "r+b");
+	if (datoteka == NULL) {
+		datoteka = fopen(naziv_datoteke, "w+b");
+		if (datoteka == NULL) {
+			printf("Greska pri otvaranju datoteke!\n");
+			return false;
+		}
+	}
+	(*lista)->skladiste = datoteka;
+	//FILE* datoteka = (*lista)->skladiste;
+
+	fseek(datoteka, 0, SEEK_END);	// postavljanje indikatora pozicije datoteke na kraj
+	// Funkcija ftell() vraća koliko je bajtova od početka datoteke do indikatora tekuće pozicije u datoteci.
+	// Ako se indikator pozicije prethodno postavi na kraj datoteke, na sledeći način možemo doći do 
+	// broja elemenata koji se nalaze u datoteci.
+	//int broj_slogova_u_datoteci = ftell(datoteka) / sizeof(ELEMENT);
+	int broj_bajtova_u_datoteci = ftell(datoteka);
+	int broj_bajtova_za_element = sizeof(ELEMENT);
+	int glava = sizeof(int) * 2;
+
+	ELEMENT novi = { NULL,podatak,NULL };
+
+	if (broj_bajtova_u_datoteci == 0) { //lista je prazna, dodajemo prvi element
+		//pre njega upisujemo velicinu sloga i broj bajta na kome ce biti prvi element (glava)
+
+		novi.prethodni = (void*)(intptr_t)glava;
+		novi.sledeci = (void*)(intptr_t)glava;
+
+		fseek(datoteka, 0, SEEK_SET);
+		fwrite(&broj_bajtova_za_element, sizeof(int), 1, datoteka);
+		fwrite(&glava, sizeof(int), 1, datoteka);
+		//fseek(datoteka, glava, SEEK_SET);
+		fwrite(&novi, broj_bajtova_za_element, 1, datoteka);
+	}
+	else { //lista nije prazna
+		fseek(datoteka, 0, SEEK_SET); //postavljamo indikator pozicije na pocetak
+		fread(&broj_bajtova_za_element, sizeof(int), 1, datoteka);
+		fread(&glava, sizeof(int), 1, datoteka);
+
+		ELEMENT stara_glava;
+		fseek(datoteka, glava, SEEK_SET); //pozicioniramo se ispred elementa koji je trenutna glava
+		fread(&stara_glava, broj_bajtova_za_element, 1, datoteka); // i citamo ga
+
+		fseek(datoteka, 0, SEEK_END);
+		int adresa_novog = ftell(datoteka); // ovo je naredna slobodna pozicija (kraj datoteke)
+
+		ELEMENT poslednji;
+		int adresa_poslednjeg = (int)(intptr_t)stara_glava.prethodni;
+		fseek(datoteka, adresa_poslednjeg, SEEK_SET);
+		fread(&poslednji, broj_bajtova_za_element, 1, datoteka);
+
+		// azuriranje veza
+		poslednji.sledeci = (void*)(intptr_t)adresa_novog;
+		stara_glava.prethodni = (void*)(intptr_t)adresa_novog;
+		novi.prethodni = (void*)(intptr_t)adresa_poslednjeg; //ovo je adresa
+		novi.sledeci = (void*)(intptr_t)glava; //adresa glave
+
+		//upisivanje novog elementa i izmena azuriranih
+		fseek(datoteka, adresa_novog, SEEK_SET);
+		fwrite(&novi, broj_bajtova_za_element, 1, datoteka);
+		fseek(datoteka, glava, SEEK_SET);
+		fwrite(&stara_glava, broj_bajtova_za_element, 1, datoteka);
+		fseek(datoteka, adresa_poslednjeg, SEEK_SET);
+		fwrite(&poslednji, broj_bajtova_za_element, 1, datoteka);
+
+		//azuriranje adrese glave (nove) na pocetku datoteke u "metapodacima"
+		glava = adresa_novog;
+		fseek(datoteka, sizeof(int), SEEK_SET); //preskacemo sizeof(int) od pocetka jer je na toj prvoj poziciji sacuvana velicina elementa liste, a na drugoj je adresa glave
+		fwrite(&glava, sizeof(int), 1, datoteka);
+	}
+	(*lista)->broj_elemenata++;
+	fclose(datoteka);
+	return true;
+}
+
+bool	izbaci_sa_pocetka(LISTA*, PODATAK*);
+void prikazi(LISTA lista) {
+	printf("\n///// Lista: ");
+	if ((lista == NULL) || (lista->skladiste == NULL) || (lista->skladiste == ErrorList)) {
+		(lista == NULL || lista->skladiste == NULL) ? printf("< Null > \n") : printf("< ErrorList > \n");
+		return;
+	}
+	FILE* datoteka = fopen(naziv_datoteke, "rb");
+	if (datoteka == NULL) {
+		printf("Greska pri otvaranju datoteke!\n");
+		return;
+	}
+	int adresa_glave, adresa_trenutnog;
+	fseek(datoteka, sizeof(int), SEEK_SET); //pomeramo se za velicinu jednog int-a od pocetka
+	fread(&adresa_glave, sizeof(int), 1, datoteka); //citamo adresu glave
+
+	ELEMENT trenutni;
+	adresa_trenutnog = adresa_glave;
+	do {
+		fseek(datoteka, adresa_trenutnog, SEEK_SET);
+		fread(&trenutni, sizeof(ELEMENT), 1, datoteka);
+		printf("%d ", trenutni.podatak);
+		adresa_trenutnog = (int)(intptr_t)trenutni.sledeci;
+	} while (adresa_trenutnog != adresa_glave);
+	printf("(ciklicno)\n");
+
+	fclose(datoteka);
+}
+bool	sortiraj(LISTA*);
+bool	prazna(LISTA);
+bool	sadrzi(LISTA, PODATAK);
+
+//main
+int main() {
+
+	LISTA lista = NULL;
+	kreiraj(&lista) ? printf("Lista je uspesno kreirana\n") : printf("Lista nije uspesno kreirana\n");
+	/*unisti(&lista) ? printf("Lista je uspesno unistena\n") : printf("Lista nije uspesno unistena\n");
+	int a = 7;
+	ubaci_na_pocetak(&lista, a) ? printf("Podatak %d je uspesno ubacen\n", a) : printf("Podatak %d nije uspesno ubacen\n", a);
+	int b = 2;
+	ubaci_na_pocetak(&lista, b) ? printf("Podatak %d je uspesno ubacen\n", b) : printf("Podatak %d nije uspesno ubacen\n", b);*/
+
+	int c = 5;
+	ubaci_na_pocetak(&lista, c) ? printf("Podatak %d je uspesno ubacen\n", c) : printf("Podatak %d nije uspesno ubacen\n", c);
+	
+	prikazi(lista);
+
+	return 0;
+}

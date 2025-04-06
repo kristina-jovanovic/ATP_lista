@@ -1,0 +1,7 @@
+﻿  duol_dat.c
+C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\lista.h(31,2): warning C4091: 'typedef ': ignored on left of 'lista' when no variable is declared
+  (compiling source file 'duol_dat.c')
+  
+C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUL\ATP_DUL\duol_dat.c(9,3): warning C4033: 'kreiraj' must return a value
+C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUL\ATP_DUL\duol_dat.c(23,1): warning C4715: 'kreiraj': not all control paths return a value
+  ATP_DUL.vcxproj -> C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUL\x64\Debug\ATP_DUL.exe
