@@ -7,11 +7,6 @@
 #define ErrorList  ((void *)(-1))
 #endif
 
-// naziv datoteke
-#ifndef naziv_datoteke
-#define naziv_datoteke "lista.dat"
-#endif
-
 // domen
 #ifndef PODATAK
 #define PODATAK int

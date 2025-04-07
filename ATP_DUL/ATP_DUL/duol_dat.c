@@ -3,12 +3,12 @@
 
 bool kreiraj(LISTA* lista) {
 	*lista = malloc(sizeof(struct lista));
-	FILE* datoteka = fopen(naziv_datoteke, "ab");
+	(*lista)->skladiste = "lista.dat";
+	FILE* datoteka = fopen((*lista)->skladiste, "ab");
 	if (datoteka == NULL) {
 		printf("Greska pri otvaranju datoteke!\n");
 		return;
 	}
-	(*lista)->skladiste = datoteka; // ili staviti da je ovde naziv datoteke?
 	fseek(datoteka, 0, SEEK_END);
 	int broj_bajtova = ftell(datoteka);
 	if (broj_bajtova == 0) {
@@ -24,18 +24,20 @@ bool kreiraj(LISTA* lista) {
 
 bool unisti(LISTA* lista) {
 	if (*lista == NULL || (*lista)->skladiste == NULL || (*lista)->skladiste == ErrorList) return false;
-	remove(naziv_datoteke);
+	remove((*lista)->skladiste); 
+	// da li ovako obrisati celu datoteku ili "izbaciti" sve tj. staviti da je glava=-1?
+	// u tom slucaju bi sve fizicki ostalo i dalje u fajlu, tako da mislim da je mozda bolje obrisati ga skroz
+	//(*lista)->skladiste = NULL;
 	(*lista)->broj_elemenata = 0;
-	(*lista)->skladiste = NULL;
 	return true;
 }
 
 bool ubaci_na_pocetak(LISTA* lista, PODATAK podatak) {
 	if (*lista == NULL || (*lista)->broj_elemenata >= (*lista)->kapacitet) return false;
 
-	FILE* datoteka = fopen(naziv_datoteke, "r+b"); //sa ab rezimom nije htelo
+	FILE* datoteka = fopen((*lista)->skladiste, "r+b"); //sa ab rezimom nije htelo
 	if (datoteka == NULL) {
-		datoteka = fopen(naziv_datoteke, "w+b");
+		datoteka = fopen((*lista)->skladiste, "w+b");
 		if (datoteka == NULL) {
 			printf("Greska pri otvaranju datoteke!\n");
 			return false;
@@ -123,7 +125,7 @@ bool izbaci_sa_pocetka(LISTA* lista, PODATAK* podatak) {
 	if (*lista == NULL || (*lista)->skladiste == NULL || (*lista)->skladiste == ErrorList
 		|| (*lista)->broj_elemenata == 0) return false;
 
-	FILE* datoteka = fopen(naziv_datoteke, "r+b");
+	FILE* datoteka = fopen((*lista)->skladiste, "r+b");
 	if (datoteka == NULL) {
 		printf("Greska pri otvaranju datoteke!\n");
 		return false;
@@ -203,7 +205,7 @@ void prikazi(LISTA lista) {
 		(lista == NULL || lista->skladiste == NULL) ? printf("< Null > \n") : printf("< ErrorList > \n");
 		return;
 	}
-	FILE* datoteka = fopen(naziv_datoteke, "rb");
+	FILE* datoteka = fopen(lista->skladiste, "rb");
 	if (datoteka == NULL) {
 		printf("Greska pri otvaranju datoteke!\n");
 		return;
@@ -237,8 +239,66 @@ void prikazi(LISTA lista) {
 
 	fclose(datoteka);
 }
-///////////
-bool	sortiraj(LISTA*);
+
+bool sortiraj(LISTA* lista) {
+	if (*lista == NULL || (*lista)->skladiste == NULL || (*lista)->skladiste == ErrorList
+		|| (*lista)->broj_elemenata == 0) return false;
+
+	FILE* datoteka = fopen((*lista)->skladiste, "r+b");
+	if (datoteka == NULL) {
+		printf("Greska pri otvaranju datoteke!\n");
+		return false;
+	}
+
+	fseek(datoteka, 0, SEEK_END);
+	int broj_bajtova = ftell(datoteka);
+	if (broj_bajtova <= (sizeof(int) * 2)) {
+		//printf("< Prazno >\n");
+		fclose(datoteka);
+		return false;
+	}
+
+	int broj_bajtova_za_element, adresa_glave, adresa_prvog, adresa_drugog;
+	fseek(datoteka, 0, SEEK_SET); //pomeramo se na pocetak
+	fread(&broj_bajtova_za_element, sizeof(int), 1, datoteka);
+	fread(&adresa_glave, sizeof(int), 1, datoteka); //citamo adresu glave
+	if (adresa_glave <= -1) {
+		//printf("< Prazno >\n");
+		fclose(datoteka);
+		return false;
+	}
+	ELEMENT prvi, drugi;
+	adresa_prvog = adresa_glave;
+	fseek(datoteka, adresa_prvog, SEEK_SET);
+	fread(&prvi, broj_bajtova_za_element, 1, datoteka);
+
+	do {
+		adresa_drugog = (int)(intptr_t)prvi.sledeci;
+		do {
+			fseek(datoteka, adresa_drugog, SEEK_SET);
+			fread(&drugi, broj_bajtova_za_element, 1, datoteka);
+			if (prvi.podatak < drugi.podatak) {
+				//potrebno je zameniti vrednosti
+				int pom = prvi.podatak;
+				prvi.podatak = drugi.podatak;
+				drugi.podatak = pom;
+
+				//azuriranje vrednosti u datoteci
+				fseek(datoteka, adresa_prvog, SEEK_SET);
+				fwrite(&prvi, broj_bajtova_za_element, 1, datoteka);
+				fseek(datoteka, adresa_drugog, SEEK_SET);
+				fwrite(&drugi, broj_bajtova_za_element, 1, datoteka);
+			}
+			adresa_drugog = (int)(intptr_t)drugi.sledeci;
+		} while (adresa_drugog != adresa_glave);
+		adresa_prvog = (int)(intptr_t)prvi.sledeci;
+		fseek(datoteka, adresa_prvog, SEEK_SET);
+		fread(&prvi, broj_bajtova_za_element, 1, datoteka);
+	} while ((int)(intptr_t)prvi.sledeci != adresa_glave);
+
+	fclose(datoteka);
+	return true;
+}
 
 bool prazna(LISTA lista) {
 	if (lista == NULL || lista->skladiste == NULL || lista->skladiste == ErrorList
@@ -247,10 +307,10 @@ bool prazna(LISTA lista) {
 }
 
 bool sadrzi(LISTA lista, PODATAK podatak) {
-	if (lista == NULL || lista->skladiste == NULL || lista->skladiste == ErrorList 
+	if (lista == NULL || lista->skladiste == NULL || lista->skladiste == ErrorList
 		|| lista->broj_elemenata == 0) return false;
-	
-	FILE* datoteka = fopen(naziv_datoteke, "rb");
+
+	FILE* datoteka = fopen(lista->skladiste, "rb");
 	if (datoteka == NULL) {
 		printf("Greska pri otvaranju datoteke!\n");
 		return;
@@ -297,11 +357,13 @@ int main() {
 	//int izbaceni;
 	//izbaci_sa_pocetka(&lista, &izbaceni) ? printf("Podatak %d je uspesno izbacen\n", izbaceni) : printf("Podatak nije uspesno izbacen\n");
 	//izbaci_sa_pocetka(&lista, &izbaceni) ? printf("Podatak %d je uspesno izbacen\n", izbaceni) : printf("Podatak nije uspesno izbacen\n");
-	prikazi(lista);
+	//prikazi(lista);
 
 	prazna(lista) ? printf("Lista je prazna\n") : printf("Lista nije prazna\n");
-	sadrzi(lista,4) ? printf("Podatak %d postoji u listi\n", 4) : printf("Podatak %d ne postoji u listi\n", 4);
+	sadrzi(lista, 4) ? printf("Podatak %d postoji u listi\n", 4) : printf("Podatak %d ne postoji u listi\n", 4);
 
+	sortiraj(&lista) ? printf("Lista je uspesno sortirana\n") : printf("Lista nije uspesno sortirana\n");
+	prikazi(lista);
 
 	return 0;
 }
