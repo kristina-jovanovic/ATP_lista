@@ -1,8 +1,11 @@
 #include "defs.h"
 #include "lista.h"
 
+// ono sto je bilo POKAZIVAC zamenili smo sa ELEMENT*
+// tehnicki je ostalo isto jer je POKAZIVAC bio definisan kao ELEMENT* a sad je void*
+
 // pomocne funkcije
-static void zameni(POKAZIVAC, POKAZIVAC);
+static void zameni(ELEMENT*, ELEMENT*);
 
 bool kreiraj(LISTA* lista) {
 	*lista = malloc(sizeof(struct lista));
@@ -14,9 +17,9 @@ bool kreiraj(LISTA* lista) {
 
 bool unisti(LISTA* lista) {
 	if ((*lista == NULL) || ((*lista)->skladiste) == NULL || (*lista == ErrorList)) return false;
-	POKAZIVAC trenutni = (POKAZIVAC)(*lista)->skladiste;
+	ELEMENT* trenutni = (ELEMENT*)(*lista)->skladiste;
 	while (trenutni != NULL) {
-		(*lista)->skladiste = ((POKAZIVAC)((*lista)->skladiste))->sledeci;
+		(*lista)->skladiste = ((ELEMENT*)((*lista)->skladiste))->sledeci;
 		(*lista)->broj_elemenata--;
 		trenutni->sledeci = NULL;
 		free(trenutni);
@@ -27,20 +30,20 @@ bool unisti(LISTA* lista) {
 
 bool ubaci_na_pocetak(LISTA* lista, PODATAK podatak) {
 	if (*lista == ErrorList || (*lista)->broj_elemenata >= (*lista)->kapacitet) return false;
-	POKAZIVAC novi = malloc(sizeof(ELEMENT));
+	ELEMENT* novi = malloc(sizeof(ELEMENT));
 	novi->prethodni = NULL; //jer je ovo JUL
 	novi->podatak = podatak;
 	novi->sledeci = (*lista)->skladiste;
-	(*lista)->skladiste = novi;
+	(*lista)->skladiste = (void*)novi;
 	(*lista)->broj_elemenata++;
 	return true;
 }
 
 bool izbaci_sa_pocetka(LISTA* lista, PODATAK* podatak) {
 	if ((*lista == NULL) || ((*lista)->skladiste) == NULL || (*lista == ErrorList)) return false;
-	*podatak = ((POKAZIVAC)((*lista)->skladiste))->podatak;
-	POKAZIVAC pom = (*lista)->skladiste;
-	(*lista)->skladiste = ((POKAZIVAC)((*lista)->skladiste))->sledeci;
+	*podatak = ((ELEMENT*)((*lista)->skladiste))->podatak;
+	ELEMENT* pom = (*lista)->skladiste;
+	(*lista)->skladiste = ((ELEMENT*)((*lista)->skladiste))->sledeci;
 	(*lista)->broj_elemenata--;
 	free(pom);
 	pom = NULL;
@@ -53,7 +56,7 @@ void prikazi(LISTA lista) {
 		(lista == NULL || lista->skladiste == NULL) ? printf("< Null > \n") : printf("< ErrorList > \n");
 		return;
 	}
-	POKAZIVAC trenutni = lista->skladiste; // mora ovako, ako se ide direktno preko lista->skladiste, promene tj. pomeranja ostaju vidljiva, tj. na kraju ce lista->skladiste biti NULL
+	ELEMENT* trenutni = lista->skladiste; // mora ovako, ako se ide direktno preko lista->skladiste, promene tj. pomeranja ostaju vidljiva, tj. na kraju ce lista->skladiste biti NULL
 	while (trenutni != NULL) {
 		printf("%d  ", trenutni->podatak);
 		trenutni = trenutni->sledeci;
@@ -63,7 +66,8 @@ void prikazi(LISTA lista) {
 
 bool sortiraj(LISTA* lista) {
 	if ((*lista == NULL) || ((*lista)->skladiste == NULL) || ((*lista)->skladiste == ErrorList)) return false;
-	POKAZIVAC prvi = (POKAZIVAC)(*lista)->skladiste, drugi = ((POKAZIVAC)((*lista)->skladiste))->sledeci;
+	ELEMENT* prvi = (ELEMENT*)(*lista)->skladiste;
+	ELEMENT* drugi = ((ELEMENT*)(*lista)->skladiste)->sledeci;
 	while (prvi->sledeci != NULL) {
 		while (drugi != NULL) {
 			if (prvi->podatak > drugi->podatak)
@@ -82,7 +86,7 @@ bool prazna(LISTA lista) {
 
 bool sadrzi(LISTA lista, PODATAK trazeni_podatak) {
 	if ((lista == NULL) || (lista->skladiste == NULL) || (lista->skladiste == ErrorList)) return false;
-	POKAZIVAC trenutni = lista->skladiste;
+	ELEMENT* trenutni = lista->skladiste;
 	while (trenutni != NULL) {
 		if (trazeni_podatak == trenutni->podatak) break;
 		trenutni = trenutni->sledeci;
@@ -92,7 +96,7 @@ bool sadrzi(LISTA lista, PODATAK trazeni_podatak) {
 
 // implementacija pomocnih funkcija
 
-static void zameni(POKAZIVAC p1, POKAZIVAC p2) {
+static void zameni(ELEMENT* p1, ELEMENT* p2) {
 	PODATAK pom = p1->podatak;
 	p1->podatak = p2->podatak;
 	p2->podatak = pom;
