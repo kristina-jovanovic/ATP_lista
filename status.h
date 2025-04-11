@@ -12,7 +12,7 @@ typedef struct poruka {
 		STRING kreiraj, unisti, ubaci, izbaci, sortiraj;
 	} GRESKA;
 	struct {
-		STRING ubaci, izbaci, sortiraj;
+		STRING ubaci, izbaci, sortiraj, ucitavanje;
 	} UPOZORENJE;
 	struct {
 		STRING kreiraj, unisti, ubaci, izbaci, podatak_postoji, podatak_ne_postoji, lista_prazna, lista_nije_prazna, sortiraj;
