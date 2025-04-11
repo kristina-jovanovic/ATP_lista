@@ -7,17 +7,88 @@
 // pomocne funkcije
 static void zameni(ELEMENT*, ELEMENT*);
 
-bool kreiraj(LISTA* lista) {
+/////////
+//status
+PORUKA poruka = {
+	.GRESKA = {
+		.kreiraj = "Doslo je do velikih problema prilikom KREIRANJA liste.\n",
+		.unisti = "Doslo je do velikih problema prilikom UNISTAVANJA liste.\n",
+		.ubaci = "Doslo je do velikih problema prilikom UBACIVANJA elementa u listu.\n",
+		.izbaci = "Doslo je do velikih problema prilikom IZBACIVANJA elementa iz liste.\n",
+		.sortiraj = "Doslo je do velikih problema prilikom SORTIRANJA elemenata liste.\n",
+	},
+	.UPOZORENJE = {
+		.ubaci = "Doslo je do problema prilikom UBACIVANJA elementa u listu.\n",
+		.izbaci = "Doslo je do problema prilikom IZBACIVANJA elementa iz liste.\n",
+		.sortiraj = "Doslo je do problema prilikom SORTIRANJA elemenata liste.\n",
+	},
+	.INFO = {
+		.kreiraj = "Lista je uspesno kreirana.\n",
+		.unisti = "Lista je uspesno unistena.\n",
+		.ubaci = "Element je uspesno ubacen u listu.\n",
+		.izbaci = "Element je uspesno izbacen iz liste.\n",
+		.podatak_postoji = "Podatak postoji u listi.\n",
+		.podatak_ne_postoji = "Podatak ne postoji u listi.\n",
+		.lista_prazna = "Lista je prazna.\n",
+		.lista_nije_prazna = "Lista nije prazna.\n",
+		.sortiraj = "Lista je uspesno sortirana.\n",
+	}
+};
+
+void obrada_statusa(STATUS status, STRING poruka, STRING naziv_dat, int linija_koda) {
+	char tip_poruke[20];
+	switch (status) {
+	case Info:
+		strcpy(tip_poruke, "*** INFO:");
+		fprintf(stdout, "%s %s", tip_poruke, poruka);
+		break;
+	case Upozorenje:
+		strcpy(tip_poruke, "*** UPOZORENJE:");
+		fprintf(stderr, "%s %s\nDATOTEKA: %s\nLINIJA: %d", tip_poruke, poruka, naziv_dat, linija_koda);
+		break;
+	case Greska:
+		strcpy(tip_poruke, "*** GRESKA:");
+		fprintf(stderr, "%s %s\nDATOTEKA: %s\nLINIJA: %d", tip_poruke, poruka, naziv_dat, linija_koda);
+		fprintf(stderr, "\nProgram ce biti prekinut.");
+		exit(EXIT_FAILURE);
+		break;
+	default:
+		break;
+	}
+}
+/////////
+
+SIGNAL kreiraj(LISTA* lista) {
+	SIGNAL signal;
 	*lista = malloc(sizeof(struct lista));
-	(*lista)->skladiste = NULL;
-	(*lista)->kapacitet = 100;
-	(*lista)->broj_elemenata = 0;
-	return true;
+	if (*lista == NULL) {
+		signal.status = Greska;
+		signal.poruka = poruka.GRESKA.kreiraj;
+	}
+	else {
+		(*lista)->skladiste = NULL;
+		(*lista)->kapacitet = 100;
+		(*lista)->broj_elemenata = 0;
+
+		signal.status = Info;
+		signal.poruka = poruka.INFO.kreiraj;
+	}
+	return signal;
 }
 
-bool unisti(LISTA* lista) {
-	if ((*lista == NULL) || ((*lista)->skladiste) == NULL || (*lista == ErrorList)) return false;
+SIGNAL unisti(LISTA* lista) {
+	SIGNAL signal;
+	if ((*lista == NULL) || ((*lista)->skladiste) == NULL || (*lista == ErrorList)) {
+		signal.status = Greska;
+		signal.poruka = poruka.GRESKA.unisti;
+		return signal;
+	}
 	ELEMENT* trenutni = (ELEMENT*)(*lista)->skladiste;
+	if (trenutni == NULL) {
+		signal.status = Greska;
+		signal.poruka = poruka.GRESKA.unisti;
+		return signal;
+	}
 	while (trenutni != NULL) {
 		(*lista)->skladiste = ((ELEMENT*)((*lista)->skladiste))->sledeci;
 		(*lista)->broj_elemenata--;
@@ -25,29 +96,46 @@ bool unisti(LISTA* lista) {
 		free(trenutni);
 		trenutni = (*lista)->skladiste;
 	}
-	return true;
+	signal.status = Info;
+	signal.poruka = poruka.INFO.unisti;
+	return signal;
 }
 
-bool ubaci_na_pocetak(LISTA* lista, PODATAK podatak) {
-	if (*lista == ErrorList || (*lista)->broj_elemenata >= (*lista)->kapacitet) return false;
+SIGNAL ubaci_na_pocetak(LISTA* lista, PODATAK podatak) {
+	SIGNAL signal;
+	signal.status = Greska;
+	signal.poruka = poruka.GRESKA.ubaci;
+	if (*lista == NULL || *lista == ErrorList || (*lista)->broj_elemenata >= (*lista)->kapacitet) return signal;
+
 	ELEMENT* novi = malloc(sizeof(ELEMENT));
+	if (novi == NULL) return signal;
+
 	novi->prethodni = NULL; //jer je ovo JUL
 	novi->podatak = podatak;
 	novi->sledeci = (*lista)->skladiste;
 	(*lista)->skladiste = (void*)novi;
 	(*lista)->broj_elemenata++;
-	return true;
+
+	signal.status = Info;
+	signal.poruka = poruka.INFO.ubaci;
+	return signal;
 }
 
-bool izbaci_sa_pocetka(LISTA* lista, PODATAK* podatak) {
-	if ((*lista == NULL) || ((*lista)->skladiste) == NULL || (*lista == ErrorList)) return false;
+SIGNAL izbaci_sa_pocetka(LISTA* lista, PODATAK* podatak) {
+	SIGNAL signal;
+	signal.status = Greska;
+	signal.poruka = poruka.GRESKA.izbaci;
+	if (*lista == NULL || (*lista)->skladiste == NULL || *lista == ErrorList) return signal;
 	*podatak = ((ELEMENT*)((*lista)->skladiste))->podatak;
 	ELEMENT* pom = (*lista)->skladiste;
 	(*lista)->skladiste = ((ELEMENT*)((*lista)->skladiste))->sledeci;
 	(*lista)->broj_elemenata--;
 	free(pom);
 	pom = NULL;
-	return true;
+
+	signal.status = Info;
+	signal.poruka = poruka.INFO.izbaci;
+	return signal;
 }
 
 void prikazi(LISTA lista) {
@@ -61,13 +149,21 @@ void prikazi(LISTA lista) {
 		printf("%d  ", trenutni->podatak);
 		trenutni = trenutni->sledeci;
 	}
-	printf("\n");
+	printf("\n\n");
 }
 
-bool sortiraj(LISTA* lista) {
-	if ((*lista == NULL) || ((*lista)->skladiste == NULL) || ((*lista)->skladiste == ErrorList)) return false;
+SIGNAL sortiraj(LISTA* lista) {
+	SIGNAL signal;
+	signal.status = Greska;
+	signal.poruka = poruka.GRESKA.sortiraj;
+	if (*lista == NULL || (*lista)->skladiste == NULL || (*lista)->skladiste == ErrorList) return signal;
 	ELEMENT* prvi = (ELEMENT*)(*lista)->skladiste;
 	ELEMENT* drugi = ((ELEMENT*)(*lista)->skladiste)->sledeci;
+	if (prvi == NULL || drugi == NULL) {
+		signal.status = Upozorenje;
+		signal.poruka = poruka.UPOZORENJE.sortiraj;
+		return signal;
+	}
 	while (prvi->sledeci != NULL) {
 		while (drugi != NULL) {
 			if (prvi->podatak > drugi->podatak)
@@ -77,21 +173,31 @@ bool sortiraj(LISTA* lista) {
 		prvi = prvi->sledeci;
 		drugi = prvi->sledeci;
 	}
-	return true;
+
+	signal.status = Info;
+	signal.poruka = poruka.INFO.sortiraj;
+	return signal;
 }
 
-bool prazna(LISTA lista) {
-	return (lista == NULL || lista->skladiste == NULL) ? true : false;
+SIGNAL prazna(LISTA lista) {
+	SIGNAL signal;
+	signal.status = Info;
+	(lista == NULL || lista->skladiste == NULL) ? (signal.poruka = poruka.INFO.lista_prazna) : (signal.poruka = poruka.INFO.lista_nije_prazna);
+	return signal;
 }
 
-bool sadrzi(LISTA lista, PODATAK trazeni_podatak) {
-	if ((lista == NULL) || (lista->skladiste == NULL) || (lista->skladiste == ErrorList)) return false;
+SIGNAL sadrzi(LISTA lista, PODATAK trazeni_podatak) {
+	SIGNAL signal;
+	signal.status = Info;
+	signal.poruka = poruka.INFO.podatak_ne_postoji;
+	if (lista == NULL || lista->skladiste == NULL || lista->skladiste == ErrorList) return signal;
 	ELEMENT* trenutni = lista->skladiste;
 	while (trenutni != NULL) {
 		if (trazeni_podatak == trenutni->podatak) break;
 		trenutni = trenutni->sledeci;
 	}
-	return (trenutni != NULL) ? true : false; // ako smo dosli do kraja (trenutni == NULL) znaci da nismo nasli trazeni podatak
+	(trenutni != NULL) ? (signal.poruka = poruka.INFO.podatak_postoji) : (signal.poruka = poruka.INFO.podatak_ne_postoji); // ako smo dosli do kraja (trenutni == NULL) znaci da nismo nasli trazeni podatak
+	return signal;
 }
 
 // implementacija pomocnih funkcija
@@ -106,30 +212,49 @@ static void zameni(ELEMENT* p1, ELEMENT* p2) {
 
 int main(void) {
 	LISTA lista;
-	kreiraj(&lista) ? printf("Lista je uspesno kreirana.\n") : printf("Lista nije uspesno kreirana.\n");
+	SIGNAL signal;
+	signal = kreiraj(&lista);
+	obrada_statusa(signal.status, signal.poruka, NULL, 0);
 
 	int a = 5;
-	ubaci_na_pocetak(&lista, a) ? printf("Podatak je uspesno dodat.\n") : printf("Podatak nije uspesno dodat.\n");
+	signal = ubaci_na_pocetak(&lista, a);
+	obrada_statusa(signal.status, signal.poruka, NULL, 0);
+
 	int b = 9;
-	ubaci_na_pocetak(&lista, b) ? printf("Podatak je uspesno dodat.\n") : printf("Podatak nije uspesno dodat.\n");
+	signal = ubaci_na_pocetak(&lista, b);
+	obrada_statusa(signal.status, signal.poruka, NULL, 0);
+
 
 	prikazi(lista);
-	sortiraj(&lista);
+	signal = sortiraj(&lista);
+	obrada_statusa(signal.status, signal.poruka, NULL, 0);
 	prikazi(lista);
 
-	sadrzi(lista, 5) ? printf("Lista sadrzi podatak %d\n", 5) : printf("Lista ne sadrzi podatak %d\n", 5);
+	signal = sadrzi(lista, 5);
 
 	int izbaceni;
-	izbaci_sa_pocetka(&lista, &izbaceni);
+	signal = izbaci_sa_pocetka(&lista, &izbaceni);
+	obrada_statusa(signal.status, signal.poruka, NULL, 0);
 	printf("Izbacen: %d\n", izbaceni);
 	prikazi(lista);
-	sadrzi(lista, 5) ? printf("Lista sadrzi podatak %d\n", 5) : printf("Lista ne sadrzi podatak %d\n", 5);
-	prazna(lista) ? printf("Lista je prazna\n") : printf("Lista nije prazna\n");
 
-	sadrzi(lista, 15) ? printf("Lista sadrzi podatak %d\n", 15) : printf("Lista ne sadrzi podatak %d\n", 15);
+	signal = sadrzi(lista, 5);
+	obrada_statusa(signal.status, signal.poruka, NULL, 0);
 
-	unisti(&lista);
+	signal = prazna(lista);
+	obrada_statusa(signal.status, signal.poruka, NULL, 0);
+
+
+	signal = sadrzi(lista, 15);
+	obrada_statusa(signal.status, signal.poruka, NULL, 0);
+
+
+	signal = unisti(&lista);
+	obrada_statusa(signal.status, signal.poruka, NULL, 0);
+
 	prikazi(lista);
-	prazna(lista) ? printf("Lista je prazna\n") : printf("Lista nije prazna\n");
+	signal = prazna(lista);
+	obrada_statusa(signal.status, signal.poruka, NULL, 0);
+
 
 }
