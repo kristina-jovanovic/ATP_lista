@@ -1,6 +1,7 @@
 #pragma once
 
 #include "defs.h"
+#include "status.h"
 
 // ErrorList
 #ifndef ErrorList
@@ -19,7 +20,7 @@ typedef struct element {
 	PODATAK   podatak;
 	POKAZIVAC sledeci;
 } ELEMENT;
-typedef struct lista {
+struct lista {
 	void* skladiste;
 	size_t kapacitet;
 	size_t broj_elemenata;
@@ -27,13 +28,13 @@ typedef struct lista {
 typedef struct lista* LISTA;
 
 // funkcije
-bool	kreiraj(LISTA*);
-bool	unisti(LISTA*);
-bool	ubaci_na_pocetak(LISTA*, PODATAK);
-bool	izbaci_sa_pocetka(LISTA*, PODATAK*);
+SIGNAL	kreiraj(LISTA*);
+SIGNAL	unisti(LISTA*);
+SIGNAL	ubaci_na_pocetak(LISTA*, PODATAK);
+SIGNAL	izbaci_sa_pocetka(LISTA*, PODATAK*);
 void	prikazi(LISTA);
-bool	sortiraj(LISTA*);
-bool	prazna(LISTA);
-bool	sadrzi(LISTA, PODATAK);
+SIGNAL	sortiraj(LISTA*);
+SIGNAL	prazna(LISTA);
+SIGNAL	sadrzi(LISTA, PODATAK);
 
 
