@@ -101,7 +101,7 @@ SIGNAL unisti(LISTA* lista) {
 	return signal;
 }
 
-SIGNAL ubaci_na_pocetak(LISTA* lista, PODATAK podatak) {
+SIGNAL ubaci(LISTA* lista, PODATAK podatak, NACIN nacin) {
 	SIGNAL signal;
 	signal.status = Greska;
 	signal.poruka = poruka.GRESKA.ubaci;
@@ -109,13 +109,50 @@ SIGNAL ubaci_na_pocetak(LISTA* lista, PODATAK podatak) {
 
 	ELEMENT* novi = malloc(sizeof(ELEMENT));
 	if (novi == NULL) return signal;
-
 	novi->prethodni = NULL; //jer je ovo JUL
 	novi->podatak = podatak;
-	novi->sledeci = (*lista)->skladiste;
-	(*lista)->skladiste = (void*)novi;
-	(*lista)->broj_elemenata++;
 
+	ELEMENT* glava = (ELEMENT*)((*lista)->skladiste);
+	if (nacin == Vrednost) {
+		//lista treba da bude sortirana i da se element ubaci tamo gde pripada po vrednosti
+		sortiraj(lista, Rastuce);
+		//signal = sortiraj(lista, Rastuce);
+		//if (signal.status == Greska) return signal;
+		if (glava == NULL)
+			goto pocetak;
+		else {
+			ELEMENT* prethodni = glava;
+			ELEMENT* trenutni = glava->sledeci;
+			while (trenutni != NULL) {
+				if (trenutni->podatak > podatak) break;
+				trenutni = trenutni->sledeci;
+				prethodni = trenutni->sledeci;
+			}
+			//postaviti novi element izmedju 'prethodnog' i 'trenutnog'
+			prethodni->sledeci = novi;
+			novi->sledeci = trenutni;
+		}
+	}
+	if (nacin == Kraj) {
+		novi->sledeci = NULL; // novi ide na kraj
+		if (glava == NULL) {
+			//lista je prazna, dodajemo prvi element, isto je kao da ga dodajemo na pocetak
+			goto pocetak;
+		}
+		else {
+			while (glava->sledeci != NULL) {
+				glava = glava->sledeci;
+			}
+			glava->sledeci = novi;
+		}
+	}
+	if (nacin == Pocetak) {
+	pocetak:
+		novi->sledeci = (*lista)->skladiste;
+		(*lista)->skladiste = (void*)novi;
+	}
+
+	(*lista)->broj_elemenata++;
 	signal.status = Info;
 	signal.poruka = poruka.INFO.ubaci;
 	return signal;
@@ -152,7 +189,7 @@ void prikazi(LISTA lista) {
 	printf("\n\n");
 }
 
-SIGNAL sortiraj(LISTA* lista) {
+SIGNAL sortiraj(LISTA* lista, SMER_SORTIRANJA smer) {
 	SIGNAL signal;
 	signal.status = Greska;
 	signal.poruka = poruka.GRESKA.sortiraj;
@@ -166,7 +203,9 @@ SIGNAL sortiraj(LISTA* lista) {
 	}
 	while (prvi->sledeci != NULL) {
 		while (drugi != NULL) {
-			if (prvi->podatak > drugi->podatak)
+			if (smer == Rastuce && (prvi->podatak > drugi->podatak))
+				zameni(prvi, drugi);
+			if (smer == Opadajuce && (prvi->podatak < drugi->podatak))
 				zameni(prvi, drugi);
 			drugi = drugi->sledeci;
 		}
@@ -214,47 +253,49 @@ int main(void) {
 	LISTA lista;
 	SIGNAL signal;
 	signal = kreiraj(&lista);
-	obrada_statusa(signal.status, signal.poruka, NULL, 0);
+	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
 
 	int a = 5;
-	signal = ubaci_na_pocetak(&lista, a);
-	obrada_statusa(signal.status, signal.poruka, NULL, 0);
+	signal = ubaci(&lista, a, Kraj);
+	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
 
 	int b = 9;
-	signal = ubaci_na_pocetak(&lista, b);
-	obrada_statusa(signal.status, signal.poruka, NULL, 0);
+	signal = ubaci(&lista, b, Pocetak);
+	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
 
+	int c = 7;
+	signal = ubaci(&lista, c, Vrednost);
+	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
 
 	prikazi(lista);
-	signal = sortiraj(&lista);
-	obrada_statusa(signal.status, signal.poruka, NULL, 0);
+	signal = sortiraj(&lista, Opadajuce);
+	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
 	prikazi(lista);
 
 	signal = sadrzi(lista, 5);
+	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
 
 	int izbaceni;
 	signal = izbaci_sa_pocetka(&lista, &izbaceni);
-	obrada_statusa(signal.status, signal.poruka, NULL, 0);
+	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
 	printf("Izbacen: %d\n", izbaceni);
 	prikazi(lista);
 
 	signal = sadrzi(lista, 5);
-	obrada_statusa(signal.status, signal.poruka, NULL, 0);
+	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
 
 	signal = prazna(lista);
-	obrada_statusa(signal.status, signal.poruka, NULL, 0);
-
+	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
 
 	signal = sadrzi(lista, 15);
-	obrada_statusa(signal.status, signal.poruka, NULL, 0);
-
+	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
 
 	signal = unisti(&lista);
-	obrada_statusa(signal.status, signal.poruka, NULL, 0);
+	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
 
 	prikazi(lista);
 	signal = prazna(lista);
-	obrada_statusa(signal.status, signal.poruka, NULL, 0);
+	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
 
-
+	return 0;
 }
