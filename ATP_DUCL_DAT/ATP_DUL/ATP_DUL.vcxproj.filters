@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="duol_dat.c">
+    <ClCompile Include="ducl_dat.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
