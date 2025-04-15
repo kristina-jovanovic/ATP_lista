@@ -131,6 +131,79 @@ SIGNAL ubaci(LISTA* lista, PODATAK podatak, NACIN nacin) {
 
 	ELEMENT novi = { NULL,podatak,NULL };
 
+	if (nacin == Vrednost) {
+		if (broj_bajtova_u_datoteci == 0)
+			goto pocetak; // ako je datoteka prazna, isto je kao da dodajemo prvi element (na pocetak)
+		//lista nije prazna, tj. postoje barem metapodaci
+		fseek(datoteka, 0, SEEK_SET); //postavljamo indikator pozicije na pocetak
+		fread(&broj_bajtova_za_element, sizeof(int), 1, datoteka);
+		fread(&glava, sizeof(int), 1, datoteka);
+		if (glava == -1)
+			goto ispraznjena_lista; //lista je prazna ali postoje metapodaci, opet je isto kao da dodajemo element na pocetak
+
+		// ako se nalazimo u ovom delu koda, znaci da postoje neki elementi u listi
+		// za ovaj nacin unosa elementa, lista treba da bude sortirana i zatim ubacujemo element tamo
+		// gde pripada po vrednosti
+		fflush(datoteka);
+		fclose(datoteka);
+		sortiraj(lista, Rastuce); ////////////////
+		datoteka = fopen((*lista)->skladiste, "r+b");
+		if (datoteka == NULL) {
+			printf("Greska pri otvaranju datoteke!\n");
+			signal.status = Upozorenje;
+			signal.poruka = poruka.UPOZORENJE.ucitavanje;
+			return signal;
+		}
+
+		fseek(datoteka, 0, SEEK_END);
+		int adresa_novog = ftell(datoteka); // ovo je naredna slobodna pozicija (kraj datoteke)
+
+		//ako lista ima samo jedan element
+		if ((*lista)->broj_elemenata == 1) {
+			ELEMENT prvi;
+			fseek(datoteka, glava, SEEK_SET);
+			fread(&prvi, broj_bajtova_za_element, 1, datoteka);
+			if (prvi.podatak >= podatak) {
+				//znaci novi treba na pocetak
+				goto pocetak;
+			}
+			else {
+				//znaci novi treba na kraj
+				goto kraj;
+			}
+		}
+
+		ELEMENT trenutni;
+		int adresa_trenutnog = glava;
+		do {
+			fseek(datoteka, adresa_trenutnog, SEEK_SET);
+			fread(&trenutni, sizeof(ELEMENT), 1, datoteka);
+			if (trenutni.podatak > podatak) {
+				break;
+			}
+			adresa_trenutnog = (int)(intptr_t)trenutni.sledeci;
+		} while (adresa_trenutnog != glava);
+
+		//treba da postavimo novi element pre trenutnog
+		int adresa_prethodnog = (int)(intptr_t)trenutni.prethodni;
+		ELEMENT prethodni;
+		fseek(datoteka, adresa_prethodnog, SEEK_SET);
+		fread(&prethodni, broj_bajtova_za_element, 1, datoteka);
+
+		//azuriranje veza
+		prethodni.sledeci = (void*)(intptr_t)adresa_novog;
+		trenutni.prethodni = (void*)(intptr_t)adresa_novog;
+		novi.prethodni = (void*)(intptr_t)adresa_prethodnog;
+		novi.sledeci = (void*)(intptr_t)adresa_trenutnog;
+
+		//upisivanje novog elementa i azuriranje trenutnog i prethodnog
+		fseek(datoteka, adresa_prethodnog, SEEK_SET);
+		fwrite(&prethodni, broj_bajtova_za_element, 1, datoteka);
+		fseek(datoteka, adresa_novog, SEEK_SET);
+		fwrite(&novi, broj_bajtova_za_element, 1, datoteka);
+		fseek(datoteka, adresa_trenutnog, SEEK_SET);
+		fwrite(&trenutni, broj_bajtova_za_element, 1, datoteka);
+	}
 	if (nacin == Kraj) {
 		if (broj_bajtova_u_datoteci == 0)
 			goto pocetak; // ako je datoteka prazna, isto je kao da dodajemo prvi element (na pocetak)
@@ -138,6 +211,7 @@ SIGNAL ubaci(LISTA* lista, PODATAK podatak, NACIN nacin) {
 		fseek(datoteka, 0, SEEK_SET); //postavljamo indikator pozicije na pocetak
 		fread(&broj_bajtova_za_element, sizeof(int), 1, datoteka);
 		fread(&glava, sizeof(int), 1, datoteka);
+	kraj:
 		if (glava == -1)
 			goto ispraznjena_lista; //lista je prazna ali postoje metapodaci, opet je isto kao da dodajemo element na pocetak
 
@@ -170,64 +244,6 @@ SIGNAL ubaci(LISTA* lista, PODATAK podatak, NACIN nacin) {
 
 		//glava ostaje ista tako da ne moramo da menjamo to u metapodacima
 
-	}
-	if (nacin == Vrednost) {
-		if (broj_bajtova_u_datoteci == 0)
-			goto pocetak; // ako je datoteka prazna, isto je kao da dodajemo prvi element (na pocetak)
-		//lista nije prazna, tj. postoje barem metapodaci
-		fseek(datoteka, 0, SEEK_SET); //postavljamo indikator pozicije na pocetak
-		fread(&broj_bajtova_za_element, sizeof(int), 1, datoteka);
-		fread(&glava, sizeof(int), 1, datoteka);
-		if (glava == -1)
-			goto ispraznjena_lista; //lista je prazna ali postoje metapodaci, opet je isto kao da dodajemo element na pocetak
-
-		// ako se nalazimo u ovom delu koda, znaci da postoje neki elementi u listi
-		// za ovaj nacin unosa elementa, lista treba da bude sortirana i zatim ubacujemo element tamo
-		// gde pripada po vrednosti
-		fflush(datoteka);
-		fclose(datoteka);
-		sortiraj(lista, Rastuce); ////////////////
-		datoteka = fopen((*lista)->skladiste, "r+b");
-		if (datoteka == NULL) {
-			printf("Greska pri otvaranju datoteke!\n");
-			signal.status = Upozorenje;
-			signal.poruka = poruka.UPOZORENJE.ucitavanje;
-			return signal;
-		}
-
-		fseek(datoteka, 0, SEEK_END);
-		int adresa_novog = ftell(datoteka); // ovo je naredna slobodna pozicija (kraj datoteke)
-
-		ELEMENT trenutni;
-		int adresa_trenutnog = glava;
-		do {
-			fseek(datoteka, adresa_trenutnog, SEEK_SET);
-			fread(&trenutni, sizeof(ELEMENT), 1, datoteka);
-			if (trenutni.podatak > podatak) {
-				break;
-			}
-			adresa_trenutnog = (int)(intptr_t)trenutni.sledeci;
-		} while (adresa_trenutnog != glava);
-
-		//treba da postavimo novi element pre trenutnog
-		int adresa_prethodnog = (int)(intptr_t)trenutni.prethodni;
-		ELEMENT prethodni;
-		fseek(datoteka, adresa_prethodnog, SEEK_SET);
-		fread(&prethodni, broj_bajtova_za_element, 1, datoteka);
-
-		//azuriranje veza
-		prethodni.sledeci = (void*)(intptr_t)adresa_novog;
-		trenutni.prethodni = (void*)(intptr_t)adresa_novog;
-		novi.prethodni = (void*)(intptr_t)adresa_prethodnog;
-		novi.sledeci = (void*)(intptr_t)adresa_trenutnog;
-
-		//upisivanje novog elementa i azuriranje trenutnog i prethodnog
-		fseek(datoteka, adresa_prethodnog, SEEK_SET);
-		fwrite(&prethodni, broj_bajtova_za_element, 1, datoteka);
-		fseek(datoteka, adresa_novog, SEEK_SET);
-		fwrite(&novi, broj_bajtova_za_element, 1, datoteka);
-		fseek(datoteka, adresa_trenutnog, SEEK_SET);
-		fwrite(&trenutni, broj_bajtova_za_element, 1, datoteka);
 	}
 	if (nacin == Pocetak) {
 	pocetak:
@@ -371,6 +387,7 @@ SIGNAL izbaci_sa_pocetka(LISTA* lista, PODATAK* podatak) {
 		fseek(datoteka, adresa_drugog, SEEK_SET);
 		fread(&drugi, broj_bajtova_za_element, 1, datoteka);
 		//treba da pokazuje sam na sebe kada glavu izbacimo, a on ce se pomeriti na mesto glave
+		//problem kad je glava na kraju
 		drugi.sledeci = (void*)(intptr_t)glava;
 		drugi.prethodni = (void*)(intptr_t)glava;
 		fseek(datoteka, glava, SEEK_SET);
@@ -460,6 +477,111 @@ kraj_false: //lista je prazna, nema sta da se izbaci
 	return signal;
 }
 
+SIGNAL izbaci_sa_kraja1(LISTA* lista, PODATAK* podatak) {
+	SIGNAL signal;
+	signal.status = Greska;
+	signal.poruka = poruka.GRESKA.izbaci;
+	if (*lista == NULL || (*lista)->skladiste == NULL || (*lista)->skladiste == ErrorList
+		|| (*lista)->broj_elemenata == 0) return signal;
+
+	FILE* datoteka = fopen((*lista)->skladiste, "r+b");
+	if (datoteka == NULL) {
+		printf("Greska pri otvaranju datoteke!\n");
+		signal.status = Upozorenje;
+		signal.poruka = poruka.UPOZORENJE.ucitavanje;
+		return signal;
+	}
+
+	fseek(datoteka, 0, SEEK_END);
+	int broj_bajtova_u_datoteci = ftell(datoteka);
+
+	if (broj_bajtova_u_datoteci == 0) goto kraj_false; // lista je prazna, ne sadrzi cak ni metapodatke, nema sta da se izbaci
+
+	int broj_bajtova_za_element;
+	int glava;
+	fseek(datoteka, 0, SEEK_SET);
+	fread(&broj_bajtova_za_element, sizeof(int), 1, datoteka);
+	fread(&glava, sizeof(int), 1, datoteka);
+
+	if (glava == -1) goto kraj_false; //lista je prazna
+
+	/////////////
+	// izbacujemo sa kraja (fizicki poslednji)
+	ELEMENT prvi;
+	fseek(datoteka, glava, SEEK_SET);
+	fread(&prvi, broj_bajtova_za_element, 1, datoteka);
+
+	if ((*lista)->broj_elemenata == 1) {
+		//brisemo jedini element koji postoji
+		glava = -1;
+		fseek(datoteka, sizeof(int), SEEK_SET);
+		fwrite(&glava, broj_bajtova_za_element, 1, datoteka);
+		goto kraj_true;
+	}
+	else {
+		ELEMENT poslednji;
+		int adresa_poslednjeg = (int)(intptr_t)prvi.prethodni;
+		fseek(datoteka, adresa_poslednjeg, SEEK_SET);
+		fread(&poslednji, broj_bajtova_za_element, 1, datoteka);
+
+		int adresa_fizicki_posledjeg = broj_bajtova_u_datoteci - broj_bajtova_za_element;
+		ELEMENT fizicki_poslednji;
+		fseek(datoteka, adresa_fizicki_posledjeg, SEEK_SET);
+		fread(&fizicki_poslednji, broj_bajtova_za_element, 1, datoteka);
+
+		if ((*lista)->broj_elemenata == 2) {
+			if (glava == adresa_fizicki_posledjeg) {
+				//glava je na poslednjem mestu
+				glava = (int)(intptr_t)fizicki_poslednji.sledeci;
+				//prvi ce da pokazuje sam na sebe jer ostaje jedini u listi
+				prvi.sledeci = (void*)(intptr_t)glava;
+				prvi.prethodni = (void*)(intptr_t)glava;
+
+				fseek(datoteka, sizeof(int), SEEK_SET);
+				fwrite(&glava, broj_bajtova_za_element, 1, datoteka);
+				fseek(datoteka, glava, SEEK_SET);
+				fwrite(&prvi, broj_bajtova_za_element, 1, datoteka);
+
+				goto kraj_true;
+			}
+			if (adresa_poslednjeg == adresa_fizicki_posledjeg) {
+				ELEMENT pre_poslednjeg;
+				fseek(datoteka, (int)(intptr_t)poslednji.prethodni, SEEK_SET);
+				fread(&pre_poslednjeg, broj_bajtova_za_element, 1, datoteka);
+
+				pre_poslednjeg.sledeci = poslednji.sledeci; //tj prvi
+				prvi.prethodni = poslednji.prethodni;
+
+				//azuriranje
+				fseek(datoteka, (int)(intptr_t)poslednji.prethodni, SEEK_SET);
+				fwrite(&pre_poslednjeg, broj_bajtova_za_element, 1, datoteka);
+				fseek(datoteka, glava, SEEK_SET);
+				fwrite(&prvi, broj_bajtova_za_element, 1, datoteka);
+
+				goto kraj_true;
+			}
+		}
+		else {
+		}
+
+	}
+
+	////////////
+
+kraj_true:
+	skrati_datoteku(datoteka, broj_bajtova_za_element);
+	fclose(datoteka);
+	(*lista)->broj_elemenata--;
+	signal.status = Info;
+	signal.poruka = poruka.INFO.izbaci;
+	return signal;
+kraj_false:
+	fclose(datoteka);
+	signal.status = Upozorenje;
+	signal.poruka = poruka.UPOZORENJE.izbaci;
+	return signal;
+}
+
 void prikazi(LISTA lista) {
 	printf("\n///// Lista: ");
 	if ((lista == NULL) || (lista->skladiste == NULL) || (lista->skladiste == ErrorList)) {
@@ -505,8 +627,14 @@ SIGNAL sortiraj(LISTA* lista, SMER_SORTIRANJA smer) {
 	SIGNAL signal;
 	signal.status = Greska;
 	signal.poruka = poruka.GRESKA.sortiraj;
-	if (*lista == NULL || (*lista)->skladiste == NULL || (*lista)->skladiste == ErrorList
-		|| (*lista)->broj_elemenata == 0) return signal;
+	if (*lista == NULL || (*lista)->skladiste == NULL || (*lista)->skladiste == ErrorList)
+		return signal;
+	if ((*lista)->broj_elemenata == 0) {
+		//nema elemenata u listi
+		signal.status = Upozorenje;
+		signal.poruka = poruka.UPOZORENJE.sortiraj;
+		return signal;
+	}
 
 	FILE* datoteka = fopen((*lista)->skladiste, "r+b");
 	if (datoteka == NULL) {
@@ -578,8 +706,8 @@ SIGNAL prazna(LISTA lista) {
 	if (lista == NULL || lista->skladiste == NULL || lista->skladiste == ErrorList
 		|| lista->broj_elemenata == 0)
 		signal.poruka = poruka.INFO.lista_prazna;
-
-	signal.poruka = poruka.INFO.lista_nije_prazna;
+	else
+		signal.poruka = poruka.INFO.lista_nije_prazna;
 	return signal;
 }
 
@@ -650,22 +778,26 @@ int main() {
 	obrada_statusa(signal.status, signal.poruka, lista->skladiste, __LINE__);
 
 	int a = 7;
-	signal = ubaci(&lista, a, Vrednost);
+	signal = ubaci(&lista, a, Kraj);
 	obrada_statusa(signal.status, signal.poruka, lista->skladiste, __LINE__);
 
 	int b = 2;
-	signal = ubaci(&lista, b, Pocetak);
+	signal = ubaci(&lista, b, Kraj);
 	obrada_statusa(signal.status, signal.poruka, lista->skladiste, __LINE__);
 
-	int c = 5;
+	/*int c = 5;
 	signal = ubaci(&lista, c, Vrednost);
-	obrada_statusa(signal.status, signal.poruka, lista->skladiste, __LINE__);
+	obrada_statusa(signal.status, signal.poruka, lista->skladiste, __LINE__);*/
 
 	prikazi(lista);
 
 	int izbaceni;
-	signal = izbaci_sa_pocetka(&lista, &izbaceni);
+	signal = izbaci_sa_kraja1(&lista, &izbaceni);
 	obrada_statusa(signal.status, signal.poruka, lista->skladiste, __LINE__);
+
+	/*int izbaceni;
+	signal = izbaci_sa_pocetka(&lista, &izbaceni);
+	obrada_statusa(signal.status, signal.poruka, lista->skladiste, __LINE__);*/
 
 	//izbaci_sa_pocetka(&lista, &izbaceni) ? printf("Podatak %d je uspesno izbacen\n", izbaceni) : printf("Podatak nije uspesno izbacen\n");
 	//prikazi(lista);
