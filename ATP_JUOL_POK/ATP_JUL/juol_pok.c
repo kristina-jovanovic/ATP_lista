@@ -93,7 +93,7 @@ SIGNAL unisti(LISTA* lista) {
 		(*lista)->skladiste = ((ELEMENT*)((*lista)->skladiste))->sledeci;
 		(*lista)->broj_elemenata--;
 		trenutni->sledeci = NULL;
-		free(trenutni);
+		//free(trenutni);
 		trenutni = (*lista)->skladiste;
 	}
 	signal.status = Info;
@@ -175,10 +175,89 @@ SIGNAL izbaci_sa_pocetka(LISTA* lista, PODATAK* podatak) {
 	return signal;
 }
 
+SIGNAL izbaci(LISTA* lista, PODATAK* podatak, NACIN nacin) {
+	SIGNAL signal;
+	signal.status = Greska;
+	signal.poruka = poruka.GRESKA.izbaci;
+	if (*lista == NULL || (*lista)->skladiste == NULL || *lista == ErrorList) return signal;
+	if ((*lista)->broj_elemenata == 0) {
+		signal.status = Upozorenje;
+		signal.poruka = poruka.UPOZORENJE.izbaci;
+		return signal;
+	}
+
+	ELEMENT* pom = (*lista)->skladiste;
+
+	if (nacin == Vrednost) {
+		//brisemo element sa vrednoscu podatka prosledjenog parametrom
+		if (((ELEMENT*)((*lista)->skladiste))->podatak == *podatak)
+			goto pocetak;
+		else {
+			ELEMENT* prethodni = pom;
+			pom = pom->sledeci;
+			while (pom != NULL) {
+				if (pom->podatak == *podatak)
+					break;
+				pom = pom->sledeci;
+				prethodni = prethodni->sledeci;
+			}
+			if (pom == NULL) {
+				//znaci nismo pronasli taj element
+				goto kraj_false;
+			}
+			else {
+				prethodni->sledeci = pom->sledeci; //znaci brisemo pom
+				pom = NULL;
+				free(pom);
+				goto kraj_true;
+			}
+		}
+	}
+	if (nacin == Kraj) {
+		if ((*lista)->broj_elemenata == 1) {
+			*podatak = ((ELEMENT*)((*lista)->skladiste))->podatak;
+			goto pocetak; // kao da brisemo sa pocetka ako imamo samo 1 element
+		}
+		else {
+			while (((ELEMENT*)(pom->sledeci))->sledeci != NULL) {
+				//stajemo na pretposlednjem elementu
+				pom = pom->sledeci;
+			}
+			*podatak = ((ELEMENT*)pom->sledeci)->podatak;
+			pom->sledeci = NULL; // brisemo vezu ka poslednjem cvoru sa pretposlednjeg
+			free(pom->sledeci);
+			goto kraj_true;
+		}
+	}
+	if (nacin == Pocetak) {
+		*podatak = ((ELEMENT*)((*lista)->skladiste))->podatak;
+	pocetak:
+		(*lista)->skladiste = ((ELEMENT*)((*lista)->skladiste))->sledeci;
+		free(pom);
+		pom = NULL;
+		goto kraj_true;
+	}
+
+kraj_true:
+	(*lista)->broj_elemenata--;
+	if ((*lista)->broj_elemenata == 0) (*lista)->skladiste == NULL;
+	signal.status = Info;
+	signal.poruka = poruka.INFO.izbaci;
+	return signal;
+kraj_false:
+	signal.status = Upozorenje;
+	signal.poruka = poruka.UPOZORENJE.izbaci;
+	return signal;
+}
+
 void prikazi(LISTA lista) {
 	printf("\n///// Lista: ");
 	if ((lista == NULL) || (lista->skladiste == NULL) || (lista->skladiste == ErrorList)) {
 		(lista == NULL || lista->skladiste == NULL) ? printf("< Null > \n") : printf("< ErrorList > \n");
+		return;
+	}
+	if (lista->broj_elemenata == 0) {
+		printf("< Prazna >\n");
 		return;
 	}
 	ELEMENT* trenutni = lista->skladiste; // mora ovako, ako se ide direktno preko lista->skladiste, promene tj. pomeranja ostaju vidljiva, tj. na kraju ce lista->skladiste biti NULL
@@ -221,7 +300,10 @@ SIGNAL sortiraj(LISTA* lista, SMER_SORTIRANJA smer) {
 SIGNAL prazna(LISTA lista) {
 	SIGNAL signal;
 	signal.status = Info;
-	(lista == NULL || lista->skladiste == NULL) ? (signal.poruka = poruka.INFO.lista_prazna) : (signal.poruka = poruka.INFO.lista_nije_prazna);
+	if (lista == NULL || lista->skladiste == NULL || lista->broj_elemenata == 0)
+		signal.poruka = poruka.INFO.lista_prazna;
+	else
+		signal.poruka = poruka.INFO.lista_nije_prazna;
 	return signal;
 }
 
@@ -229,7 +311,8 @@ SIGNAL sadrzi(LISTA lista, PODATAK trazeni_podatak) {
 	SIGNAL signal;
 	signal.status = Info;
 	signal.poruka = poruka.INFO.podatak_ne_postoji;
-	if (lista == NULL || lista->skladiste == NULL || lista->skladiste == ErrorList) return signal;
+	if (lista == NULL || lista->skladiste == NULL || lista->skladiste == ErrorList
+		|| lista->broj_elemenata == 0) return signal;
 	ELEMENT* trenutni = lista->skladiste;
 	while (trenutni != NULL) {
 		if (trazeni_podatak == trenutni->podatak) break;
@@ -275,10 +358,25 @@ int main(void) {
 	signal = sadrzi(lista, 5);
 	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
 
-	int izbaceni;
-	signal = izbaci_sa_pocetka(&lista, &izbaceni);
+	int izbaceni = 7;
+	signal = izbaci(&lista, &izbaceni, Vrednost);
 	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
 	printf("Izbacen: %d\n", izbaceni);
+
+	/*int izbaceni;
+	signal = izbaci(&lista, &izbaceni, Kraj);
+	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
+	printf("Izbacen: %d\n", izbaceni);
+	signal = izbaci(&lista, &izbaceni, Kraj);
+	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
+	printf("Izbacen: %d\n", izbaceni);
+	signal = izbaci(&lista, &izbaceni, Kraj);
+	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
+	printf("Izbacen: %d\n", izbaceni);
+	signal = izbaci(&lista, &izbaceni, Kraj);
+	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
+	printf("Izbacen: %d\n", izbaceni);*/
+
 	prikazi(lista);
 
 	signal = sadrzi(lista, 5);
