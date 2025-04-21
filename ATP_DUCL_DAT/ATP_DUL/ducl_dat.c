@@ -55,6 +55,8 @@ void obrada_statusa(STATUS status, STRING poruka, STRING naziv_dat, int linija_k
 
 //specifikacija pomocnih funkcija
 void skrati_datoteku(FILE*, int);
+ELEMENT dohvati_element(LISTA lista, int adresa_glave, int indeks);
+
 
 SIGNAL kreiraj(LISTA* lista) {
 	SIGNAL signal;
@@ -711,16 +713,16 @@ SIGNAL prazna(LISTA lista) {
 	return signal;
 }
 
-SIGNAL sadrzi(LISTA lista, PODATAK podatak) {
+SIGNAL sadrzi(LISTA* lista, PODATAK podatak, VRSTA_PRETRAGE vrsta) {
 	SIGNAL signal;
 	signal.status = Info;
-	if (lista == NULL || lista->skladiste == NULL || lista->skladiste == ErrorList
-		|| lista->broj_elemenata == 0) {
+	if (lista == NULL || (*lista)->skladiste == NULL || (*lista)->skladiste == ErrorList
+		|| (*lista)->broj_elemenata == 0) {
 		signal.poruka = poruka.INFO.podatak_ne_postoji;
 		return signal;
 	}
 
-	FILE* datoteka = fopen(lista->skladiste, "rb");
+	FILE* datoteka = fopen((*lista)->skladiste, "rb");
 	if (datoteka == NULL) {
 		printf("Greska pri otvaranju datoteke!\n");
 		signal.status = Upozorenje;
@@ -735,20 +737,52 @@ SIGNAL sadrzi(LISTA lista, PODATAK podatak) {
 		signal.poruka = poruka.INFO.podatak_ne_postoji;
 		return signal;
 	}
-	ELEMENT trenutni;
-	adresa_trenutnog = adresa_glave;
-	do {
-		fseek(datoteka, adresa_trenutnog, SEEK_SET);
-		fread(&trenutni, sizeof(ELEMENT), 1, datoteka);
-		if (trenutni.podatak == podatak) {
-			fclose(datoteka);
-			signal.poruka = poruka.INFO.podatak_postoji;
-			return signal;
-		}
-		adresa_trenutnog = (int)(intptr_t)trenutni.sledeci;
-	} while (adresa_trenutnog != adresa_glave);
+	if (vrsta == Iterativno) {
+		ELEMENT trenutni;
+		adresa_trenutnog = adresa_glave;
+		do {
+			fseek(datoteka, adresa_trenutnog, SEEK_SET);
+			fread(&trenutni, sizeof(ELEMENT), 1, datoteka);
+			if (trenutni.podatak == podatak) {
+				fclose(datoteka);
+				signal.poruka = poruka.INFO.podatak_postoji;
+				return signal;
+			}
+			adresa_trenutnog = (int)(intptr_t)trenutni.sledeci;
+		} while (adresa_trenutnog != adresa_glave);
 
-	fclose(datoteka);
+		fclose(datoteka);
+		signal.poruka = poruka.INFO.podatak_ne_postoji;
+		return signal;
+	}
+	else {
+		// binarno pretrazivanje, lista mora biti sortirana
+		sortiraj(lista, Rastuce);
+
+		int levo = 0;
+		int desno = (*lista)->broj_elemenata - 1;
+
+		while (levo <= desno) {
+			int sredina = levo + (desno - levo) / 2;
+
+			fclose(datoteka);
+			ELEMENT trenutni = dohvati_element(*lista, adresa_glave, sredina);
+			if (trenutni.prethodni == NULL || trenutni.sledeci == NULL) {
+				//znaci da je bila greska pri otvaranju datoteke
+				signal.poruka = poruka.UPOZORENJE.ucitavanje;
+				return signal;
+			}
+			if (trenutni.podatak == podatak) {
+				signal.poruka = poruka.INFO.podatak_postoji;
+				return signal;
+			}
+			if (podatak < trenutni.podatak)
+				desno = sredina - 1;
+			else
+				levo = sredina + 1;
+		}
+
+	}
 	signal.poruka = poruka.INFO.podatak_ne_postoji;
 	return signal;
 }
@@ -761,6 +795,28 @@ void skrati_datoteku(FILE* datoteka, int broj_bajtova_za_skracivanje) {
 	fseek(datoteka, 0, SEEK_END);
 	long nova_velicina = ftell(datoteka) - broj_bajtova_za_skracivanje;
 	_chsize(file_descriptor, nova_velicina); // skracivanje datoteke
+}
+
+ELEMENT dohvati_element(LISTA lista, int adresa_glave, int indeks) {
+	ELEMENT element = { NULL,-1,NULL };
+
+	FILE* datoteka = fopen(lista->skladiste, "rb");
+	if (datoteka == NULL) {
+		printf("Greska pri otvaranju datoteke!\n");
+		return element;
+	}
+
+	int adresa_trenutnog = adresa_glave;
+	int i = 0;
+	while (i <= indeks) {
+		fseek(datoteka, adresa_trenutnog, SEEK_SET);
+		fread(&element, sizeof(ELEMENT), 1, datoteka);
+		adresa_trenutnog = (int)(intptr_t)element.sledeci;
+		i++;
+	}
+
+	fclose(datoteka);
+	return element;
 }
 
 //main
@@ -792,8 +848,8 @@ int main() {
 	prikazi(lista);
 
 	int izbaceni;
-	signal = izbaci_sa_kraja1(&lista, &izbaceni);
-	obrada_statusa(signal.status, signal.poruka, lista->skladiste, __LINE__);
+	//signal = izbaci_sa_kraja1(&lista, &izbaceni);
+	//obrada_statusa(signal.status, signal.poruka, lista->skladiste, __LINE__);
 
 	/*int izbaceni;
 	signal = izbaci_sa_pocetka(&lista, &izbaceni);
@@ -806,7 +862,7 @@ int main() {
 	signal = prazna(lista);
 	obrada_statusa(signal.status, signal.poruka, lista->skladiste, __LINE__);
 
-	signal = sadrzi(lista, 4);
+	signal = sadrzi(&lista, 7, Binarno);
 	obrada_statusa(signal.status, signal.poruka, lista->skladiste, __LINE__);
 
 	signal = sortiraj(&lista, Opadajuce);
