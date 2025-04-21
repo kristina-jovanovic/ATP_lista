@@ -129,6 +129,80 @@ SIGNAL ubaci_na_pocetak(LISTA* lista, PODATAK podatak) {
 	return signal;
 }
 
+SIGNAL ubaci(LISTA* lista, PODATAK podatak, NACIN nacin) {
+	SIGNAL signal;
+	signal.status = Greska;
+	signal.poruka = poruka.GRESKA.ubaci;
+	if (*lista == NULL || (*lista)->skladiste == NULL || (*lista)->broj_elemenata >= (*lista)->kapacitet)
+		return signal;
+	int(*matrica)[3] = (int(*)[3])(*lista)->skladiste;
+	int novi_indeks;
+
+	if (nacin == Vrednost) {
+		//lista mora da bude sortirana
+		sortiraj(lista, Rastuce);
+		//trazimo gde prosledjeni podatak pripada
+		int trenutni_red = 0; //uzimamo ceo prvi red
+		do {
+			if (matrica[trenutni_red][1] > podatak) { // drugi element u redu je podatak
+				novi_indeks = trenutni_red;
+				break;
+			}
+			trenutni_red = matrica[trenutni_red][2]; // pomeramo se na sledeci
+		} while (trenutni_red != PRAZNO);
+		if (trenutni_red == PRAZNO) {
+			goto kraj;
+		}
+		else {
+			//treba da se rotira udesno od novog_indeksa do kraja, da se oslobodi mesto
+			SLEDECI(matrica, novi_indeks - 1) = novi_indeks;
+			PRETHODNI(matrica, novi_indeks + 1) = novi_indeks;
+
+			PRETHODNI(matrica, novi_indeks) = novi_indeks -1;
+			SLEDECI(matrica, novi_indeks) = novi_indeks + 1;
+			PODATAK_MAT(matrica, novi_indeks) = podatak;
+		}
+	}
+	if (nacin == Kraj) {
+	kraj:
+		novi_indeks = (*lista)->broj_elemenata;
+		if (novi_indeks == 0) {
+			goto pocetak;
+		}
+		PRETHODNI(matrica, novi_indeks) = novi_indeks - 1;
+		PODATAK_MAT(matrica, novi_indeks) = podatak;
+		SLEDECI(matrica, novi_indeks) = PRAZNO;
+		SLEDECI(matrica, novi_indeks - 1) = novi_indeks;
+		goto kraj_true;
+	}
+	if (nacin == Pocetak) {
+		novi_indeks = 0;
+		if ((*lista)->broj_elemenata > 0) {
+			//lista nije prazna
+			rotiraj_udesno(matrica, (*lista)->broj_elemenata);
+			PRETHODNI(matrica, novi_indeks) = PRAZNO;
+			PODATAK_MAT(matrica, novi_indeks) = podatak;
+			int stara_glava_indeks = 1; //prvi element koji je pomeren udesno
+			PRETHODNI(matrica, stara_glava_indeks) = novi_indeks;
+			SLEDECI(matrica, novi_indeks) = stara_glava_indeks;
+		}
+		else {
+		pocetak:
+			//lista je prazna, dodajemo prvi element
+			PRETHODNI(matrica, novi_indeks) = PRAZNO;
+			PODATAK_MAT(matrica, novi_indeks) = podatak;
+			SLEDECI(matrica, novi_indeks) = PRAZNO;
+		}
+		goto kraj_true;
+	}
+
+kraj_true:
+	(*lista)->broj_elemenata++;
+	signal.status = Info;
+	signal.poruka = poruka.INFO.ubaci;
+	return signal;
+}
+
 SIGNAL izbaci_sa_pocetka(LISTA* lista, PODATAK* podatak) {
 	SIGNAL signal;
 	signal.status = Greska;
@@ -171,7 +245,7 @@ void prikazi(LISTA lista) {
 	printf("\n");
 }
 
-SIGNAL sortiraj(LISTA* lista) {
+SIGNAL sortiraj(LISTA* lista, SMER_SORTIRANJA smer) {
 	SIGNAL signal;
 	signal.status = Greska;
 	signal.poruka = poruka.GRESKA.sortiraj;
@@ -181,7 +255,8 @@ SIGNAL sortiraj(LISTA* lista) {
 
 	for (int i = 0;i < ((*lista)->broj_elemenata - 1);i++) {
 		for (int j = i + 1;j < (*lista)->broj_elemenata;j++) {
-			if (matrica[i][1] < matrica[j][1]) {
+			if ((smer == Opadajuce && matrica[i][1] < matrica[j][1]) ||
+				(smer == Rastuce && matrica[i][1] > matrica[j][1])) {
 				int pom = matrica[i][1];
 				matrica[i][1] = matrica[j][1];
 				matrica[j][1] = pom;
@@ -225,7 +300,7 @@ SIGNAL sadrzi(LISTA lista, PODATAK podatak) {
 }
 
 //implementacija pomocnih funkcija
-void rotiraj_udesno(int mat[][3], int n) {
+void rotiraj_udesno(int mat[][3], int n, int pocetni_indeks) {
 	//oslobadja se mesto za unos novog elementa na pocetak
 	for (int i = n;i > 0;i--) {
 		mat[i][0] = mat[i - 1][0];
@@ -260,16 +335,16 @@ int main() {
 	signal = sadrzi(lista, 5);
 	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
 
-	signal = ubaci_na_pocetak(&lista, 5);
+	signal = ubaci(&lista, 5, Kraj);
 	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
 
-	signal = ubaci_na_pocetak(&lista, 7);
+	signal = ubaci(&lista, 7, Kraj);
 	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
 
-	signal = ubaci_na_pocetak(&lista, 1);
+	signal = ubaci(&lista, 1, Kraj);
 	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
 
-	signal = ubaci_na_pocetak(&lista, 9);
+	signal = ubaci(&lista, 9, Kraj);
 	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
 
 	prikazi(lista);
@@ -288,7 +363,7 @@ int main() {
 	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
 	prikazi(lista);
 
-	signal = sortiraj(&lista);
+	signal = sortiraj(&lista, Opadajuce);
 	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
 	prikazi(lista);
 
