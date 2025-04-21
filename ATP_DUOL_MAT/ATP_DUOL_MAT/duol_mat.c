@@ -158,7 +158,7 @@ SIGNAL ubaci(LISTA* lista, PODATAK podatak, NACIN nacin) {
 			SLEDECI(matrica, novi_indeks - 1) = novi_indeks;
 			PRETHODNI(matrica, novi_indeks + 1) = novi_indeks;
 
-			PRETHODNI(matrica, novi_indeks) = novi_indeks -1;
+			PRETHODNI(matrica, novi_indeks) = novi_indeks - 1;
 			SLEDECI(matrica, novi_indeks) = novi_indeks + 1;
 			PODATAK_MAT(matrica, novi_indeks) = podatak;
 		}
@@ -281,21 +281,51 @@ SIGNAL prazna(LISTA lista) {
 	return signal;
 }
 
-SIGNAL sadrzi(LISTA lista, PODATAK podatak) {
+SIGNAL sadrzi(LISTA* lista, PODATAK podatak, VRSTA_PRETRAGE vrsta) {
 	SIGNAL signal;
 	signal.status = Info;
 	signal.poruka = poruka.INFO.podatak_ne_postoji;
-	if (lista == NULL || lista->skladiste == NULL || lista->broj_elemenata == 0)
+	if (lista == NULL || (*lista)->skladiste == NULL || (*lista)->broj_elemenata == 0)
 		return signal;
-	int(*matrica)[3] = (int(*)[3])lista->skladiste;
-	int trenutni_red = 0; //uzimamo ceo prvi red
-	do {
-		if (matrica[trenutni_red][1] == podatak) {
-			signal.poruka = poruka.INFO.podatak_postoji;
-			return signal;
+	int(*matrica)[3] = (int(*)[3])(*lista)->skladiste;
+	if (vrsta == Iterativno) {
+		int trenutni_red = 0; //uzimamo ceo prvi red
+		do {
+			if (matrica[trenutni_red][1] == podatak) {
+				signal.poruka = poruka.INFO.podatak_postoji;
+				return signal;
+			}
+			trenutni_red = matrica[trenutni_red][2]; // pomeramo se na sledeci
+		} while (trenutni_red != PRAZNO);
+	}
+	else {
+		//binarno pretrazivanje, lista mora biti sortirana
+		sortiraj(lista, Rastuce);
+
+		int levo = 0;
+		int desno = (*lista)->broj_elemenata - 1;
+
+		while (levo <= desno) {
+			int sredina = levo + (desno - levo) / 2;
+
+			int pod = PODATAK_MAT(matrica, sredina);
+			if (pod == PRAZNO) {
+				signal.poruka = poruka.INFO.podatak_ne_postoji;
+				break;
+			}
+			if (pod == podatak) {
+				signal.poruka = poruka.INFO.podatak_postoji;
+				break;
+			}
+			if (podatak < pod)
+				desno = sredina - 1;
+			else
+				levo = sredina + 1;
 		}
-		trenutni_red = matrica[trenutni_red][2]; // pomeramo se na sledeci
-	} while (trenutni_red != PRAZNO);
+		if (levo > desno) {
+			signal.poruka = poruka.INFO.podatak_ne_postoji; // ako smo dosli do kraja a nismo ga nasli
+		}
+	}
 	return signal;
 }
 
@@ -332,7 +362,7 @@ int main() {
 	signal = prazna(lista);
 	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
 
-	signal = sadrzi(lista, 5);
+	signal = sadrzi(&lista, 5,Binarno);
 	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
 
 	signal = ubaci(&lista, 5, Kraj);
@@ -351,10 +381,10 @@ int main() {
 	signal = prazna(lista);
 	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
 
-	signal = sadrzi(lista, 5);
+	signal = sadrzi(&lista, 5, Binarno);
 	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
 
-	signal = sadrzi(lista, 2);
+	signal = sadrzi(&lista, 2, Binarno);
 	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
 
 

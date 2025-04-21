@@ -1,18 +1,8 @@
 ﻿  duol_mat.c
 C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(112,35): warning C4267: 'function': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(132,37): warning C4028: formal parameter 2 different from declaration
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(145,25): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(150,37): warning C4047: '=': 'int' differs in levels of indirection from 'int *'
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(159,36): warning C4267: 'function': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(161,38): warning C4047: '=': 'int' differs in levels of indirection from 'int *'
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(170,38): warning C4047: '=': 'int' differs in levels of indirection from 'int *'
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(199,33): warning C4267: 'function': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(315,25): warning C4047: 'function': 'int *' differs in levels of indirection from 'int'
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(315,25): warning C4024: 'ubaci': different types for formal and actual parameter 2
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(318,25): warning C4047: 'function': 'int *' differs in levels of indirection from 'int'
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(318,25): warning C4024: 'ubaci': different types for formal and actual parameter 2
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(321,25): warning C4047: 'function': 'int *' differs in levels of indirection from 'int'
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(321,25): warning C4024: 'ubaci': different types for formal and actual parameter 2
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(324,25): warning C4047: 'function': 'int *' differs in levels of indirection from 'int'
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(324,25): warning C4024: 'ubaci': different types for formal and actual parameter 2
+C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(168,25): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(182,36): warning C4267: 'function': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(222,33): warning C4267: 'function': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(306,40): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(333,6): warning C4029: declared formal parameter list different from definition
   ATP_DUOL_MAT.vcxproj -> C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\x64\Debug\ATP_DUOL_MAT.exe
