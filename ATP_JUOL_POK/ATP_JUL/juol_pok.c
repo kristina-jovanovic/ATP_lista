@@ -6,6 +6,7 @@
 
 // pomocne funkcije
 static void zameni(ELEMENT*, ELEMENT*);
+ELEMENT* dohvati_element(ELEMENT*, int);
 
 /////////
 //status
@@ -282,9 +283,9 @@ SIGNAL sortiraj(LISTA* lista, SMER_SORTIRANJA smer) {
 	}
 	while (prvi->sledeci != NULL) {
 		while (drugi != NULL) {
-			if (smer == Rastuce && (prvi->podatak > drugi->podatak))
+			if ((smer == Rastuce) && (prvi->podatak > drugi->podatak))
 				zameni(prvi, drugi);
-			if (smer == Opadajuce && (prvi->podatak < drugi->podatak))
+			if ((smer == Opadajuce) && (prvi->podatak < drugi->podatak))
 				zameni(prvi, drugi);
 			drugi = drugi->sledeci;
 		}
@@ -307,18 +308,45 @@ SIGNAL prazna(LISTA lista) {
 	return signal;
 }
 
-SIGNAL sadrzi(LISTA lista, PODATAK trazeni_podatak) {
+SIGNAL sadrzi(LISTA* lista, PODATAK trazeni_podatak, VRSTA_PRETRAGE vrsta_pretrage) {
 	SIGNAL signal;
 	signal.status = Info;
 	signal.poruka = poruka.INFO.podatak_ne_postoji;
-	if (lista == NULL || lista->skladiste == NULL || lista->skladiste == ErrorList
-		|| lista->broj_elemenata == 0) return signal;
-	ELEMENT* trenutni = lista->skladiste;
-	while (trenutni != NULL) {
-		if (trazeni_podatak == trenutni->podatak) break;
-		trenutni = trenutni->sledeci;
+	if (lista == NULL || (*lista)->skladiste == NULL || (*lista)->skladiste == ErrorList
+		|| (*lista)->broj_elemenata == 0) return signal;
+	if (vrsta_pretrage == Iterativno) {
+		ELEMENT* trenutni = (*lista)->skladiste;
+		while (trenutni != NULL) {
+			if (trazeni_podatak == trenutni->podatak) break;
+			trenutni = trenutni->sledeci;
+		}
+		(trenutni != NULL) ? (signal.poruka = poruka.INFO.podatak_postoji) : (signal.poruka = poruka.INFO.podatak_ne_postoji); // ako smo dosli do kraja (trenutni == NULL) znaci da nismo nasli trazeni podatak
 	}
-	(trenutni != NULL) ? (signal.poruka = poruka.INFO.podatak_postoji) : (signal.poruka = poruka.INFO.podatak_ne_postoji); // ako smo dosli do kraja (trenutni == NULL) znaci da nismo nasli trazeni podatak
+	else {
+		//binarno pretrazivanje; lista mora biti sortirana, recimo rastuce
+		sortiraj(lista, Rastuce);
+
+		int levo = 0;
+		int desno = (*lista)->broj_elemenata - 1;
+
+		while (levo <= desno) {
+			int sredina = levo + (desno - levo) / 2;
+			ELEMENT* srednji = dohvati_element((ELEMENT*)(*lista)->skladiste, sredina);
+
+			if (!srednji) {
+				signal.poruka = poruka.INFO.podatak_ne_postoji;
+				break;
+			}
+			else if (srednji->podatak == trazeni_podatak) {
+				signal.poruka = poruka.INFO.podatak_postoji;
+				break;
+			}
+			if (trazeni_podatak < srednji->podatak)
+				desno = sredina - 1;
+			else
+				levo = sredina + 1;
+		}
+	}
 	return signal;
 }
 
@@ -329,6 +357,16 @@ static void zameni(ELEMENT* p1, ELEMENT* p2) {
 	p1->podatak = p2->podatak;
 	p2->podatak = pom;
 }
+
+ELEMENT* dohvati_element(ELEMENT* glava, int indeks) {
+	int i = 0;
+	while (glava != NULL && i < indeks) {
+		glava = glava->sledeci;
+		i++;
+	}
+	return glava;
+}
+
 
 //main
 
@@ -355,10 +393,10 @@ int main(void) {
 	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
 	prikazi(lista);
 
-	signal = sadrzi(lista, 5);
+	signal = sadrzi(&lista, 5, Binarno);
 	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
 
-	int izbaceni = 7;
+	int izbaceni = 5;
 	signal = izbaci(&lista, &izbaceni, Vrednost);
 	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
 	printf("Izbacen: %d\n", izbaceni);
@@ -379,13 +417,13 @@ int main(void) {
 
 	prikazi(lista);
 
-	signal = sadrzi(lista, 5);
+	signal = sadrzi(&lista, 5, Binarno);
 	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
 
 	signal = prazna(lista);
 	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
 
-	signal = sadrzi(lista, 15);
+	signal = sadrzi(&lista, 15, Binarno);
 	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
 
 	signal = unisti(&lista);
