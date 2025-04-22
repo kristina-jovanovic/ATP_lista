@@ -6,7 +6,6 @@
 
 // pomocne funkcije
 static void zameni(ELEMENT*, ELEMENT*);
-ELEMENT* dohvati_element(ELEMENT*, int);
 
 /////////
 //status
@@ -314,39 +313,17 @@ SIGNAL sadrzi(LISTA* lista, PODATAK trazeni_podatak, VRSTA_PRETRAGE vrsta_pretra
 	signal.poruka = poruka.INFO.podatak_ne_postoji;
 	if (lista == NULL || (*lista)->skladiste == NULL || (*lista)->skladiste == ErrorList
 		|| (*lista)->broj_elemenata == 0) return signal;
-	if (vrsta_pretrage == Iterativno) {
-		ELEMENT* trenutni = (*lista)->skladiste;
-		while (trenutni != NULL) {
-			if (trazeni_podatak == trenutni->podatak) break;
-			trenutni = trenutni->sledeci;
-		}
-		(trenutni != NULL) ? (signal.poruka = poruka.INFO.podatak_postoji) : (signal.poruka = poruka.INFO.podatak_ne_postoji); // ako smo dosli do kraja (trenutni == NULL) znaci da nismo nasli trazeni podatak
+
+	//binarno pretrazivanje se ne moze raditi kada je lista implementirana preko pokazivaca
+	//tako da cemo raditi iterativni pristup bez obzira na to koja vrsta pretrage je prosledjena
+
+	ELEMENT* trenutni = (*lista)->skladiste;
+	while (trenutni != NULL) {
+		if (trazeni_podatak == trenutni->podatak) break;
+		trenutni = trenutni->sledeci;
 	}
-	else {
-		//binarno pretrazivanje; lista mora biti sortirana, recimo rastuce
-		sortiraj(lista, Rastuce);
+	(trenutni != NULL) ? (signal.poruka = poruka.INFO.podatak_postoji) : (signal.poruka = poruka.INFO.podatak_ne_postoji); // ako smo dosli do kraja (trenutni == NULL) znaci da nismo nasli trazeni podatak
 
-		int levo = 0;
-		int desno = (*lista)->broj_elemenata - 1;
-
-		while (levo <= desno) {
-			int sredina = levo + (desno - levo) / 2;
-			ELEMENT* srednji = dohvati_element((ELEMENT*)(*lista)->skladiste, sredina);
-
-			if (!srednji) {
-				signal.poruka = poruka.INFO.podatak_ne_postoji;
-				break;
-			}
-			else if (srednji->podatak == trazeni_podatak) {
-				signal.poruka = poruka.INFO.podatak_postoji;
-				break;
-			}
-			if (trazeni_podatak < srednji->podatak)
-				desno = sredina - 1;
-			else
-				levo = sredina + 1;
-		}
-	}
 	return signal;
 }
 
@@ -357,16 +334,6 @@ static void zameni(ELEMENT* p1, ELEMENT* p2) {
 	p1->podatak = p2->podatak;
 	p2->podatak = pom;
 }
-
-ELEMENT* dohvati_element(ELEMENT* glava, int indeks) {
-	int i = 0;
-	while (glava != NULL && i < indeks) {
-		glava = glava->sledeci;
-		i++;
-	}
-	return glava;
-}
-
 
 //main
 
