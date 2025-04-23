@@ -6,6 +6,9 @@
 
 // pomocne funkcije
 static void zameni(ELEMENT*, ELEMENT*);
+SIGNAL bubble_sort(LISTA*, SMER_SORTIRANJA);
+SIGNAL insertion_sort(LISTA*, SMER_SORTIRANJA);
+SIGNAL selection_sort(LISTA*, SMER_SORTIRANJA);
 
 /////////
 //status
@@ -115,7 +118,7 @@ SIGNAL ubaci(LISTA* lista, PODATAK podatak, NACIN nacin) {
 	ELEMENT* glava = (ELEMENT*)((*lista)->skladiste);
 	if (nacin == Vrednost) {
 		//lista treba da bude sortirana i da se element ubaci tamo gde pripada po vrednosti
-		sortiraj(lista, Rastuce);
+		sortiraj(lista, Rastuce, Bubble);
 		//signal = sortiraj(lista, Rastuce);
 		//if (signal.status == Greska) return signal;
 		if (glava == NULL)
@@ -240,7 +243,7 @@ SIGNAL izbaci(LISTA* lista, PODATAK* podatak, NACIN nacin) {
 
 kraj_true:
 	(*lista)->broj_elemenata--;
-	if ((*lista)->broj_elemenata == 0) (*lista)->skladiste == NULL;
+	if ((*lista)->broj_elemenata == 0) (*lista)->skladiste = NULL;
 	signal.status = Info;
 	signal.poruka = poruka.INFO.izbaci;
 	return signal;
@@ -268,32 +271,19 @@ void prikazi(LISTA lista) {
 	printf("\n\n");
 }
 
-SIGNAL sortiraj(LISTA* lista, SMER_SORTIRANJA smer) {
+SIGNAL sortiraj(LISTA* lista, SMER_SORTIRANJA smer, ALGORITAM_SORTIRANJA algoritam) {
 	SIGNAL signal;
 	signal.status = Greska;
 	signal.poruka = poruka.GRESKA.sortiraj;
 	if (*lista == NULL || (*lista)->skladiste == NULL || (*lista)->skladiste == ErrorList) return signal;
-	ELEMENT* prvi = (ELEMENT*)(*lista)->skladiste;
-	ELEMENT* drugi = ((ELEMENT*)(*lista)->skladiste)->sledeci;
-	if (prvi == NULL || drugi == NULL) {
-		signal.status = Upozorenje;
-		signal.poruka = poruka.UPOZORENJE.sortiraj;
-		return signal;
-	}
-	while (prvi->sledeci != NULL) {
-		while (drugi != NULL) {
-			if ((smer == Rastuce) && (prvi->podatak > drugi->podatak))
-				zameni(prvi, drugi);
-			if ((smer == Opadajuce) && (prvi->podatak < drugi->podatak))
-				zameni(prvi, drugi);
-			drugi = drugi->sledeci;
-		}
-		prvi = prvi->sledeci;
-		drugi = prvi->sledeci;
-	}
 
-	signal.status = Info;
-	signal.poruka = poruka.INFO.sortiraj;
+	if (algoritam == Bubble)
+		signal = bubble_sort(lista, smer);
+	if (algoritam == Insertion)
+		signal = insertion_sort(lista, smer);
+	if (algoritam == Selection)
+		signal = selection_sort(lista, smer);
+
 	return signal;
 }
 
@@ -335,6 +325,87 @@ static void zameni(ELEMENT* p1, ELEMENT* p2) {
 	p2->podatak = pom;
 }
 
+SIGNAL bubble_sort(LISTA* lista, SMER_SORTIRANJA smer) {
+	SIGNAL signal;
+	ELEMENT* prvi = (ELEMENT*)(*lista)->skladiste;
+	ELEMENT* drugi = ((ELEMENT*)(*lista)->skladiste)->sledeci;
+	if (prvi == NULL || drugi == NULL) {
+		signal.status = Upozorenje;
+		signal.poruka = poruka.UPOZORENJE.sortiraj;
+		return signal;
+	}
+	while (prvi->sledeci != NULL) {
+		while (drugi != NULL) {
+			if ((smer == Rastuce) && (prvi->podatak > drugi->podatak))
+				zameni(prvi, drugi);
+			if ((smer == Opadajuce) && (prvi->podatak < drugi->podatak))
+				zameni(prvi, drugi);
+			drugi = drugi->sledeci;
+		}
+		prvi = prvi->sledeci;
+		drugi = prvi->sledeci;
+	}
+	signal.status = Info;
+	signal.poruka = poruka.INFO.sortiraj;
+	return signal;
+}
+
+SIGNAL insertion_sort(LISTA* lista, SMER_SORTIRANJA smer) {
+	SIGNAL signal;
+
+	ELEMENT* sortirano = NULL;
+	ELEMENT* trenutni = (*lista)->skladiste;
+
+	while (trenutni) {
+		ELEMENT* sledeci = (ELEMENT*)trenutni->sledeci;
+
+		if (!sortirano || ((smer == Rastuce && sortirano->podatak > trenutni->podatak) ||
+			(smer == Opadajuce && sortirano->podatak < trenutni->podatak))) {
+			trenutni->sledeci = sortirano;
+			sortirano = trenutni;
+		}
+		else {
+			ELEMENT* pom = sortirano;
+			while (pom->sledeci &&
+				((smer == Rastuce && ((ELEMENT*)(pom->sledeci))->podatak <= trenutni->podatak) ||
+					(smer == Opadajuce && ((ELEMENT*)(pom->sledeci))->podatak >= trenutni->podatak)))
+				pom = pom->sledeci;
+
+			trenutni->sledeci = pom->sledeci;
+			pom->sledeci = trenutni;
+		}
+
+		trenutni = sledeci;
+	}
+	(*lista)->skladiste = sortirano;
+
+	signal.status = Info;
+	signal.poruka = poruka.INFO.sortiraj;
+	return signal;
+}
+
+SIGNAL selection_sort(LISTA* lista, SMER_SORTIRANJA smer) {
+	SIGNAL signal;
+
+	for (ELEMENT* i = (ELEMENT*)(*lista)->skladiste; i != NULL; i = i->sledeci) {
+		ELEMENT* pom = i; //ako sortiramo rastuce, ovo je minimum, a ako sortiramo opadajuce, ovo je maksimum
+		for (ELEMENT* j = (ELEMENT*)i->sledeci; j != NULL; j = j->sledeci) {
+			if ((smer == Rastuce && j->podatak < pom->podatak) ||
+				(smer == Opadajuce && j->podatak > pom->podatak))
+				pom = j;
+		}
+		if (pom != i) {
+			int tmp = i->podatak;
+			i->podatak = pom->podatak;
+			pom->podatak = tmp;
+		}
+	}
+
+	signal.status = Info;
+	signal.poruka = poruka.INFO.sortiraj;
+	return signal;
+}
+
 //main
 
 int main(void) {
@@ -352,11 +423,11 @@ int main(void) {
 	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
 
 	int c = 7;
-	signal = ubaci(&lista, c, Vrednost);
+	signal = ubaci(&lista, c, Kraj);
 	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
 
 	prikazi(lista);
-	signal = sortiraj(&lista, Opadajuce);
+	signal = sortiraj(&lista, Rastuce, Selection);
 	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
 	prikazi(lista);
 

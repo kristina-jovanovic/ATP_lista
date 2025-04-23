@@ -30,6 +30,8 @@ typedef struct lista* LISTA;
 typedef enum nacin { Pocetak, Kraj, Vrednost } NACIN; // na koji nacin treba da se ubaci/izbaci element
 typedef enum smer_sortiranja { Rastuce, Opadajuce } SMER_SORTIRANJA;
 typedef enum vrsta_pretrage { Iterativno, Binarno } VRSTA_PRETRAGE;
+typedef enum algoritam_sortiranja { Bubble, Insertion, Selection } ALGORITAM_SORTIRANJA;
+
 
 // funkcije
 SIGNAL	kreiraj(LISTA*);
@@ -37,7 +39,7 @@ SIGNAL	unisti(LISTA*);
 SIGNAL	ubaci(LISTA*, PODATAK, NACIN);
 SIGNAL	izbaci(LISTA*, PODATAK*, NACIN);
 void	prikazi(LISTA);
-SIGNAL	sortiraj(LISTA*, SMER_SORTIRANJA);
+SIGNAL	sortiraj(LISTA*, SMER_SORTIRANJA, ALGORITAM_SORTIRANJA);
 SIGNAL	prazna(LISTA);
 SIGNAL	sadrzi(LISTA*, PODATAK, VRSTA_PRETRAGE);
 
