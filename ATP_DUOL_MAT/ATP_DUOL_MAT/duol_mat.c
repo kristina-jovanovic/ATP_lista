@@ -1,4 +1,4 @@
-
+﻿
 #include "lista.h"
 #define DIM 100
 #define PRAZNO -1
@@ -60,8 +60,11 @@ void obrada_statusa(STATUS status, STRING poruka, STRING naziv_dat, int linija_k
 /////////
 
 //prototipovi pomocnih funkcija
-void rotiraj_udesno(int[][3], int);
+void rotiraj_udesno(int[][3], int, int);
 void rotiraj_ulevo(int[][3], int);
+SIGNAL bubble_sort(LISTA*, SMER_SORTIRANJA);
+SIGNAL insertion_sort(LISTA*, SMER_SORTIRANJA);
+SIGNAL selection_sort(LISTA*, SMER_SORTIRANJA);
 
 SIGNAL kreiraj(LISTA* lista) {
 	SIGNAL signal;
@@ -109,7 +112,7 @@ SIGNAL ubaci_na_pocetak(LISTA* lista, PODATAK podatak) {
 
 	if ((*lista)->broj_elemenata > 0) {
 		//lista nije prazna
-		rotiraj_udesno(matrica, (*lista)->broj_elemenata);
+		rotiraj_udesno(matrica, (*lista)->broj_elemenata, 0);
 		PRETHODNI(matrica, novi_indeks) = PRAZNO;
 		PODATAK_MAT(matrica, novi_indeks) = podatak;
 		int stara_glava_indeks = 1; //prvi element koji je pomeren udesno
@@ -140,7 +143,7 @@ SIGNAL ubaci(LISTA* lista, PODATAK podatak, NACIN nacin) {
 
 	if (nacin == Vrednost) {
 		//lista mora da bude sortirana
-		sortiraj(lista, Rastuce);
+		sortiraj(lista, Rastuce, Bubble);
 		//trazimo gde prosledjeni podatak pripada
 		int trenutni_red = 0; //uzimamo ceo prvi red
 		do {
@@ -155,6 +158,8 @@ SIGNAL ubaci(LISTA* lista, PODATAK podatak, NACIN nacin) {
 		}
 		else {
 			//treba da se rotira udesno od novog_indeksa do kraja, da se oslobodi mesto
+			rotiraj_udesno(matrica, (*lista)->broj_elemenata, novi_indeks);
+
 			SLEDECI(matrica, novi_indeks - 1) = novi_indeks;
 			PRETHODNI(matrica, novi_indeks + 1) = novi_indeks;
 
@@ -179,7 +184,7 @@ SIGNAL ubaci(LISTA* lista, PODATAK podatak, NACIN nacin) {
 		novi_indeks = 0;
 		if ((*lista)->broj_elemenata > 0) {
 			//lista nije prazna
-			rotiraj_udesno(matrica, (*lista)->broj_elemenata);
+			rotiraj_udesno(matrica, (*lista)->broj_elemenata, 0);
 			PRETHODNI(matrica, novi_indeks) = PRAZNO;
 			PODATAK_MAT(matrica, novi_indeks) = podatak;
 			int stara_glava_indeks = 1; //prvi element koji je pomeren udesno
@@ -245,28 +250,22 @@ void prikazi(LISTA lista) {
 	printf("\n");
 }
 
-SIGNAL sortiraj(LISTA* lista, SMER_SORTIRANJA smer) {
+SIGNAL sortiraj(LISTA* lista, SMER_SORTIRANJA smer, ALGORITAM_SORTIRANJA algoritam) {
 	SIGNAL signal;
 	signal.status = Greska;
 	signal.poruka = poruka.GRESKA.sortiraj;
 	if (*lista == NULL || (*lista)->skladiste == NULL || (*lista)->broj_elemenata == 0)
 		return signal;
-	int(*matrica)[3] = (int(*)[3])(*lista)->skladiste;
 
-	for (int i = 0;i < ((*lista)->broj_elemenata - 1);i++) {
-		for (int j = i + 1;j < (*lista)->broj_elemenata;j++) {
-			if ((smer == Opadajuce && matrica[i][1] < matrica[j][1]) ||
-				(smer == Rastuce && matrica[i][1] > matrica[j][1])) {
-				int pom = matrica[i][1];
-				matrica[i][1] = matrica[j][1];
-				matrica[j][1] = pom;
-			}
-		}
-	}
+	if (algoritam == Bubble)
+		signal = bubble_sort(lista, smer);
+	if (algoritam == Insertion)
+		signal = insertion_sort(lista, smer);
+	if (algoritam == Selection)
+		signal = selection_sort(lista, smer);
 
-	signal.status = Info;
-	signal.poruka = poruka.INFO.sortiraj;
 	return signal;
+
 }
 
 SIGNAL prazna(LISTA lista) {
@@ -300,7 +299,7 @@ SIGNAL sadrzi(LISTA* lista, PODATAK podatak, VRSTA_PRETRAGE vrsta) {
 	}
 	else {
 		//binarno pretrazivanje, lista mora biti sortirana
-		sortiraj(lista, Rastuce);
+		sortiraj(lista, Rastuce, Bubble);
 
 		int levo = 0;
 		int desno = (*lista)->broj_elemenata - 1;
@@ -331,8 +330,8 @@ SIGNAL sadrzi(LISTA* lista, PODATAK podatak, VRSTA_PRETRAGE vrsta) {
 
 //implementacija pomocnih funkcija
 void rotiraj_udesno(int mat[][3], int n, int pocetni_indeks) {
-	//oslobadja se mesto za unos novog elementa na pocetak
-	for (int i = n;i > 0;i--) {
+	//oslobadja se mesto za unos novog elementa na pocetak 
+	for (int i = n;i > pocetni_indeks;i--) {
 		mat[i][0] = mat[i - 1][0];
 		if (mat[i][0] != PRAZNO) mat[i][0]++; //pomerice se i indeksi ukoliko ne treba da bude prazno
 		mat[i][1] = mat[i - 1][1];
@@ -351,6 +350,75 @@ void rotiraj_ulevo(int mat[][3], int n) {
 	}
 }
 
+SIGNAL bubble_sort(LISTA* lista, SMER_SORTIRANJA smer) {
+	SIGNAL signal;
+	int(*matrica)[3] = (int(*)[3])(*lista)->skladiste;
+
+	for (int i = 0;i < ((*lista)->broj_elemenata - 1);i++) {
+		for (int j = i + 1;j < (*lista)->broj_elemenata;j++) {
+			if ((smer == Opadajuce && matrica[i][1] < matrica[j][1]) ||
+				(smer == Rastuce && matrica[i][1] > matrica[j][1])) {
+				int pom = matrica[i][1];
+				matrica[i][1] = matrica[j][1];
+				matrica[j][1] = pom;
+			}
+		}
+	}
+	signal.status = Info;
+	signal.poruka = poruka.INFO.sortiraj;
+	return signal;
+}
+
+SIGNAL insertion_sort(LISTA* lista, SMER_SORTIRANJA smer) {
+	SIGNAL signal;
+
+	int(*matrica)[3] = (int(*)[3])(*lista)->skladiste;
+
+	// krecemo od 2. elementa (indeks 1)
+	for (int i = 1; i < (*lista)->broj_elemenata; i++) {
+		int trenutni = matrica[i][1]; // trenutni podatak koji zelimo da "ubacimo"
+		int j = i - 1;
+
+		// pomeramo podatke koji su veci (ili manji) udesno
+		while (j >= 0 && (
+			(smer == Rastuce && matrica[j][1] > trenutni) ||
+			(smer == Opadajuce && matrica[j][1] < trenutni))) {
+			matrica[j + 1][1] = matrica[j][1];
+			j--;
+		}
+		matrica[j + 1][1] = trenutni;
+	}
+
+	signal.status = Info;
+	signal.poruka = poruka.INFO.sortiraj;
+	return signal;
+}
+
+SIGNAL selection_sort(LISTA* lista, SMER_SORTIRANJA smer) {
+	SIGNAL signal;
+	int(*matrica)[3] = (int(*)[3])(*lista)->skladiste;
+
+	for (int i = 0; i < (*lista)->broj_elemenata - 1; i++) {
+		int indeks_min_max = i;
+
+		for (int j = i + 1; j < (*lista)->broj_elemenata; j++) {
+			if ((smer == Rastuce && matrica[j][1] < matrica[indeks_min_max][1]) ||
+				(smer == Opadajuce && matrica[j][1] > matrica[indeks_min_max][1])) {
+				indeks_min_max = j;
+			}
+		}
+
+		if (indeks_min_max != i) {
+			int pom = matrica[i][1];
+			matrica[i][1] = matrica[indeks_min_max][1];
+			matrica[indeks_min_max][1] = pom;
+		}
+	}
+	signal.status = Info;
+	signal.poruka = poruka.INFO.sortiraj;
+	return signal;
+}
+
 //main
 
 int main() {
@@ -362,7 +430,7 @@ int main() {
 	signal = prazna(lista);
 	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
 
-	signal = sadrzi(&lista, 5,Binarno);
+	signal = sadrzi(&lista, 5, Binarno);
 	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
 
 	signal = ubaci(&lista, 5, Kraj);
@@ -371,7 +439,7 @@ int main() {
 	signal = ubaci(&lista, 7, Kraj);
 	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
 
-	signal = ubaci(&lista, 1, Kraj);
+	signal = ubaci(&lista, 6, Vrednost);
 	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
 
 	signal = ubaci(&lista, 9, Kraj);
@@ -393,7 +461,7 @@ int main() {
 	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
 	prikazi(lista);
 
-	signal = sortiraj(&lista, Opadajuce);
+	signal = sortiraj(&lista, Opadajuce, Selection);
 	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
 	prikazi(lista);
 
