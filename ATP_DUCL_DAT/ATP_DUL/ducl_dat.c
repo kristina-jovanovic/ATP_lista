@@ -54,6 +54,7 @@ void obrada_statusa(STATUS status, STRING poruka, STRING naziv_dat, int linija_k
 /////////
 
 //specifikacija pomocnih funkcija
+void azuriraj_susede(FILE* f, int adresa, int nova_adresa, int velicina);
 void skrati_datoteku(FILE*, int);
 SIGNAL bubble_sort(FILE*, int, int, SMER_SORTIRANJA);
 SIGNAL insertion_sort(FILE*, int, int, SMER_SORTIRANJA);
@@ -227,24 +228,36 @@ SIGNAL ubaci(LISTA* lista, PODATAK podatak, NACIN nacin) {
 		fseek(datoteka, 0, SEEK_END);
 		int adresa_novog = ftell(datoteka); // ovo je naredna slobodna pozicija (kraj datoteke)
 
-		ELEMENT poslednji;
 		int adresa_poslednjeg = (int)(intptr_t)glava_el.prethodni;
-		fseek(datoteka, adresa_poslednjeg, SEEK_SET);
-		fread(&poslednji, broj_bajtova_za_element, 1, datoteka);
+		if (adresa_poslednjeg == glava) {
 
-		//azuriranje veza
-		novi.sledeci = (void*)(intptr_t)glava;
-		novi.prethodni = (void*)(intptr_t)adresa_poslednjeg;
-		poslednji.sledeci = (void*)(intptr_t)adresa_novog;
-		glava_el.prethodni = (void*)(intptr_t)adresa_novog;
+			//azuriranje veza
+			novi.sledeci = (void*)(intptr_t)glava;
+			novi.prethodni = (void*)(intptr_t)adresa_poslednjeg;
+			glava_el.prethodni = (void*)(intptr_t)adresa_novog;
+			glava_el.sledeci = (void*)(intptr_t)adresa_novog;
+		}
+		else {
+			ELEMENT poslednji;
+			fseek(datoteka, adresa_poslednjeg, SEEK_SET);
+			fread(&poslednji, broj_bajtova_za_element, 1, datoteka);
+
+			//azuriranje veza
+			novi.sledeci = (void*)(intptr_t)glava;
+			novi.prethodni = (void*)(intptr_t)adresa_poslednjeg;
+			glava_el.prethodni = (void*)(intptr_t)adresa_novog;
+			poslednji.sledeci = (void*)(intptr_t)adresa_novog;
+
+			fseek(datoteka, adresa_poslednjeg, SEEK_SET);
+			fwrite(&poslednji, broj_bajtova_za_element, 1, datoteka);
+		}
+
 
 		//upisivanje novog elementa i izmena azuriranih
-		fseek(datoteka, adresa_novog, SEEK_SET);
-		fwrite(&novi, broj_bajtova_za_element, 1, datoteka);
 		fseek(datoteka, glava, SEEK_SET);
 		fwrite(&glava_el, broj_bajtova_za_element, 1, datoteka);
-		fseek(datoteka, adresa_poslednjeg, SEEK_SET);
-		fwrite(&poslednji, broj_bajtova_za_element, 1, datoteka);
+		fseek(datoteka, adresa_novog, SEEK_SET);
+		fwrite(&novi, broj_bajtova_za_element, 1, datoteka);
 
 		//glava ostaje ista tako da ne moramo da menjamo to u metapodacima
 
@@ -375,98 +388,174 @@ SIGNAL izbaci_sa_pocetka(LISTA* lista, PODATAK* podatak) {
 	fread(&prvi, broj_bajtova_za_element, 1, datoteka);
 	*podatak = prvi.podatak;
 
-	if ((int)(intptr_t)prvi.prethodni == glava && (int)(intptr_t)prvi.sledeci == glava) { //ili (*lista)->broj_elemenata == 1
+	int prethodni = (int)(intptr_t)prvi.prethodni;
+	int sledeci = (int)(intptr_t)prvi.sledeci;
+	int adresa_fizicki_poslednjeg = broj_bajtova_u_datoteci - broj_bajtova_za_element;
+
+	if (prethodni == glava && sledeci == glava) { //ili (*lista)->broj_elemenata == 1
 		// u listi se nalazi samo jedan element
 		prvi.prethodni = (void*)(intptr_t)-1;
 		prvi.sledeci = (void*)(intptr_t)-1;
 		prvi.podatak = -1;
+		//ovo iznad ni ne mora jer cemo svakako skratiti datoteku i obrisati ga
+
 		glava = -1; //lista je prazna
 		fseek(datoteka, sizeof(int), SEEK_SET);
 		fwrite(&glava, sizeof(int), 1, datoteka);
 		goto kraj_true;
 	}
-	if ((*lista)->broj_elemenata == 2) {
+	else if (prethodni == sledeci && glava != adresa_fizicki_poslednjeg) {
+		//ili (*lista)->broj_elemenata == 2
 		ELEMENT drugi;
-		int adresa_drugog = (int)(intptr_t)prvi.sledeci;
-		fseek(datoteka, adresa_drugog, SEEK_SET);
+		fseek(datoteka, sledeci, SEEK_SET);
 		fread(&drugi, broj_bajtova_za_element, 1, datoteka);
-		//treba da pokazuje sam na sebe kada glavu izbacimo, a on ce se pomeriti na mesto glave
-		//////////////////////////////////
-		//problem kad je glava na kraju
-		drugi.sledeci = (void*)(intptr_t)glava;
-		drugi.prethodni = (void*)(intptr_t)glava;
+
+		//posto njegovi prethodni i sledeci vec pokazuju na glavu, samo cemo ga upisati na mesto prvog
 		fseek(datoteka, glava, SEEK_SET);
 		fwrite(&drugi, broj_bajtova_za_element, 1, datoteka);
+
+		//adresa glave ostaje ista
+
 		goto kraj_true;
 	}
-	// ako smo ovde, lista ima bar 3 elementa
-	ELEMENT poslednji;
-	int adresa_poslednjeg = (int)(intptr_t)prvi.prethodni;
-	fseek(datoteka, adresa_poslednjeg, SEEK_SET);
-	fread(&poslednji, broj_bajtova_za_element, 1, datoteka);
+#pragma region MyRegion
 
-	ELEMENT nova_glava;
-	int adresa_nove_glave = (int)(intptr_t)prvi.sledeci;
-	fseek(datoteka, adresa_nove_glave, SEEK_SET);
-	fread(&nova_glava, broj_bajtova_za_element, 1, datoteka);
+	//if ((*lista)->broj_elemenata == 2) {
+	//	ELEMENT drugi;
+	//	int adresa_drugog = (int)(intptr_t)prvi.sledeci;
+	//	fseek(datoteka, adresa_drugog, SEEK_SET);
+	//	fread(&drugi, broj_bajtova_za_element, 1, datoteka);
+	//	//treba da pokazuje sam na sebe kada glavu izbacimo, a on ce se pomeriti na mesto glave
+	//	//////////////////////////////////
+	//	int fizicki_prvi = sizeof(int) * 2;
+	//	//mora ovako sa fizicki_prvi jer glava ne mora nuzno da bude na prvoj poziciji, moze da bude i na kraju
+	//	drugi.sledeci = (void*)(intptr_t)fizicki_prvi;
+	//	drugi.prethodni = (void*)(intptr_t)fizicki_prvi;
+	//	fseek(datoteka, fizicki_prvi, SEEK_SET);
+	//	fwrite(&drugi, broj_bajtova_za_element, 1, datoteka);
+	//	goto kraj_true;
+	//}
+	//// ako smo ovde, lista ima bar 3 elementa
+	//ELEMENT poslednji;
+	//int adresa_poslednjeg = (int)(intptr_t)prvi.prethodni;
+	//fseek(datoteka, adresa_poslednjeg, SEEK_SET);
+	//fread(&poslednji, broj_bajtova_za_element, 1, datoteka);
 
-	// ovo je samo logicko brisanje, ali element ce ostati u memoriji i dalje... mozda ubaciti
-	// u metapodatke 'prvi_slobodan' gde ce se cuvati njegov offset tako da mozemo da ponovo
-	// koristimo taj prostor
-	// URADICEMO SLEDECE - poslednji element cemo prebaciti na mesto izbacenog i skratiti datoteku
-	// za velicinu tog jednog elementa (poslednjeg)
+	//ELEMENT nova_glava;
+	//int adresa_nove_glave = (int)(intptr_t)prvi.sledeci;
+	//fseek(datoteka, adresa_nove_glave, SEEK_SET);
+	//fread(&nova_glava, broj_bajtova_za_element, 1, datoteka);
 
-	//prvi.prethodni = (void*)(intptr_t)-1;
-	//prvi.sledeci = (void*)(intptr_t)-1;
-	//prvi.podatak = -1;
+	//// ovo je samo logicko brisanje, ali element ce ostati u memoriji i dalje... mozda ubaciti
+	//// u metapodatke 'prvi_slobodan' gde ce se cuvati njegov offset tako da mozemo da ponovo
+	//// koristimo taj prostor
+	//// URADICEMO SLEDECE - poslednji element cemo prebaciti na mesto izbacenog i skratiti datoteku
+	//// za velicinu tog jednog elementa (poslednjeg)
 
+	////prvi.prethodni = (void*)(intptr_t)-1;
+	////prvi.sledeci = (void*)(intptr_t)-1;
+	////prvi.podatak = -1;
+
+	////poslednji.sledeci = (void*)(intptr_t)adresa_nove_glave;
+	////prvi = poslednji;
+	////nova_glava.prethodni = (void*)(intptr_t)glava; //ovde treba da bude adresa_poslednjeg, ali je on prebacen
+	////na prvo mesto (na mesto elementa koji je izbacen) tako da je to zapravo glava (stara)
+
+	//nova_glava.prethodni = (void*)(intptr_t)adresa_poslednjeg;
 	//poslednji.sledeci = (void*)(intptr_t)adresa_nove_glave;
-	//prvi = poslednji;
-	//nova_glava.prethodni = (void*)(intptr_t)glava; //ovde treba da bude adresa_poslednjeg, ali je on prebacen
-	//na prvo mesto (na mesto elementa koji je izbacen) tako da je to zapravo glava (stara)
 
-	nova_glava.prethodni = (void*)(intptr_t)adresa_poslednjeg;
-	poslednji.sledeci = (void*)(intptr_t)adresa_nove_glave;
+	//int adresa_fizicki_poslednjeg = broj_bajtova_u_datoteci - broj_bajtova_za_element;
+	//fseek(datoteka, adresa_fizicki_poslednjeg, SEEK_SET);
+	//ELEMENT fizicki_poslednji;
+	//fread(&fizicki_poslednji, broj_bajtova_za_element, 1, datoteka);
+	//int adresa_za_premestanje = glava; //odatle se izbacuje element
+	////potrebno je da proverimo sve elemente ciji prethodni ili sledeci pokazivaci pokazuju na ovaj
+	//// fizicki poslednji element, i da to preusmerimo na adresa_za_premestanje
+	//int fp_prethodni_adresa = (int)(intptr_t)fizicki_poslednji.prethodni;
+	//ELEMENT fp_prethodni;
+	//fseek(datoteka, fp_prethodni_adresa, SEEK_SET);
+	//fread(&fp_prethodni, broj_bajtova_za_element, 1, datoteka);
+	//int fp_sledeci_adresa = (int)(intptr_t)fizicki_poslednji.sledeci;
+	//ELEMENT fp_sledeci;
+	//fseek(datoteka, fp_sledeci_adresa, SEEK_SET);
+	//fread(&fp_sledeci, broj_bajtova_za_element, 1, datoteka);
 
-	int adresa_fizicki_poslednjeg = broj_bajtova_u_datoteci - broj_bajtova_za_element;
-	fseek(datoteka, adresa_fizicki_poslednjeg, SEEK_SET);
-	ELEMENT fizicki_poslednji;
-	fread(&fizicki_poslednji, broj_bajtova_za_element, 1, datoteka);
-	int adresa_za_premestanje = glava; //odatle se izbacuje element
-	//potrebno je da proverimo sve elemente ciji prethodni ili sledeci pokazivaci pokazuju na ovaj
-	// fizicki poslednji element, i da to preusmerimo na adresa_za_premestanje
-	int fp_prethodni_adresa = (int)(intptr_t)fizicki_poslednji.prethodni;
-	ELEMENT fp_prethodni;
-	fseek(datoteka, fp_prethodni_adresa, SEEK_SET);
-	fread(&fp_prethodni, broj_bajtova_za_element, 1, datoteka);
-	int fp_sledeci_adresa = (int)(intptr_t)fizicki_poslednji.sledeci;
-	ELEMENT fp_sledeci;
-	fseek(datoteka, fp_sledeci_adresa, SEEK_SET);
-	fread(&fp_sledeci, broj_bajtova_za_element, 1, datoteka);
+	//fp_prethodni.sledeci = (void*)(intptr_t)glava;
+	//fp_sledeci.prethodni = (void*)(intptr_t)glava;
 
-	fp_prethodni.sledeci = (void*)(intptr_t)glava;
-	fp_sledeci.prethodni = (void*)(intptr_t)glava;
+	//fseek(datoteka, fp_prethodni_adresa, SEEK_SET);
+	//fwrite(&fp_prethodni, broj_bajtova_za_element, 1, datoteka);
+	//fseek(datoteka, fp_sledeci_adresa, SEEK_SET);
+	//fwrite(&fp_sledeci, broj_bajtova_za_element, 1, datoteka);
+	//////
+	//fseek(datoteka, glava, SEEK_SET);
+	//fwrite(&fizicki_poslednji, broj_bajtova_za_element, 1, datoteka);
+	//if (nova_glava.prethodni == fizicki_poslednji.prethodni &&
+	//	nova_glava.sledeci == fizicki_poslednji.sledeci &&
+	//	nova_glava.podatak == fizicki_poslednji.podatak) {
+	//	//znaci nova_glava==fizicki_poslednji i nju treba da premestimo na glavu,
+	//	//tj. glava ce da ostane na istom mestu
+	//	goto kraj_true;
+	//}
+	//else {
+	//	glava = adresa_nove_glave;
+	//	fseek(datoteka, sizeof(int), SEEK_SET);
+	//	fwrite(&glava, sizeof(int), 1, datoteka);
+	//}
+#pragma endregion
 
-	fseek(datoteka, fp_prethodni_adresa, SEEK_SET);
-	fwrite(&fp_prethodni, broj_bajtova_za_element, 1, datoteka);
-	fseek(datoteka, fp_sledeci_adresa, SEEK_SET);
-	fwrite(&fp_sledeci, broj_bajtova_za_element, 1, datoteka);
-	////
-	fseek(datoteka, glava, SEEK_SET);
-	fwrite(&fizicki_poslednji, broj_bajtova_za_element, 1, datoteka);
-	if (nova_glava.prethodni == fizicki_poslednji.prethodni &&
-		nova_glava.sledeci == fizicki_poslednji.sledeci &&
-		nova_glava.podatak == fizicki_poslednji.podatak) {
-		//znaci nova_glava==fizicki_poslednji i nju treba da premestimo na glavu,
-		//tj. glava ce da ostane na istom mestu
-		goto kraj_true;
-	}
-	else {
-		glava = adresa_nove_glave;
+	if (glava == adresa_fizicki_poslednjeg) {
+		azuriraj_susede(datoteka, glava, sledeci, broj_bajtova_za_element);
+
+		glava = sledeci;
 		fseek(datoteka, sizeof(int), SEEK_SET);
 		fwrite(&glava, sizeof(int), 1, datoteka);
+
+		goto kraj_true;
 	}
 
+	//else if (glava == sizeof(int) * 2) {
+	//	//ako je glava fizicki prvi element
+	//	ELEMENT nova_glava;
+	//	fseek(datoteka, sledeci, SEEK_SET);
+	//	fread(&nova_glava, broj_bajtova_za_element, 1, datoteka);
+	//}
+	else {
+		ELEMENT nova_glava;
+		fseek(datoteka, sledeci, SEEK_SET);
+		fread(&nova_glava, broj_bajtova_za_element, 1, datoteka);
+		ELEMENT poslednji;
+		fseek(datoteka, prethodni, SEEK_SET);
+		fread(&poslednji, broj_bajtova_za_element, 1, datoteka);
+
+		// 1) azuriraj susede originalnog prvog da pokazuju na novu glavu
+		azuriraj_susede(datoteka, glava, sledeci, broj_bajtova_za_element);
+
+		// 2) fizicko prevezivanje: premestamo fizicki poslednji na mesto glave
+		ELEMENT fizicki_poslednji;
+		fseek(datoteka, adresa_fizicki_poslednjeg, SEEK_SET);
+		fread(&fizicki_poslednji, broj_bajtova_za_element, 1, datoteka);
+		// azuriraj sve koji su pokazivali na fizicki poslednji da sada pokazuju na glavu, jer ce mu tu biti novo mesto
+		azuriraj_susede(datoteka, adresa_fizicki_poslednjeg, glava, broj_bajtova_za_element);
+		// upisi fizicki poslednji na mesto glave
+		fseek(datoteka, glava, SEEK_SET);
+		fwrite(&fizicki_poslednji, broj_bajtova_za_element, 1, datoteka);
+
+		// 3) logicko prevezivanje: azuriraj veze pre i posle stare glave
+		nova_glava.prethodni = (void*)(intptr_t)prethodni;
+		poslednji.sledeci = (void*)(intptr_t)sledeci;
+		fseek(datoteka, prethodni, SEEK_SET);
+		fwrite(&poslednji, broj_bajtova_za_element, 1, datoteka);
+		fseek(datoteka, sledeci, SEEK_SET);
+		fwrite(&nova_glava, broj_bajtova_za_element, 1, datoteka);
+
+		// postavi novu glavu
+		glava = sledeci;
+		fseek(datoteka, sizeof(int), SEEK_SET);
+		fwrite(&glava, sizeof(int), 1, datoteka);
+
+		goto kraj_true;
+	}
 
 kraj_true:
 	(*lista)->broj_elemenata--;
@@ -744,6 +833,40 @@ SIGNAL sadrzi(LISTA* lista, PODATAK podatak, VRSTA_PRETRAGE vrsta) {
 
 //implementacija pomocnih funkcija 
 
+void azuriraj_susede(FILE* datoteka, int adresa, int nova_adresa, int velicina) {
+	ELEMENT element;
+	fseek(datoteka, adresa, SEEK_SET);
+	fread(&element, velicina, 1, datoteka);
+
+	int prethodni = (int)(intptr_t)element.prethodni;
+	int sledeci = (int)(intptr_t)element.sledeci;
+
+	ELEMENT sused;
+
+	// azuriraj prethodni
+	if (prethodni != NULL) {
+		fseek(datoteka, prethodni, SEEK_SET);
+		fread(&sused, velicina, 1, datoteka);
+		if ((int)(intptr_t)sused.sledeci == adresa) {
+			sused.sledeci = (void*)(intptr_t)nova_adresa;
+			fseek(datoteka, prethodni, SEEK_SET);
+			fwrite(&sused, velicina, 1, datoteka);
+		}
+	}
+
+	// azuriraj sledeci
+	if (sledeci != NULL) {
+		fseek(datoteka, sledeci, SEEK_SET);
+		fread(&sused, velicina, 1, datoteka);
+		if ((int)(intptr_t)sused.prethodni == adresa) {
+			sused.prethodni = (void*)(intptr_t)nova_adresa;
+			fseek(datoteka, sledeci, SEEK_SET);
+			fwrite(&sused, velicina, 1, datoteka);
+		}
+	}
+}
+
+
 void skrati_datoteku(FILE* datoteka, int broj_bajtova_za_skracivanje) {
 	fflush(datoteka);
 	int file_descriptor = fileno(datoteka); // file descriptor
@@ -923,7 +1046,7 @@ int main() {
 	obrada_statusa(signal.status, signal.poruka, lista->skladiste, __LINE__);
 
 	int a = 50;
-	signal = ubaci(&lista, a, Pocetak);
+	signal = ubaci(&lista, a, Kraj);
 	obrada_statusa(signal.status, signal.poruka, lista->skladiste, __LINE__);
 
 	int b = 30;
@@ -931,25 +1054,26 @@ int main() {
 	obrada_statusa(signal.status, signal.poruka, lista->skladiste, __LINE__);
 
 	int c = 70;
-	signal = ubaci(&lista, c, Pocetak);
+	signal = ubaci(&lista, c, Vrednost);
 	obrada_statusa(signal.status, signal.poruka, lista->skladiste, __LINE__);
 
 	int d = 80;
-	signal = ubaci(&lista, d, Kraj);
+	signal = ubaci(&lista, d, Pocetak);
 	obrada_statusa(signal.status, signal.poruka, lista->skladiste, __LINE__);
 
 	prikazi(lista);
 
-	int izbaceni;
+	//int izbaceni;
 	//signal = izbaci_sa_kraja1(&lista, &izbaceni);
 	//obrada_statusa(signal.status, signal.poruka, lista->skladiste, __LINE__);
 
-	/*int izbaceni;
+	int izbaceni;
 	signal = izbaci_sa_pocetka(&lista, &izbaceni);
-	obrada_statusa(signal.status, signal.poruka, lista->skladiste, __LINE__);*/
+	obrada_statusa(signal.status, signal.poruka, lista->skladiste, __LINE__);
+	printf("\nIzbaceni: %d\n", izbaceni);
 
 	//izbaci_sa_pocetka(&lista, &izbaceni) ? printf("Podatak %d je uspesno izbacen\n", izbaceni) : printf("Podatak nije uspesno izbacen\n");
-	//prikazi(lista);
+	prikazi(lista);
 
 	//lista->skladiste = NULL;
 	signal = prazna(lista);
