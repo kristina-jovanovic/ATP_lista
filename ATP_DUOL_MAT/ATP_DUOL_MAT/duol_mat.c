@@ -61,7 +61,7 @@ void obrada_statusa(STATUS status, STRING poruka, STRING naziv_dat, int linija_k
 
 //prototipovi pomocnih funkcija
 void rotiraj_udesno(int[][3], int, int);
-void rotiraj_ulevo(int[][3], int);
+void rotiraj_ulevo(int[][3], int, int);
 SIGNAL bubble_sort(LISTA*, SMER_SORTIRANJA);
 SIGNAL insertion_sort(LISTA*, SMER_SORTIRANJA);
 SIGNAL selection_sort(LISTA*, SMER_SORTIRANJA);
@@ -208,6 +208,80 @@ kraj_true:
 	return signal;
 }
 
+SIGNAL izbaci(LISTA* lista, PODATAK* podatak, NACIN nacin) {
+	SIGNAL signal;
+	signal.status = Greska;
+	signal.poruka = poruka.GRESKA.izbaci;
+	if (*lista == NULL || (*lista)->skladiste == NULL || (*lista)->broj_elemenata == 0)
+		return signal;
+
+	int(*matrica)[3] = (int(*)[3])(*lista)->skladiste;
+	int broj_el = (*lista)->broj_elemenata;
+
+	if (nacin == Vrednost) {
+		for (int i = 0;i < broj_el;i++) {
+			int pod = PODATAK_MAT(matrica, i);
+			if (pod == *podatak) {
+
+				// ako je ovo poslednji element, idi u granu 'kraj'
+				if (i == broj_el - 1) {
+					goto kraj;
+				}
+
+				// 'brisemo' i-ti
+				PRETHODNI(matrica, i) = PRAZNO;
+				SLEDECI(matrica, i) = PRAZNO;
+				PODATAK_MAT(matrica, i) = PRAZNO;
+
+				// rotiramo ulevo od i-tog
+				rotiraj_ulevo(matrica, broj_el, i);
+
+				goto kraj_true;
+			}
+		}
+	}
+	if (nacin == Kraj) {
+	kraj:
+		if (broj_el == 1) {
+			goto pocetak;
+		}
+
+		*podatak = matrica[broj_el - 1][1]; //ovaj element izbacujemo
+		matrica[broj_el - 1][1] = PRAZNO;
+		matrica[broj_el - 1][2] = PRAZNO;
+
+		int prethodni = matrica[broj_el - 1][0];
+		matrica[prethodni][2] = PRAZNO; //sledeci od prethodnog resetujemo na 'prazno'
+
+		//kad brisemo sa kraja nema sta da rotiramo ulevo, samo iskljucimo poslednji element
+		goto kraj_true;
+	}
+	if (nacin == Pocetak) {
+	pocetak:
+		*podatak = matrica[0][1]; //ovaj element izbacujemo
+		matrica[0][0] = PRAZNO;
+		matrica[0][1] = PRAZNO;
+		int nova_glava = matrica[0][2];
+		matrica[0][2] = PRAZNO;
+
+		if (broj_el > 1) {
+			matrica[nova_glava][0] = PRAZNO;
+			rotiraj_ulevo(matrica, broj_el, 0);
+		}
+		goto kraj_true;
+	}
+
+kraj_false: // ovde stizemo jedino ako je prosledjen nacin 'Vrednost', a ta vrednost ne postoji u listi
+	signal.status = Upozorenje;
+	signal.poruka = poruka.UPOZORENJE.izbaci;
+	return signal;
+kraj_true:
+	(*lista)->broj_elemenata--;
+	signal.status = Info;
+	signal.poruka = poruka.INFO.izbaci;
+	return signal;
+}
+
 SIGNAL izbaci_sa_pocetka(LISTA* lista, PODATAK* podatak) {
 	SIGNAL signal;
 	signal.status = Greska;
@@ -224,7 +298,7 @@ SIGNAL izbaci_sa_pocetka(LISTA* lista, PODATAK* podatak) {
 	matrica[0][2] = PRAZNO;
 	matrica[nova_glava][0] = PRAZNO;
 
-	rotiraj_ulevo(matrica, (*lista)->broj_elemenata);
+	rotiraj_ulevo(matrica, (*lista)->broj_elemenata, 0);
 	(*lista)->broj_elemenata--;
 	signal.status = Info;
 	signal.poruka = poruka.INFO.izbaci;
@@ -234,11 +308,11 @@ SIGNAL izbaci_sa_pocetka(LISTA* lista, PODATAK* podatak) {
 void prikazi(LISTA lista) {
 	printf("\nLista: ");
 	if (lista == NULL || lista->skladiste == NULL) {
-		printf("< NULL >");
+		printf("< NULL >\n");
 		return;
 	}
 	if (lista->broj_elemenata == 0) {
-		printf("< Prazna >");
+		printf("< Prazna >\n");
 		return;
 	}
 	int(*matrica)[3] = (int(*)[3])lista->skladiste;
@@ -330,23 +404,30 @@ SIGNAL sadrzi(LISTA* lista, PODATAK podatak, VRSTA_PRETRAGE vrsta) {
 
 //implementacija pomocnih funkcija
 void rotiraj_udesno(int mat[][3], int n, int pocetni_indeks) {
-	//oslobadja se mesto za unos novog elementa na pocetak 
+	//oslobadja se mesto za unos novog elementa 
 	for (int i = n;i > pocetni_indeks;i--) {
+		//printf("i: %d %d %d\n", mat[i][0], mat[i][1], mat[i][2]);
+		//printf("i-1: %d %d %d\n", mat[i - 1][0], mat[i - 1][1], mat[i - 1][2]);
 		mat[i][0] = mat[i - 1][0];
 		if (mat[i][0] != PRAZNO) mat[i][0]++; //pomerice se i indeksi ukoliko ne treba da bude prazno
 		mat[i][1] = mat[i - 1][1];
 		mat[i][2] = mat[i - 1][2];
 		if (mat[i][2] != PRAZNO) mat[i][2]++; //pomerice se i indeksi ukoliko ne treba da bude prazno
+		//printf("===i: %d %d %d\n", mat[i][0], mat[i][1], mat[i][2]);
+
 	}
 }
-void rotiraj_ulevo(int mat[][3], int n) {
-	//pomeraju se elementi ulevo nakon izbacivanja prvog elementa
-	for (int i = 0;i < n;i++) {
+void rotiraj_ulevo(int mat[][3], int n, int pocetni_indeks) {
+	//pomeraju se elementi ulevo nakon izbacivanja elementa
+	for (int i = pocetni_indeks;i < n - 1;i++) {
+		//printf("i: %d %d %d\n", mat[i][0], mat[i][1], mat[i][2]);
+		//printf("i+1: %d %d %d\n", mat[i+1][0], mat[i+1][1], mat[i+1][2]);
 		mat[i][0] = mat[i + 1][0];
 		if (mat[i][0] != PRAZNO) mat[i][0]--; //pomerice se i indeksi ukoliko ne treba da bude prazno
 		mat[i][1] = mat[i + 1][1];
 		mat[i][2] = mat[i + 1][2];
 		if (mat[i][2] != PRAZNO) mat[i][2]--; //pomerice se i indeksi ukoliko ne treba da bude prazno
+		//printf("===i: %d %d %d\n", mat[i][0], mat[i][1], mat[i][2]);
 	}
 }
 
@@ -442,26 +523,27 @@ int main() {
 	signal = ubaci(&lista, 6, Vrednost);
 	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
 
-	signal = ubaci(&lista, 9, Kraj);
+	signal = ubaci(&lista, 9, Pocetak);
 	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
 
 	prikazi(lista);
 	signal = prazna(lista);
 	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
 
-	signal = sadrzi(&lista, 5, Binarno);
+	/*signal = sadrzi(&lista, 5, Binarno);
 	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
 
 	signal = sadrzi(&lista, 2, Binarno);
-	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
+	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);*/
 
-
-	int izbaceni;
-	signal = izbaci_sa_pocetka(&lista, &izbaceni);
+	int izbaceni = 10;
+	signal = izbaci(&lista, &izbaceni, Vrednost);
+	//signal = izbaci_sa_pocetka(&lista, &izbaceni);
 	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
+	printf("\nIzbaceni: %d\n", izbaceni);
 	prikazi(lista);
 
-	signal = sortiraj(&lista, Opadajuce, Selection);
+	signal = sortiraj(&lista, Rastuce, Selection);
 	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
 	prikazi(lista);
 
