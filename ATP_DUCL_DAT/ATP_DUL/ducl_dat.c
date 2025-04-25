@@ -55,6 +55,9 @@ void obrada_statusa(STATUS status, STRING poruka, STRING naziv_dat, int linija_k
 
 //specifikacija pomocnih funkcija
 void skrati_datoteku(FILE*, int);
+SIGNAL bubble_sort(FILE*, int, int, SMER_SORTIRANJA);
+SIGNAL insertion_sort(FILE*, int, int, SMER_SORTIRANJA);
+SIGNAL selection_sort(FILE*, int, int, SMER_SORTIRANJA);
 
 SIGNAL kreiraj(LISTA* lista) {
 	SIGNAL signal;
@@ -108,7 +111,7 @@ SIGNAL ubaci(LISTA* lista, PODATAK podatak, NACIN nacin) {
 	signal.poruka = poruka.GRESKA.ubaci;
 	if (*lista == NULL || (*lista)->broj_elemenata >= (*lista)->kapacitet) return signal;
 
-	FILE* datoteka = fopen((*lista)->skladiste, "r+b"); //sa ab rezimom nije htelo
+	FILE* datoteka = fopen((*lista)->skladiste, "r+b");
 	if (datoteka == NULL) {
 		datoteka = fopen((*lista)->skladiste, "w+b");
 		if (datoteka == NULL) {
@@ -146,7 +149,7 @@ SIGNAL ubaci(LISTA* lista, PODATAK podatak, NACIN nacin) {
 		// gde pripada po vrednosti
 		fflush(datoteka);
 		fclose(datoteka);
-		sortiraj(lista, Rastuce); ////////////////
+		sortiraj(lista, Rastuce, Bubble); ////////////////
 		datoteka = fopen((*lista)->skladiste, "r+b");
 		if (datoteka == NULL) {
 			printf("Greska pri otvaranju datoteke!\n");
@@ -183,7 +186,8 @@ SIGNAL ubaci(LISTA* lista, PODATAK podatak, NACIN nacin) {
 			}
 			adresa_trenutnog = (int)(intptr_t)trenutni.sledeci;
 		} while (adresa_trenutnog != glava);
-
+		if (adresa_trenutnog == glava)
+			goto kraj;
 		//treba da postavimo novi element pre trenutnog
 		int adresa_prethodnog = (int)(intptr_t)trenutni.prethodni;
 		ELEMENT prethodni;
@@ -387,6 +391,7 @@ SIGNAL izbaci_sa_pocetka(LISTA* lista, PODATAK* podatak) {
 		fseek(datoteka, adresa_drugog, SEEK_SET);
 		fread(&drugi, broj_bajtova_za_element, 1, datoteka);
 		//treba da pokazuje sam na sebe kada glavu izbacimo, a on ce se pomeriti na mesto glave
+		//////////////////////////////////
 		//problem kad je glava na kraju
 		drugi.sledeci = (void*)(intptr_t)glava;
 		drugi.prethodni = (void*)(intptr_t)glava;
@@ -623,7 +628,7 @@ void prikazi(LISTA lista) {
 	fclose(datoteka);
 }
 
-SIGNAL sortiraj(LISTA* lista, SMER_SORTIRANJA smer) {
+SIGNAL sortiraj(LISTA* lista, SMER_SORTIRANJA smer, ALGORITAM_SORTIRANJA algoritam) {
 	SIGNAL signal;
 	signal.status = Greska;
 	signal.poruka = poruka.GRESKA.sortiraj;
@@ -665,38 +670,18 @@ SIGNAL sortiraj(LISTA* lista, SMER_SORTIRANJA smer) {
 		signal.poruka = poruka.UPOZORENJE.sortiraj;
 		return signal;
 	}
-	ELEMENT prvi, drugi;
-	adresa_prvog = adresa_glave;
-	fseek(datoteka, adresa_prvog, SEEK_SET);
-	fread(&prvi, broj_bajtova_za_element, 1, datoteka);
 
-	do {
-		adresa_drugog = (int)(intptr_t)prvi.sledeci;
-		do {
-			fseek(datoteka, adresa_drugog, SEEK_SET);
-			fread(&drugi, broj_bajtova_za_element, 1, datoteka);
-			if ((smer == Rastuce && prvi.podatak > drugi.podatak) ||
-				(smer == Opadajuce && prvi.podatak < drugi.podatak)) {
-				int pom = prvi.podatak;
-				prvi.podatak = drugi.podatak;
-				drugi.podatak = pom;
+	//fclose(datoteka);
 
-				//azuriranje vrednosti u datoteci
-				fseek(datoteka, adresa_prvog, SEEK_SET);
-				fwrite(&prvi, broj_bajtova_za_element, 1, datoteka);
-				fseek(datoteka, adresa_drugog, SEEK_SET);
-				fwrite(&drugi, broj_bajtova_za_element, 1, datoteka);
-			}
-			adresa_drugog = (int)(intptr_t)drugi.sledeci;
-		} while (adresa_drugog != adresa_glave);
-		adresa_prvog = (int)(intptr_t)prvi.sledeci;
-		fseek(datoteka, adresa_prvog, SEEK_SET);
-		fread(&prvi, broj_bajtova_za_element, 1, datoteka);
-	} while ((int)(intptr_t)prvi.sledeci != adresa_glave);
+	if (algoritam == Bubble)
+		signal = bubble_sort(datoteka, adresa_glave, broj_bajtova_za_element, smer);
+	if (algoritam == Insertion)
+		signal = insertion_sort(datoteka, adresa_glave, broj_bajtova_za_element, smer);
+	if (algoritam == Selection)
+		signal = selection_sort(datoteka, adresa_glave, broj_bajtova_za_element, smer);
+
 
 	fclose(datoteka);
-	signal.status = Info;
-	signal.poruka = poruka.INFO.sortiraj;
 	return signal;
 }
 
@@ -767,6 +752,162 @@ void skrati_datoteku(FILE* datoteka, int broj_bajtova_za_skracivanje) {
 	_chsize(file_descriptor, nova_velicina); // skracivanje datoteke
 }
 
+SIGNAL bubble_sort(FILE* datoteka, int adresa_glave, int broj_bajtova_za_element, SMER_SORTIRANJA smer) {
+	SIGNAL signal;
+
+	ELEMENT prvi, drugi;
+	int adresa_prvog, adresa_drugog;
+	adresa_prvog = adresa_glave;
+	fseek(datoteka, adresa_prvog, SEEK_SET);
+	fread(&prvi, broj_bajtova_za_element, 1, datoteka);
+
+	do {
+		adresa_drugog = (int)(intptr_t)prvi.sledeci;
+		do {
+			fseek(datoteka, adresa_drugog, SEEK_SET);
+			fread(&drugi, broj_bajtova_za_element, 1, datoteka);
+			if ((smer == Rastuce && prvi.podatak > drugi.podatak) ||
+				(smer == Opadajuce && prvi.podatak < drugi.podatak)) {
+				int pom = prvi.podatak;
+				prvi.podatak = drugi.podatak;
+				drugi.podatak = pom;
+
+				//azuriranje vrednosti u datoteci
+				fseek(datoteka, adresa_prvog, SEEK_SET);
+				fwrite(&prvi, broj_bajtova_za_element, 1, datoteka);
+				fseek(datoteka, adresa_drugog, SEEK_SET);
+				fwrite(&drugi, broj_bajtova_za_element, 1, datoteka);
+			}
+			adresa_drugog = (int)(intptr_t)drugi.sledeci;
+		} while (adresa_drugog != adresa_glave);
+		adresa_prvog = (int)(intptr_t)prvi.sledeci;
+		fseek(datoteka, adresa_prvog, SEEK_SET);
+		fread(&prvi, broj_bajtova_za_element, 1, datoteka);
+	} while ((int)(intptr_t)prvi.sledeci != adresa_glave);
+
+	signal.status = Info;
+	signal.poruka = poruka.INFO.sortiraj;
+	return signal;
+}
+
+SIGNAL insertion_sort(FILE* datoteka, int adresa_glave, int velicina_elementa, SMER_SORTIRANJA smer) {
+	SIGNAL signal;
+	ELEMENT trenutni, pomerani, prethodni;
+
+	// ucitaj glavu
+	fseek(datoteka, adresa_glave, SEEK_SET);
+	fread(&trenutni, velicina_elementa, 1, datoteka);
+	int adr_poslednji = (int)(intptr_t)trenutni.prethodni;
+
+	int adr_trenutni = trenutni.sledeci;
+
+	// idemo od drugog elementa do kraja 
+	while (adr_trenutni != adresa_glave) {
+
+		// ucitaj trenutni čvor
+		fseek(datoteka, adr_trenutni, SEEK_SET);
+		fread(&trenutni, velicina_elementa, 1, datoteka);
+
+		// pamtimo podatak i adresu trenutnog u slucaju da kasnije bude pomeranja
+		int podatak = trenutni.podatak;
+		int adr_pomeranja = adr_trenutni;
+
+		int adr_prethodni = trenutni.prethodni;
+		// pomeraj podatak unazad dok god je potrebno, dok prethodni ne bude jednak poslednjem (da bismo obuhvatili i glavu)
+		while (adr_prethodni != adr_poslednji) {
+			fseek(datoteka, adr_prethodni, SEEK_SET);
+			fread(&prethodni, velicina_elementa, 1, datoteka);
+
+			bool treba_pomeriti = (smer == Rastuce && prethodni.podatak > podatak) ||
+				(smer == Opadajuce && prethodni.podatak < podatak);
+
+			if (!treba_pomeriti)
+				break;
+
+			// pomeri podatak (prethodni na mesto trenutnog tj. adr_pomeranja)
+			fseek(datoteka, adr_pomeranja, SEEK_SET);
+			fread(&pomerani, velicina_elementa, 1, datoteka);
+			//printf("Pomeram %d na mesto %d\n", prethodni.podatak, pomerani.podatak);
+			pomerani.podatak = prethodni.podatak;
+			fseek(datoteka, adr_pomeranja, SEEK_SET);
+			fwrite(&pomerani, velicina_elementa, 1, datoteka);
+
+			// pomeramo se jedno mesto unazad i u narednom ciklusu petlje proveravamo da li podatak treba 
+			// pomeriti dalje unazad
+			adr_pomeranja = adr_prethodni;
+			adr_prethodni = prethodni.prethodni;
+		}
+
+		// upisemo sacuvani podatak na mesto gde smo stali u petlji
+		fseek(datoteka, adr_pomeranja, SEEK_SET);
+		fread(&pomerani, velicina_elementa, 1, datoteka);
+		//printf("Pomeram %d na mesto %d\n", podatak, pomerani.podatak);
+		pomerani.podatak = podatak;
+		fseek(datoteka, adr_pomeranja, SEEK_SET);
+		fwrite(&pomerani, velicina_elementa, 1, datoteka);
+
+		// prelazimo na sledeci element
+		fseek(datoteka, adr_trenutni, SEEK_SET);
+		fread(&trenutni, velicina_elementa, 1, datoteka);
+		adr_trenutni = trenutni.sledeci;
+	}
+
+	signal.status = Info;
+	signal.poruka = poruka.INFO.sortiraj;
+	return signal;
+}
+
+SIGNAL selection_sort(FILE* datoteka, int adresa_glave, int broj_bajtova_za_element, SMER_SORTIRANJA smer) {
+	SIGNAL signal;
+	ELEMENT i, j, min_max;
+	int adr_i = adresa_glave;
+
+	// idemo kroz listu, jedan po jedan
+	do {
+		fseek(datoteka, adr_i, SEEK_SET);
+		fread(&i, broj_bajtova_za_element, 1, datoteka);
+
+		int adr_min_max = adr_i;
+		min_max = i;
+
+		int adr_j = i.sledeci;
+
+		while (adr_j != adresa_glave) {
+			fseek(datoteka, adr_j, SEEK_SET);
+			fread(&j, broj_bajtova_za_element, 1, datoteka);
+
+			bool bolji = (smer == Rastuce && j.podatak < min_max.podatak) ||
+				(smer == Opadajuce && j.podatak > min_max.podatak);
+
+			if (bolji) {
+				adr_min_max = adr_j;
+				min_max = j;
+			}
+			adr_j = j.sledeci;
+		}
+
+		// ako treba, zameni podatke
+		if (adr_min_max != adr_i) {
+			int tmp = i.podatak;
+			i.podatak = min_max.podatak;
+			min_max.podatak = tmp;
+
+			fseek(datoteka, adr_i, SEEK_SET);
+			fwrite(&i, broj_bajtova_za_element, 1, datoteka);
+
+			fseek(datoteka, adr_min_max, SEEK_SET);
+			fwrite(&min_max, broj_bajtova_za_element, 1, datoteka);
+		}
+
+		adr_i = i.sledeci;
+
+	} while (adr_i != adresa_glave);
+
+	signal.status = Info;
+	signal.poruka = poruka.INFO.sortiraj;
+	return signal;
+}
+
 //main
 int main() {
 
@@ -781,17 +922,21 @@ int main() {
 	signal = kreiraj(&lista);
 	obrada_statusa(signal.status, signal.poruka, lista->skladiste, __LINE__);
 
-	int a = 7;
-	signal = ubaci(&lista, a, Kraj);
+	int a = 50;
+	signal = ubaci(&lista, a, Pocetak);
 	obrada_statusa(signal.status, signal.poruka, lista->skladiste, __LINE__);
 
-	int b = 2;
-	signal = ubaci(&lista, b, Kraj);
+	int b = 30;
+	signal = ubaci(&lista, b, Pocetak);
 	obrada_statusa(signal.status, signal.poruka, lista->skladiste, __LINE__);
 
-	/*int c = 5;
-	signal = ubaci(&lista, c, Vrednost);
-	obrada_statusa(signal.status, signal.poruka, lista->skladiste, __LINE__);*/
+	int c = 70;
+	signal = ubaci(&lista, c, Pocetak);
+	obrada_statusa(signal.status, signal.poruka, lista->skladiste, __LINE__);
+
+	int d = 80;
+	signal = ubaci(&lista, d, Kraj);
+	obrada_statusa(signal.status, signal.poruka, lista->skladiste, __LINE__);
 
 	prikazi(lista);
 
@@ -813,7 +958,7 @@ int main() {
 	signal = sadrzi(&lista, 7, Binarno);
 	obrada_statusa(signal.status, signal.poruka, lista->skladiste, __LINE__);
 
-	signal = sortiraj(&lista, Opadajuce);
+	signal = sortiraj(&lista, Opadajuce, Selection);
 	obrada_statusa(signal.status, signal.poruka, lista->skladiste, __LINE__);
 
 	prikazi(lista);

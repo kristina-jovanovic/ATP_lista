@@ -7,10 +7,13 @@
       "RelativeMoniker": "D:0:0:{363BBC8E-E2EC-47AE-BD0A-2F1DB8B3352F}|ATP_DUOL_MAT\\ATP_DUOL_MAT.vcxproj|solutionrelative:ATP_DUOL_MAT\\duol_mat.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\jovan\\OneDrive\\Radna povr\u0161ina\\SILAB\\ATP JK\\ATP_lista\\status.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\jovan\\OneDrive\\Radna povr\u0161ina\\SILAB\\ATP JK\\ATP_lista\\lista.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\jovan\\OneDrive\\Radna povr\u0161ina\\SILAB\\ATP JK\\ATP_lista\\lista.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\jovan\\OneDrive\\Radna povr\u0161ina\\SILAB\\ATP JK\\ATP_lista\\ATP_JUOL_POK\\ATP_JUL\\juol_pok.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\jovan\\OneDrive\\Radna povr\u0161ina\\SILAB\\ATP JK\\ATP_lista\\status.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\jovan\\OneDrive\\Radna povr\u0161ina\\SILAB\\ATP JK\\ATP_lista\\defs.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
@@ -23,11 +26,24 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
+              "Title": "juol_pok.c",
+              "DocumentMoniker": "C:\\Users\\jovan\\OneDrive\\Radna povr\u0161ina\\SILAB\\ATP JK\\ATP_lista\\ATP_JUOL_POK\\ATP_JUL\\juol_pok.c",
+              "RelativeDocumentMoniker": "..\\ATP_JUOL_POK\\ATP_JUL\\juol_pok.c",
+              "ToolTip": "C:\\Users\\jovan\\OneDrive\\Radna povr\u0161ina\\SILAB\\ATP JK\\ATP_lista\\ATP_JUOL_POK\\ATP_JUL\\juol_pok.c",
+              "RelativeToolTip": "..\\ATP_JUOL_POK\\ATP_JUL\\juol_pok.c",
+              "ViewState": "AgIAAD4BAAAAAAAAAAAuwEcBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-04-23T17:09:04.9Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
               "Title": "status.h",
               "DocumentMoniker": "C:\\Users\\jovan\\OneDrive\\Radna povr\u0161ina\\SILAB\\ATP JK\\ATP_lista\\status.h",
               "RelativeDocumentMoniker": "..\\status.h",
@@ -39,7 +55,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "defs.h",
               "DocumentMoniker": "C:\\Users\\jovan\\OneDrive\\Radna povr\u0161ina\\SILAB\\ATP JK\\ATP_lista\\defs.h",
               "RelativeDocumentMoniker": "..\\defs.h",
@@ -51,7 +67,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 1,
               "Title": "lista.h",
               "DocumentMoniker": "C:\\Users\\jovan\\OneDrive\\Radna povr\u0161ina\\SILAB\\ATP JK\\ATP_lista\\lista.h",
               "RelativeDocumentMoniker": "..\\lista.h",
@@ -59,7 +75,8 @@
               "RelativeToolTip": "..\\lista.h",
               "ViewState": "AgIAABIAAAAAAAAAAAAAAA0AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-04-10T15:39:05.013Z"
+              "WhenOpened": "2025-04-10T15:39:05.013Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -69,7 +86,7 @@
               "RelativeDocumentMoniker": "ATP_DUOL_MAT\\duol_mat.c",
               "ToolTip": "C:\\Users\\jovan\\OneDrive\\Radna povr\u0161ina\\SILAB\\ATP JK\\ATP_lista\\ATP_DUOL_MAT\\ATP_DUOL_MAT\\duol_mat.c",
               "RelativeToolTip": "ATP_DUOL_MAT\\duol_mat.c",
-              "ViewState": "AgIAABwBAAAAAAAAAIAwwDwBAAAwAAAAAAAAAA==",
+              "ViewState": "AgIAAFgBAAAAAAAAAAAuwGMBAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
               "WhenOpened": "2025-04-09T14:31:12.925Z",
               "EditorCaption": ""

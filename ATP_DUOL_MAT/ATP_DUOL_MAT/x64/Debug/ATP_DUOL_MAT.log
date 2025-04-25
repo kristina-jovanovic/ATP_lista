@@ -1,8 +1,8 @@
 ﻿  duol_mat.c
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(112,35): warning C4267: 'function': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(168,25): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(182,36): warning C4267: 'function': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(222,33): warning C4267: 'function': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(306,40): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(333,6): warning C4029: declared formal parameter list different from definition
+C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(115,35): warning C4267: 'function': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(161,36): warning C4267: 'function': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(173,25): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(187,36): warning C4267: 'function': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(227,33): warning C4267: 'function': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(305,40): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
   ATP_DUOL_MAT.vcxproj -> C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\x64\Debug\ATP_DUOL_MAT.exe
