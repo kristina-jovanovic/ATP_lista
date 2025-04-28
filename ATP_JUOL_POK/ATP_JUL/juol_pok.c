@@ -6,91 +6,33 @@
 
 // pomocne funkcije
 static void zameni(ELEMENT*, ELEMENT*);
-SIGNAL bubble_sort(LISTA*, SMER_SORTIRANJA);
-SIGNAL insertion_sort(LISTA*, SMER_SORTIRANJA);
-SIGNAL selection_sort(LISTA*, SMER_SORTIRANJA);
+PORUKA bubble_sort(LISTA*, SMER_SORTIRANJA);
+PORUKA insertion_sort(LISTA*, SMER_SORTIRANJA);
+PORUKA selection_sort(LISTA*, SMER_SORTIRANJA);
 
-/////////
-//status
-PORUKA poruka = {
-	.GRESKA = {
-		.kreiraj = "Doslo je do velikih problema prilikom KREIRANJA liste.\n",
-		.unisti = "Doslo je do velikih problema prilikom UNISTAVANJA liste.\n",
-		.ubaci = "Doslo je do velikih problema prilikom UBACIVANJA elementa u listu.\n",
-		.izbaci = "Doslo je do velikih problema prilikom IZBACIVANJA elementa iz liste.\n",
-		.sortiraj = "Doslo je do velikih problema prilikom SORTIRANJA elemenata liste.\n",
-	},
-	.UPOZORENJE = {
-		.ubaci = "Doslo je do problema prilikom UBACIVANJA elementa u listu.\n",
-		.izbaci = "Doslo je do problema prilikom IZBACIVANJA elementa iz liste.\n",
-		.sortiraj = "Doslo je do problema prilikom SORTIRANJA elemenata liste.\n",
-	},
-	.INFO = {
-		.kreiraj = "Lista je uspesno kreirana.\n",
-		.unisti = "Lista je uspesno unistena.\n",
-		.ubaci = "Element je uspesno ubacen u listu.\n",
-		.izbaci = "Element je uspesno izbacen iz liste.\n",
-		.podatak_postoji = "Podatak postoji u listi.\n",
-		.podatak_ne_postoji = "Podatak ne postoji u listi.\n",
-		.lista_prazna = "Lista je prazna.\n",
-		.lista_nije_prazna = "Lista nije prazna.\n",
-		.sortiraj = "Lista je uspesno sortirana.\n",
-	}
-};
-
-void obrada_statusa(STATUS status, STRING poruka, STRING naziv_dat, int linija_koda) {
-	char tip_poruke[20];
-	switch (status) {
-	case Info:
-		strcpy(tip_poruke, "*** INFO:");
-		fprintf(stdout, "%s %s", tip_poruke, poruka);
-		break;
-	case Upozorenje:
-		strcpy(tip_poruke, "*** UPOZORENJE:");
-		fprintf(stderr, "%s %s\nDATOTEKA: %s\nLINIJA: %d", tip_poruke, poruka, naziv_dat, linija_koda);
-		break;
-	case Greska:
-		strcpy(tip_poruke, "*** GRESKA:");
-		fprintf(stderr, "%s %s\nDATOTEKA: %s\nLINIJA: %d", tip_poruke, poruka, naziv_dat, linija_koda);
-		fprintf(stderr, "\nProgram ce biti prekinut.");
-		exit(EXIT_FAILURE);
-		break;
-	default:
-		break;
-	}
-}
-/////////
-
-SIGNAL kreiraj(LISTA* lista) {
-	SIGNAL signal;
+void kreiraj(LISTA* lista) {
 	*lista = malloc(sizeof(struct lista));
 	if (*lista == NULL) {
-		signal.status = Greska;
-		signal.poruka = poruka.GRESKA.kreiraj;
+		prijavi(GRESKA_KREIRAJ, __FILE__, __LINE__);
 	}
 	else {
 		(*lista)->skladiste = NULL;
 		(*lista)->kapacitet = 100;
 		(*lista)->broj_elemenata = 0;
 
-		signal.status = Info;
-		signal.poruka = poruka.INFO.kreiraj;
+		prijavi(INFO_KREIRAJ, __FILE__, __LINE__);
 	}
-	return signal;
 }
 
-SIGNAL unisti(LISTA* lista) {
-	SIGNAL signal;
+void unisti(LISTA* lista) {
 	if ((*lista == NULL) || ((*lista)->skladiste) == NULL || (*lista == ErrorList)) {
-		signal.status = Greska;
-		signal.poruka = poruka.GRESKA.unisti;
-		return signal;
+		prijavi(GRESKA_LISTA_NE_POSTOJI, __FILE__, __LINE__);
+		return;
 	}
 	ELEMENT* trenutni = (ELEMENT*)(*lista)->skladiste;
 	if (trenutni == NULL) {
-		signal.status = Greska;
-		signal.poruka = poruka.GRESKA.unisti;
-		return signal;
+		prijavi(GRESKA_UNISTI, __FILE__, __LINE__);
+		return;
 	}
 	while (trenutni != NULL) {
 		(*lista)->skladiste = ((ELEMENT*)((*lista)->skladiste))->sledeci;
@@ -99,19 +41,20 @@ SIGNAL unisti(LISTA* lista) {
 		//free(trenutni);
 		trenutni = (*lista)->skladiste;
 	}
-	signal.status = Info;
-	signal.poruka = poruka.INFO.unisti;
-	return signal;
+	prijavi(INFO_UNISTI, __FILE__, __LINE__);
 }
 
-SIGNAL ubaci(LISTA* lista, PODATAK podatak, NACIN nacin) {
-	SIGNAL signal;
-	signal.status = Greska;
-	signal.poruka = poruka.GRESKA.ubaci;
-	if (*lista == NULL || *lista == ErrorList || (*lista)->broj_elemenata >= (*lista)->kapacitet) return signal;
+void ubaci(LISTA* lista, PODATAK podatak, NACIN nacin) {
+	if (*lista == NULL || *lista == ErrorList) {
+		prijavi(GRESKA_LISTA_NE_POSTOJI, __FILE__, __LINE__);
+		return;
+	}
+	if ((*lista)->broj_elemenata >= (*lista)->kapacitet) {
+		prijavi(UPOZORENJE_UBACI, __FILE__, __LINE__);
+		return;
+	}
 
 	ELEMENT* novi = malloc(sizeof(ELEMENT));
-	if (novi == NULL) return signal;
 	novi->prethodni = NULL; //jer je ovo JUL
 	novi->podatak = podatak;
 
@@ -119,8 +62,8 @@ SIGNAL ubaci(LISTA* lista, PODATAK podatak, NACIN nacin) {
 	if (nacin == Vrednost) {
 		//lista treba da bude sortirana i da se element ubaci tamo gde pripada po vrednosti
 		sortiraj(lista, Rastuce, Bubble);
-		//signal = sortiraj(lista, Rastuce);
-		//if (signal.status == Greska) return signal;
+		//poruka = sortiraj(lista, Rastuce);
+		//if (poruka.status == Greska) return poruka;
 		if (glava == NULL)
 			goto pocetak;
 		else {
@@ -156,9 +99,7 @@ SIGNAL ubaci(LISTA* lista, PODATAK podatak, NACIN nacin) {
 	}
 
 	(*lista)->broj_elemenata++;
-	signal.status = Info;
-	signal.poruka = poruka.INFO.ubaci;
-	return signal;
+	prijavi(INFO_UBACI, __FILE__, __LINE__);
 }
 
 SIGNAL izbaci_sa_pocetka(LISTA* lista, PODATAK* podatak) {
@@ -440,17 +381,17 @@ int main(void) {
 	printf("Izbacen: %d\n", izbaceni);
 
 	/*int izbaceni;
-	signal = izbaci(&lista, &izbaceni, Kraj);
-	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
+	poruka = izbaci(&lista, &izbaceni, Kraj);
+	obrada_statusa(poruka.status, poruka.poruka, NULL, __LINE__);
 	printf("Izbacen: %d\n", izbaceni);
-	signal = izbaci(&lista, &izbaceni, Kraj);
-	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
+	poruka = izbaci(&lista, &izbaceni, Kraj);
+	obrada_statusa(poruka.status, poruka.poruka, NULL, __LINE__);
 	printf("Izbacen: %d\n", izbaceni);
-	signal = izbaci(&lista, &izbaceni, Kraj);
-	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
+	poruka = izbaci(&lista, &izbaceni, Kraj);
+	obrada_statusa(poruka.status, poruka.poruka, NULL, __LINE__);
 	printf("Izbacen: %d\n", izbaceni);
-	signal = izbaci(&lista, &izbaceni, Kraj);
-	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
+	poruka = izbaci(&lista, &izbaceni, Kraj);
+	obrada_statusa(poruka.status, poruka.poruka, NULL, __LINE__);
 	printf("Izbacen: %d\n", izbaceni);*/
 
 	prikazi(lista);

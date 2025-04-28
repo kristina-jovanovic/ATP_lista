@@ -34,13 +34,13 @@ typedef enum algoritam_sortiranja { Bubble, Insertion, Selection } ALGORITAM_SOR
 
 
 // funkcije
-SIGNAL	kreiraj(LISTA*);
-SIGNAL	unisti(LISTA*);
-SIGNAL	ubaci(LISTA*, PODATAK, NACIN);
-SIGNAL	izbaci(LISTA*, PODATAK*, NACIN);
+PORUKA	kreiraj(LISTA*);
+PORUKA	unisti(LISTA*);
+PORUKA	ubaci(LISTA*, PODATAK, NACIN);
+PORUKA	izbaci(LISTA*, PODATAK*, NACIN);
 void	prikazi(LISTA);
-SIGNAL	sortiraj(LISTA*, SMER_SORTIRANJA, ALGORITAM_SORTIRANJA);
-SIGNAL	prazna(LISTA);
-SIGNAL	sadrzi(LISTA*, PODATAK, VRSTA_PRETRAGE);
+PORUKA	sortiraj(LISTA*, SMER_SORTIRANJA, ALGORITAM_SORTIRANJA);
+PORUKA	prazna(LISTA);
+PORUKA	sadrzi(LISTA*, PODATAK, VRSTA_PRETRAGE);
 
 
