@@ -1,6 +1,7 @@
 #pragma once
 
 #include "defs.h"
+#include <stdarg.h>
 
 // tipovi
 typedef char* STRING;
@@ -23,7 +24,7 @@ typedef enum {
 	UPOZORENJE_LISTA_PRAZNA, //ovo ce biti prijavljeno ukoliko zelimo da odradimo neku operaciju koja zahteva da lista ima elemenata, a lista je prazna -> operacija nece moci da se izvrsi
 	UPOZORENJE_UBACI, // kada lista ima maskimalni dozvoljeni broj elemenata
 	UPOZORENJE_IZBACI, //kada zelimo da izbacimo element odredjene vrednosti, a ta vrednost ne postoji u listi
-	UPOZORENJE_LISTA_SORTIRAJ, //ukoliko imamo manje od 2 elementa 
+	UPOZORENJE_SORTIRAJ, //ukoliko imamo manje od 2 elementa 
 	//greska kodovi
 	GRESKA_UCITAVANJE_DATOTEKE,
 	GRESKA_KREIRAJ,
@@ -45,4 +46,8 @@ typedef struct poruka {
 extern PORUKA poruke[];
 
 // funkcije
-void prijavi(KOD_PORUKE kod, STRING naziv_datoteke, int linija);
+void prijavi(KOD_PORUKE kod, STRING naziv_datoteke, int linija, ...);
+
+// makro koji automatizuje pozive funkcije prijavi()
+#define PRIJAVI(kod, ...) prijavi((kod), __FILE__, __LINE__, __VA_ARGS__)
+

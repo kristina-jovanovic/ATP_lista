@@ -6,32 +6,32 @@
 
 // pomocne funkcije
 static void zameni(ELEMENT*, ELEMENT*);
-PORUKA bubble_sort(LISTA*, SMER_SORTIRANJA);
-PORUKA insertion_sort(LISTA*, SMER_SORTIRANJA);
-PORUKA selection_sort(LISTA*, SMER_SORTIRANJA);
+void bubble_sort(LISTA*, SMER_SORTIRANJA);
+void insertion_sort(LISTA*, SMER_SORTIRANJA);
+void selection_sort(LISTA*, SMER_SORTIRANJA);
 
 void kreiraj(LISTA* lista) {
 	*lista = malloc(sizeof(struct lista));
 	if (*lista == NULL) {
-		prijavi(GRESKA_KREIRAJ, __FILE__, __LINE__);
+		PRIJAVI(GRESKA_KREIRAJ);
 	}
 	else {
 		(*lista)->skladiste = NULL;
 		(*lista)->kapacitet = 100;
 		(*lista)->broj_elemenata = 0;
 
-		prijavi(INFO_KREIRAJ, __FILE__, __LINE__);
+		PRIJAVI(INFO_KREIRAJ);
 	}
 }
 
 void unisti(LISTA* lista) {
 	if ((*lista == NULL) || ((*lista)->skladiste) == NULL || (*lista == ErrorList)) {
-		prijavi(GRESKA_LISTA_NE_POSTOJI, __FILE__, __LINE__);
+		PRIJAVI(GRESKA_LISTA_NE_POSTOJI);
 		return;
 	}
 	ELEMENT* trenutni = (ELEMENT*)(*lista)->skladiste;
 	if (trenutni == NULL) {
-		prijavi(GRESKA_UNISTI, __FILE__, __LINE__);
+		PRIJAVI(GRESKA_UNISTI);
 		return;
 	}
 	while (trenutni != NULL) {
@@ -41,16 +41,16 @@ void unisti(LISTA* lista) {
 		//free(trenutni);
 		trenutni = (*lista)->skladiste;
 	}
-	prijavi(INFO_UNISTI, __FILE__, __LINE__);
+	PRIJAVI(INFO_UNISTI);
 }
 
 void ubaci(LISTA* lista, PODATAK podatak, NACIN nacin) {
 	if (*lista == NULL || *lista == ErrorList) {
-		prijavi(GRESKA_LISTA_NE_POSTOJI, __FILE__, __LINE__);
+		PRIJAVI(GRESKA_LISTA_NE_POSTOJI);
 		return;
 	}
 	if ((*lista)->broj_elemenata >= (*lista)->kapacitet) {
-		prijavi(UPOZORENJE_UBACI, __FILE__, __LINE__);
+		PRIJAVI(UPOZORENJE_UBACI);
 		return;
 	}
 
@@ -99,35 +99,16 @@ void ubaci(LISTA* lista, PODATAK podatak, NACIN nacin) {
 	}
 
 	(*lista)->broj_elemenata++;
-	prijavi(INFO_UBACI, __FILE__, __LINE__);
+	PRIJAVI(INFO_UBACI);
 }
 
-SIGNAL izbaci_sa_pocetka(LISTA* lista, PODATAK* podatak) {
-	SIGNAL signal;
-	signal.status = Greska;
-	signal.poruka = poruka.GRESKA.izbaci;
-	if (*lista == NULL || (*lista)->skladiste == NULL || *lista == ErrorList) return signal;
-	*podatak = ((ELEMENT*)((*lista)->skladiste))->podatak;
-	ELEMENT* pom = (*lista)->skladiste;
-	(*lista)->skladiste = ((ELEMENT*)((*lista)->skladiste))->sledeci;
-	(*lista)->broj_elemenata--;
-	free(pom);
-	pom = NULL;
-
-	signal.status = Info;
-	signal.poruka = poruka.INFO.izbaci;
-	return signal;
-}
-
-SIGNAL izbaci(LISTA* lista, PODATAK* podatak, NACIN nacin) {
-	SIGNAL signal;
-	signal.status = Greska;
-	signal.poruka = poruka.GRESKA.izbaci;
-	if (*lista == NULL || (*lista)->skladiste == NULL || *lista == ErrorList) return signal;
-	if ((*lista)->broj_elemenata == 0) {
-		signal.status = Upozorenje;
-		signal.poruka = poruka.UPOZORENJE.izbaci;
-		return signal;
+void izbaci(LISTA* lista, PODATAK* podatak, NACIN nacin) {
+	if (*lista == NULL || *lista == ErrorList) {
+		PRIJAVI(GRESKA_LISTA_NE_POSTOJI);
+		return;
+	}
+	if ((*lista)->skladiste == NULL || (*lista)->broj_elemenata == 0) {
+		PRIJAVI(UPOZORENJE_LISTA_PRAZNA);
 	}
 
 	ELEMENT* pom = (*lista)->skladiste;
@@ -185,13 +166,11 @@ SIGNAL izbaci(LISTA* lista, PODATAK* podatak, NACIN nacin) {
 kraj_true:
 	(*lista)->broj_elemenata--;
 	if ((*lista)->broj_elemenata == 0) (*lista)->skladiste = NULL;
-	signal.status = Info;
-	signal.poruka = poruka.INFO.izbaci;
-	return signal;
+	PRIJAVI(INFO_IZBACI, *podatak);
+	return;
 kraj_false:
-	signal.status = Upozorenje;
-	signal.poruka = poruka.UPOZORENJE.izbaci;
-	return signal;
+	PRIJAVI(UPOZORENJE_IZBACI, *podatak);
+	return;
 }
 
 void prikazi(LISTA lista) {
@@ -212,38 +191,41 @@ void prikazi(LISTA lista) {
 	printf("\n\n");
 }
 
-SIGNAL sortiraj(LISTA* lista, SMER_SORTIRANJA smer, ALGORITAM_SORTIRANJA algoritam) {
-	SIGNAL signal;
-	signal.status = Greska;
-	signal.poruka = poruka.GRESKA.sortiraj;
-	if (*lista == NULL || (*lista)->skladiste == NULL || (*lista)->skladiste == ErrorList) return signal;
+void sortiraj(LISTA* lista, SMER_SORTIRANJA smer, ALGORITAM_SORTIRANJA algoritam) {
+	if (*lista == NULL || (*lista)->skladiste == ErrorList) {
+		PRIJAVI(GRESKA_LISTA_NE_POSTOJI);
+		return;
+	}
+	if ((*lista)->skladiste == NULL || (*lista)->broj_elemenata == 0) {
+		PRIJAVI(UPOZORENJE_LISTA_PRAZNA);
+		return;
+	}
 
 	if (algoritam == Bubble)
-		signal = bubble_sort(lista, smer);
+		bubble_sort(lista, smer);
 	if (algoritam == Insertion)
-		signal = insertion_sort(lista, smer);
+		insertion_sort(lista, smer);
 	if (algoritam == Selection)
-		signal = selection_sort(lista, smer);
-
-	return signal;
+		selection_sort(lista, smer);
 }
 
-SIGNAL prazna(LISTA lista) {
-	SIGNAL signal;
-	signal.status = Info;
-	if (lista == NULL || lista->skladiste == NULL || lista->broj_elemenata == 0)
-		signal.poruka = poruka.INFO.lista_prazna;
-	else
-		signal.poruka = poruka.INFO.lista_nije_prazna;
-	return signal;
+bool prazna(LISTA lista) {
+	if (lista == NULL || lista->skladiste == NULL || lista->broj_elemenata == 0) {
+		PRIJAVI(INFO_LISTA_PRAZNA);
+		return true;
+	}
+	else {
+		PRIJAVI(INFO_LISTA_NIJE_PRAZNA);
+		return false;
+	}
 }
 
-SIGNAL sadrzi(LISTA* lista, PODATAK trazeni_podatak, VRSTA_PRETRAGE vrsta_pretrage) {
-	SIGNAL signal;
-	signal.status = Info;
-	signal.poruka = poruka.INFO.podatak_ne_postoji;
+bool sadrzi(LISTA* lista, PODATAK trazeni_podatak, VRSTA_PRETRAGE vrsta_pretrage) {
 	if (lista == NULL || (*lista)->skladiste == NULL || (*lista)->skladiste == ErrorList
-		|| (*lista)->broj_elemenata == 0) return signal;
+		|| (*lista)->broj_elemenata == 0) {
+		PRIJAVI(INFO_PODATAK_NE_POSTOJI, trazeni_podatak);
+		return false;
+	}
 
 	//binarno pretrazivanje se ne moze raditi kada je lista implementirana preko pokazivaca
 	//tako da cemo raditi iterativni pristup bez obzira na to koja vrsta pretrage je prosledjena
@@ -253,9 +235,14 @@ SIGNAL sadrzi(LISTA* lista, PODATAK trazeni_podatak, VRSTA_PRETRAGE vrsta_pretra
 		if (trazeni_podatak == trenutni->podatak) break;
 		trenutni = trenutni->sledeci;
 	}
-	(trenutni != NULL) ? (signal.poruka = poruka.INFO.podatak_postoji) : (signal.poruka = poruka.INFO.podatak_ne_postoji); // ako smo dosli do kraja (trenutni == NULL) znaci da nismo nasli trazeni podatak
-
-	return signal;
+	if (trenutni != NULL) { // ako smo dosli do kraja (trenutni == NULL) znaci da nismo nasli trazeni podatak
+		PRIJAVI(INFO_PODATAK_POSTOJI, trazeni_podatak);
+		return true;
+	}
+	else {
+		PRIJAVI(INFO_PODATAK_NE_POSTOJI, trazeni_podatak);
+		return false;
+	}
 }
 
 // implementacija pomocnih funkcija
@@ -266,14 +253,12 @@ static void zameni(ELEMENT* p1, ELEMENT* p2) {
 	p2->podatak = pom;
 }
 
-SIGNAL bubble_sort(LISTA* lista, SMER_SORTIRANJA smer) {
-	SIGNAL signal;
+void bubble_sort(LISTA* lista, SMER_SORTIRANJA smer) {
 	ELEMENT* prvi = (ELEMENT*)(*lista)->skladiste;
 	ELEMENT* drugi = ((ELEMENT*)(*lista)->skladiste)->sledeci;
 	if (prvi == NULL || drugi == NULL) {
-		signal.status = Upozorenje;
-		signal.poruka = poruka.UPOZORENJE.sortiraj;
-		return signal;
+		PRIJAVI(UPOZORENJE_SORTIRAJ);
+		return;
 	}
 	while (prvi->sledeci != NULL) {
 		while (drugi != NULL) {
@@ -286,13 +271,15 @@ SIGNAL bubble_sort(LISTA* lista, SMER_SORTIRANJA smer) {
 		prvi = prvi->sledeci;
 		drugi = prvi->sledeci;
 	}
-	signal.status = Info;
-	signal.poruka = poruka.INFO.sortiraj;
-	return signal;
+	PRIJAVI(INFO_SORTIRAJ, (smer == Rastuce ? "rastuce" : "opadajuce"));
 }
 
-SIGNAL insertion_sort(LISTA* lista, SMER_SORTIRANJA smer) {
-	SIGNAL signal;
+void insertion_sort(LISTA* lista, SMER_SORTIRANJA smer) {
+	if ((*lista)->broj_elemenata < 2) {
+		//ako imamo 0 ili 1 element, nema sta da se sortira
+		PRIJAVI(UPOZORENJE_SORTIRAJ);
+		return;
+	}
 
 	ELEMENT* sortirano = NULL;
 	ELEMENT* trenutni = (*lista)->skladiste;
@@ -319,14 +306,15 @@ SIGNAL insertion_sort(LISTA* lista, SMER_SORTIRANJA smer) {
 		trenutni = sledeci;
 	}
 	(*lista)->skladiste = sortirano;
-
-	signal.status = Info;
-	signal.poruka = poruka.INFO.sortiraj;
-	return signal;
+	PRIJAVI(INFO_SORTIRAJ, (smer == Rastuce ? "rastuce" : "opadajuce"));
 }
 
-SIGNAL selection_sort(LISTA* lista, SMER_SORTIRANJA smer) {
-	SIGNAL signal;
+void selection_sort(LISTA* lista, SMER_SORTIRANJA smer) {
+	if ((*lista)->broj_elemenata < 2) {
+		//ako imamo 0 ili 1 element, nema sta da se sortira
+		PRIJAVI(UPOZORENJE_SORTIRAJ);
+		return;
+	}
 
 	for (ELEMENT* i = (ELEMENT*)(*lista)->skladiste; i != NULL; i = i->sledeci) {
 		ELEMENT* pom = i; //ako sortiramo rastuce, ovo je minimum, a ako sortiramo opadajuce, ovo je maksimum
@@ -341,76 +329,45 @@ SIGNAL selection_sort(LISTA* lista, SMER_SORTIRANJA smer) {
 			pom->podatak = tmp;
 		}
 	}
-
-	signal.status = Info;
-	signal.poruka = poruka.INFO.sortiraj;
-	return signal;
+	PRIJAVI(INFO_SORTIRAJ, (smer == Rastuce ? "rastuce" : "opadajuce"));
 }
 
 //main
 
 int main(void) {
 	LISTA lista;
-	SIGNAL signal;
-	signal = kreiraj(&lista);
-	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
+	kreiraj(&lista);
 
 	int a = 5;
-	signal = ubaci(&lista, a, Kraj);
-	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
+	ubaci(&lista, a, Kraj);
 
 	int b = 9;
-	signal = ubaci(&lista, b, Pocetak);
-	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
+	ubaci(&lista, b, Pocetak);
 
 	int c = 7;
-	signal = ubaci(&lista, c, Kraj);
-	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
+	ubaci(&lista, c, Kraj);
 
 	prikazi(lista);
-	signal = sortiraj(&lista, Rastuce, Selection);
-	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
+	sortiraj(&lista, Rastuce, Selection);
 	prikazi(lista);
 
-	signal = sadrzi(&lista, 5, Binarno);
-	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
+	sadrzi(&lista, 5, Binarno);
 
 	int izbaceni = 5;
-	signal = izbaci(&lista, &izbaceni, Vrednost);
-	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
-	printf("Izbacen: %d\n", izbaceni);
-
-	/*int izbaceni;
-	poruka = izbaci(&lista, &izbaceni, Kraj);
-	obrada_statusa(poruka.status, poruka.poruka, NULL, __LINE__);
-	printf("Izbacen: %d\n", izbaceni);
-	poruka = izbaci(&lista, &izbaceni, Kraj);
-	obrada_statusa(poruka.status, poruka.poruka, NULL, __LINE__);
-	printf("Izbacen: %d\n", izbaceni);
-	poruka = izbaci(&lista, &izbaceni, Kraj);
-	obrada_statusa(poruka.status, poruka.poruka, NULL, __LINE__);
-	printf("Izbacen: %d\n", izbaceni);
-	poruka = izbaci(&lista, &izbaceni, Kraj);
-	obrada_statusa(poruka.status, poruka.poruka, NULL, __LINE__);
-	printf("Izbacen: %d\n", izbaceni);*/
+	izbaci(&lista, &izbaceni, Vrednost);
 
 	prikazi(lista);
 
-	signal = sadrzi(&lista, 5, Binarno);
-	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
+	sadrzi(&lista, 5, Binarno);
 
-	signal = prazna(lista);
-	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
+	prazna(lista);
 
-	signal = sadrzi(&lista, 15, Binarno);
-	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
+	sadrzi(&lista, 15, Binarno);
 
-	signal = unisti(&lista);
-	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
+	unisti(&lista);
 
 	prikazi(lista);
-	signal = prazna(lista);
-	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
+	prazna(lista);
 
 	return 0;
 }

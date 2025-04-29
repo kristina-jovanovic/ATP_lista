@@ -1,2 +1,5 @@
-﻿  juol_pok.c
+﻿  status.c
+  juol_pok.c
+C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\status.c(32,9): warning C4101: 'tip_poruke': unreferenced local variable
+  Generating Code...
   ATP_JUL.vcxproj -> C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_JUOL_POK\x64\Debug\ATP_JUL.exe

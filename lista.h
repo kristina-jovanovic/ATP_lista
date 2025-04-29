@@ -32,15 +32,14 @@ typedef enum smer_sortiranja { Rastuce, Opadajuce } SMER_SORTIRANJA;
 typedef enum vrsta_pretrage { Iterativno, Binarno } VRSTA_PRETRAGE;
 typedef enum algoritam_sortiranja { Bubble, Insertion, Selection } ALGORITAM_SORTIRANJA;
 
-
 // funkcije
-PORUKA	kreiraj(LISTA*);
-PORUKA	unisti(LISTA*);
-PORUKA	ubaci(LISTA*, PODATAK, NACIN);
-PORUKA	izbaci(LISTA*, PODATAK*, NACIN);
+void	kreiraj(LISTA*);
+void	unisti(LISTA*);
+void	ubaci(LISTA*, PODATAK, NACIN);
+void	izbaci(LISTA*, PODATAK*, NACIN);
 void	prikazi(LISTA);
-PORUKA	sortiraj(LISTA*, SMER_SORTIRANJA, ALGORITAM_SORTIRANJA);
-PORUKA	prazna(LISTA);
-PORUKA	sadrzi(LISTA*, PODATAK, VRSTA_PRETRAGE);
+void	sortiraj(LISTA*, SMER_SORTIRANJA, ALGORITAM_SORTIRANJA);
+bool	prazna(LISTA);
+bool	sadrzi(LISTA*, PODATAK, VRSTA_PRETRAGE);
 
 

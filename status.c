@@ -16,7 +16,7 @@ PORUKA poruke[BROJ_KODOVA] = {
 	// upozorenje poruke
 	[UPOZORENJE_LISTA_PRAZNA] = { Upozorenje, "Nije moguce izvrsiti operaciju jer je lista prazna."},
 	[UPOZORENJE_IZBACI] = { Upozorenje, "Nije moguce izbaciti element sa vrednoscu %d jer ne postoji u listi."},
-	[UPOZORENJE_LISTA_SORTIRAJ] = { Upozorenje, "Nije moguce sortirati listu jer ima manje od 2 elementa."},
+	[UPOZORENJE_SORTIRAJ] = { Upozorenje, "Nije moguce sortirati listu jer ima manje od 2 elementa."},
 	//greska poruke
 	[GRESKA_UCITAVANJE_DATOTEKE] = { Greska, "Neuspesno ucitavanje datoteke."},
 	[GRESKA_KREIRAJ] = { Greska, "Nije moguce kreirati datoteku."},
@@ -25,32 +25,34 @@ PORUKA poruke[BROJ_KODOVA] = {
 	[GRESKA_LISTA_NE_POSTOJI] = { Greska, "Nije moguce izvrsiti operaciju jer lista ne postoji."},
 };
 
-void prijavi(KOD_PORUKE kod, STRING naziv_datoteke, int linija) {
+void prijavi(KOD_PORUKE kod, STRING naziv_datoteke, int linija, ...) {
 	if (kod >= BROJ_KODOVA) return;
 
 	PORUKA poruka = poruke[kod];
 	STRING tip_poruke;
 
-	switch (poruka.status)
-	{
-	case Info: tip_poruke = "*** INFO: ";
+	va_list args;
+	va_start(args, linija);
+
+	switch (poruka.status) {
+	case Info:
+		fprintf(stdout, "*** INFO: ");
+		vfprintf(stdout, poruka.tekst, args);
+		fprintf(stdout, "\n");
 		break;
-	case Upozorenje: tip_poruke = "*** UPOZORENJE: ";
+	case Upozorenje:
+		fprintf(stderr, "*** UPOZORENJE: ");
+		vfprintf(stderr, poruka.tekst, args);
+		fprintf(stderr, "\nDATOTEKA: %s\nLINIJA: %d\n", naziv_datoteke, linija);
 		break;
-	case Greska: tip_poruke = "*** GRESKA: ";
-		break;
-	default: tip_poruke = "NEIDENTIFIKOVANO ";
+	case Greska:
+		fprintf(stderr, "*** GRESKA: ");
+		vfprintf(stderr, poruka.tekst, args);
+		fprintf(stderr, "\nDATOTEKA: %s\nLINIJA: %d\n", naziv_datoteke, linija);
+		fprintf(stderr, "Program ce biti prekinut.\n");
+		exit(EXIT_FAILURE);
 		break;
 	}
 
-	if (poruka.status == Info) {
-		fprintf(stdout, "%s %s\n", tip_poruke, poruka.tekst);
-	}
-	else {
-		fprintf(stderr, "%s %s\nDATOTEKA: %s\nLINIJA: %d\n", tip_poruke, poruka.tekst, naziv_datoteke, linija);
-		if (p.status == Greska) {
-			fprintf(stderr, "Program ce biti prekinut.\n");
-			exit(EXIT_FAILURE);
-		}
-	}
+	va_end(args);
 }
