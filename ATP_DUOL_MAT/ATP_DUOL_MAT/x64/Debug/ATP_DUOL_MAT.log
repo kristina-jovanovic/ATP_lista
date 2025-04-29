@@ -1,10 +1,11 @@
-﻿  duol_mat.c
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(115,35): warning C4267: 'function': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(161,36): warning C4267: 'function': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(173,25): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(187,36): warning C4267: 'function': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(219,24): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(274,1): warning C4102: 'kraj_false': unreferenced label
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(301,33): warning C4267: 'function': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(379,40): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+﻿  status.c
+  duol_mat.c
+C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\status.c(32,9): warning C4101: 'tip_poruke': unreferenced local variable
+C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(114,36): warning C4267: 'function': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(126,25): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(140,36): warning C4267: 'function': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(173,24): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(228,1): warning C4102: 'kraj_false': unreferenced label
+C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\ATP_DUOL_MAT\duol_mat.c(332,40): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+  Generating Code...
   ATP_DUOL_MAT.vcxproj -> C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUOL_MAT\x64\Debug\ATP_DUOL_MAT.exe
