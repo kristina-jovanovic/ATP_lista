@@ -10,9 +10,10 @@
 #include <wchar.h>
 #include <locale.h>
 #include <fcntl.h>
-//#include <windows.h>
 
 #define EXIT_SUCCESS 0
 #define MAX_SIZE 100
+#define MAX_OPTIONS 10
 
+typedef char* STRING;
 

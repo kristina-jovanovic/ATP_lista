@@ -1,5 +1,6 @@
 ﻿#include "defs.h"
 #include "lista.h"
+#include "meni.h"
 
 // ono sto je bilo POKAZIVAC zamenili smo sa ELEMENT*
 // tehnicki je ostalo isto jer je POKAZIVAC bio definisan kao ELEMENT* a sad je void*
@@ -335,44 +336,54 @@ void selection_sort(LISTA* lista, SMER_SORTIRANJA smer) {
 //main
 
 int main(void) {
-	_setmode(_fileno(stdout), _O_U8TEXT); // neophodno za ispis na cirilici 
-	_setmode(_fileno(stderr), _O_U8TEXT); // neophodno za ispis na cirilici 
-	setlocale(LC_ALL, "");
-	//+ moraju da se koriste wide funckije - wprintf() i slicne 
 
-	LISTA lista;
-	kreiraj(&lista);
+#pragma region Liste
+	//_setmode(_fileno(stdout), _O_U8TEXT); // neophodno za ispis na cirilici 
+	//_setmode(_fileno(stderr), _O_U8TEXT); // neophodno za ispis na cirilici 
+	//setlocale(LC_ALL, "");
+	////+ moraju da se koriste wide funckije - wprintf() i slicne 
 
-	int a = 5;
-	ubaci(&lista, a, Kraj);
+	//LISTA lista;
+	//kreiraj(&lista);
 
-	int b = 9;
-	ubaci(&lista, b, Pocetak);
+	//int a = 5;
+	//ubaci(&lista, a, Kraj);
 
-	int c = 7;
-	ubaci(&lista, c, Kraj);
+	//int b = 9;
+	//ubaci(&lista, b, Pocetak);
 
-	prikazi(lista);
-	sortiraj(&lista, Rastuce, Selection);
-	prikazi(lista);
+	//int c = 7;
+	//ubaci(&lista, c, Kraj);
 
-	sadrzi(&lista, 5, Binarno);
+	//prikazi(lista);
+	//sortiraj(&lista, Rastuce, Selection);
+	//prikazi(lista);
 
-	int izbaceni = 5;
-	izbaci(&lista, &izbaceni, Vrednost);
+	//sadrzi(&lista, 5, Binarno);
 
-	prikazi(lista);
+	//int izbaceni = 5;
+	//izbaci(&lista, &izbaceni, Vrednost);
 
-	sadrzi(&lista, 5, Binarno);
+	//prikazi(lista);
 
-	prazna(lista);
+	//sadrzi(&lista, 5, Binarno);
 
-	sadrzi(&lista, 15, Binarno);
+	//prazna(lista);
 
-	unisti(&lista);
+	//sadrzi(&lista, 15, Binarno);
 
-	prikazi(lista);
-	prazna(lista);
+	//unisti(&lista);
+
+	//prikazi(lista);
+	//prazna(lista);
+
+#pragma endregion
+
+
+	MENI meni;
+	kreiraj_meni(&meni, "lala.txt");
+	prikazi_meni(meni);
+	obradi_opciju(meni, 1);
 
 	return 0;
 }

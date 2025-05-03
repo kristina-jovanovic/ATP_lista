@@ -4,7 +4,6 @@
 #include <stdarg.h>
 
 // tipovi
-typedef char* STRING;
 typedef wchar_t* UTF8_STRING;
 
 typedef enum { Info, Upozorenje, Greska } STATUS;
