@@ -1,81 +1,27 @@
 ﻿#include "defs.h"
 #include "lista.h"
 
-/////////
-//status
-PORUKA poruka = {
-	.GRESKA = {
-		.kreiraj = "Doslo je do velikih problema prilikom KREIRANJA liste.\n",
-		.unisti = "Doslo je do velikih problema prilikom UNISTAVANJA liste.\n",
-		.ubaci = "Doslo je do velikih problema prilikom UBACIVANJA elementa u listu.\n",
-		.izbaci = "Doslo je do velikih problema prilikom IZBACIVANJA elementa iz liste.\n",
-		.sortiraj = "Doslo je do velikih problema prilikom SORTIRANJA elemenata liste.\n",
-	},
-	.UPOZORENJE = {
-		.ubaci = "Doslo je do problema prilikom UBACIVANJA elementa u listu.\n",
-		.izbaci = "Doslo je do problema prilikom IZBACIVANJA elementa iz liste.\n",
-		.sortiraj = "Doslo je do problema prilikom SORTIRANJA elemenata liste.\n",
-		.ucitavanje = "Doslo je do problema prilikom UCITAVANJA elemenata liste iz datoteke.\n"
-	},
-	.INFO = {
-		.kreiraj = "Lista je uspesno kreirana.\n",
-		.unisti = "Lista je uspesno unistena.\n",
-		.ubaci = "Element je uspesno ubacen u listu.\n",
-		.izbaci = "Element je uspesno izbacen iz liste.\n",
-		.podatak_postoji = "Podatak postoji u listi.\n",
-		.podatak_ne_postoji = "Podatak ne postoji u listi.\n",
-		.lista_prazna = "Lista je prazna.\n",
-		.lista_nije_prazna = "Lista nije prazna.\n",
-		.sortiraj = "Lista je uspesno sortirana.\n",
-	}
-};
-
-void obrada_statusa(STATUS status, STRING poruka, STRING naziv_dat, int linija_koda) {
-	char tip_poruke[20];
-	switch (status) {
-	case Info:
-		strcpy(tip_poruke, "*** INFO:");
-		fprintf(stdout, "%s %s", tip_poruke, poruka);
-		break;
-	case Upozorenje:
-		strcpy(tip_poruke, "*** UPOZORENJE:");
-		fprintf(stderr, "%s %s\nDATOTEKA: %s\nLINIJA: %d", tip_poruke, poruka, naziv_dat, linija_koda);
-		break;
-	case Greska:
-		strcpy(tip_poruke, "*** GRESKA:");
-		fprintf(stderr, "%s %s\nDATOTEKA: %s\nLINIJA: %d", tip_poruke, poruka, naziv_dat, linija_koda);
-		fprintf(stderr, "\nProgram ce biti prekinut.");
-		exit(EXIT_FAILURE);
-		break;
-	default:
-		break;
-	}
-}
-/////////
-
 //specifikacija pomocnih funkcija
-SIGNAL izbaci_sa_pocetka(LISTA*, PODATAK*);
-SIGNAL izbaci_sa_kraja(LISTA*, PODATAK*);
-SIGNAL izbaci_po_vrednosti(LISTA*, PODATAK*);
+void izbaci_sa_pocetka(LISTA*, PODATAK*);
+void izbaci_sa_kraja(LISTA*, PODATAK*);
+void izbaci_po_vrednosti(LISTA*, PODATAK*);
 void azuriraj_susede(FILE*, int, int, int);
 void skrati_datoteku(FILE*, int);
-SIGNAL bubble_sort(FILE*, int, int, SMER_SORTIRANJA);
-SIGNAL insertion_sort(FILE*, int, int, SMER_SORTIRANJA);
-SIGNAL selection_sort(FILE*, int, int, SMER_SORTIRANJA);
+void bubble_sort(FILE*, int, int, SMER_SORTIRANJA);
+void insertion_sort(FILE*, int, int, SMER_SORTIRANJA);
+void selection_sort(FILE*, int, int, SMER_SORTIRANJA);
 
-SIGNAL kreiraj(LISTA* lista) {
-	SIGNAL signal;
-	signal.status = Greska;
-	signal.poruka = poruka.GRESKA.kreiraj;
+void kreiraj(LISTA* lista) {
 	*lista = malloc(sizeof(struct lista));
-	if (*lista == NULL) return signal;
+	if (*lista == NULL) {
+		PRIJAVI(GRESKA_KREIRAJ);
+		return;
+	}
 	(*lista)->skladiste = "lista.dat";
 	FILE* datoteka = fopen((*lista)->skladiste, "ab");
 	if (datoteka == NULL) {
-		printf("Greska pri otvaranju datoteke!\n");
-		signal.status = Upozorenje;
-		signal.poruka = poruka.UPOZORENJE.ucitavanje;
-		return signal;
+		PRIJAVI(GRESKA_UCITAVANJE_DATOTEKE);
+		return;
 	}
 	fseek(datoteka, 0, SEEK_END);
 	int broj_bajtova = ftell(datoteka);
@@ -88,41 +34,39 @@ SIGNAL kreiraj(LISTA* lista) {
 	(*lista)->kapacitet = 100;
 	fclose(datoteka);
 
-	signal.status = Info;
-	signal.poruka = poruka.INFO.kreiraj;
-	return signal;
+	PRIJAVI(INFO_KREIRAJ);
 }
 
-SIGNAL unisti(LISTA* lista) {
-	SIGNAL signal;
-	signal.status = Greska;
-	signal.poruka = poruka.GRESKA.unisti;
-	if (*lista == NULL || (*lista)->skladiste == NULL || (*lista)->skladiste == ErrorList) return signal;
+void unisti(LISTA* lista) {
+	if (*lista == NULL || (*lista)->skladiste == NULL || (*lista)->skladiste == ErrorList) {
+		PRIJAVI(GRESKA_LISTA_NE_POSTOJI);
+		return;
+	}
 	remove((*lista)->skladiste);
 	// da li ovako obrisati celu datoteku ili "izbaciti" sve tj. staviti da je glava=-1?
 	// u tom slucaju bi sve fizicki ostalo i dalje u fajlu, tako da mislim da je mozda bolje obrisati ga skroz
 	//(*lista)->skladiste = NULL;
 	(*lista)->broj_elemenata = 0;
 
-	signal.status = Info;
-	signal.poruka = poruka.INFO.unisti;
-	return signal;
+	PRIJAVI(INFO_UNISTI);
 }
 
-SIGNAL ubaci(LISTA* lista, PODATAK podatak, NACIN nacin) {
-	SIGNAL signal;
-	signal.status = Greska;
-	signal.poruka = poruka.GRESKA.ubaci;
-	if (*lista == NULL || (*lista)->broj_elemenata >= (*lista)->kapacitet) return signal;
+void ubaci(LISTA* lista, PODATAK podatak, NACIN nacin) {
+	if (*lista == NULL) {
+		PRIJAVI(GRESKA_LISTA_NE_POSTOJI);
+		return;
+	}
+	if ((*lista)->broj_elemenata >= (*lista)->kapacitet) {
+		PRIJAVI(UPOZORENJE_UBACI);
+		return;
+	}
 
 	FILE* datoteka = fopen((*lista)->skladiste, "r+b");
 	if (datoteka == NULL) {
 		datoteka = fopen((*lista)->skladiste, "w+b");
 		if (datoteka == NULL) {
-			printf("Greska pri otvaranju datoteke!\n");
-			signal.status = Upozorenje;
-			signal.poruka = poruka.UPOZORENJE.ucitavanje;
-			return signal;
+			PRIJAVI(GRESKA_UCITAVANJE_DATOTEKE);
+			return;
 		}
 	}
 	//(*lista)->skladiste = datoteka;
@@ -156,10 +100,8 @@ SIGNAL ubaci(LISTA* lista, PODATAK podatak, NACIN nacin) {
 		sortiraj(lista, Rastuce, Bubble); ////////////////
 		datoteka = fopen((*lista)->skladiste, "r+b");
 		if (datoteka == NULL) {
-			printf("Greska pri otvaranju datoteke!\n");
-			signal.status = Upozorenje;
-			signal.poruka = poruka.UPOZORENJE.ucitavanje;
-			return signal;
+			PRIJAVI(GRESKA_UCITAVANJE_DATOTEKE);
+			return;
 		}
 
 		fseek(datoteka, 0, SEEK_END);
@@ -353,26 +295,25 @@ SIGNAL ubaci(LISTA* lista, PODATAK podatak, NACIN nacin) {
 kraj_true:
 	(*lista)->broj_elemenata++;
 	fclose(datoteka);
-	signal.status = Info;
-	signal.poruka = poruka.INFO.ubaci;
-	return signal;
+	PRIJAVI(INFO_UBACI);
 }
 
-SIGNAL izbaci(LISTA* lista, PODATAK* podatak, NACIN nacin) {
-	SIGNAL signal;
-	signal.status = Greska;
-	signal.poruka = poruka.GRESKA.izbaci;
-	if (*lista == NULL || (*lista)->skladiste == NULL || (*lista)->skladiste == ErrorList
-		|| (*lista)->broj_elemenata == 0) return signal;
+void izbaci(LISTA* lista, PODATAK* podatak, NACIN nacin) {
+	if (*lista == NULL || (*lista)->skladiste == NULL || (*lista)->skladiste == ErrorList) {
+		PRIJAVI(GRESKA_LISTA_NE_POSTOJI);
+		return;
+	}
+	if ((*lista)->broj_elemenata == 0) {
+		PRIJAVI(UPOZORENJE_IZBACI);
+		return;
+	}
 
 	if (nacin == Pocetak)
-		signal = izbaci_sa_pocetka(lista, podatak);
+		izbaci_sa_pocetka(lista, podatak);
 	if (nacin == Kraj)
-		signal = izbaci_sa_kraja(lista, podatak);
+		izbaci_sa_kraja(lista, podatak);
 	if (nacin == Vrednost)
-		signal = izbaci_po_vrednosti(lista, podatak);
-
-	return signal;
+		izbaci_po_vrednosti(lista, podatak);
 }
 
 void prikazi(LISTA lista) {
@@ -383,7 +324,7 @@ void prikazi(LISTA lista) {
 	}
 	FILE* datoteka = fopen(lista->skladiste, "rb");
 	if (datoteka == NULL) {
-		printf("Greska pri otvaranju datoteke!\n");
+		PRIJAVI(GRESKA_UCITAVANJE_DATOTEKE);
 		return;
 	}
 
@@ -416,25 +357,20 @@ void prikazi(LISTA lista) {
 	fclose(datoteka);
 }
 
-SIGNAL sortiraj(LISTA* lista, SMER_SORTIRANJA smer, ALGORITAM_SORTIRANJA algoritam) {
-	SIGNAL signal;
-	signal.status = Greska;
-	signal.poruka = poruka.GRESKA.sortiraj;
-	if (*lista == NULL || (*lista)->skladiste == NULL || (*lista)->skladiste == ErrorList)
-		return signal;
-	if ((*lista)->broj_elemenata == 0) {
-		//nema elemenata u listi
-		signal.status = Upozorenje;
-		signal.poruka = poruka.UPOZORENJE.sortiraj;
-		return signal;
+void sortiraj(LISTA* lista, SMER_SORTIRANJA smer, ALGORITAM_SORTIRANJA algoritam) {
+	if (*lista == NULL || (*lista)->skladiste == NULL || (*lista)->skladiste == ErrorList) {
+		PRIJAVI(GRESKA_LISTA_NE_POSTOJI);
+		return;
+	}
+	if ((*lista)->broj_elemenata < 2) {
+		PRIJAVI(UPOZORENJE_SORTIRAJ);
+		return;
 	}
 
 	FILE* datoteka = fopen((*lista)->skladiste, "r+b");
 	if (datoteka == NULL) {
-		printf("Greska pri otvaranju datoteke!\n");
-		signal.status = Upozorenje;
-		signal.poruka = poruka.UPOZORENJE.ucitavanje;
-		return signal;
+		PRIJAVI(GRESKA_UCITAVANJE_DATOTEKE);
+		return;
 	}
 
 	fseek(datoteka, 0, SEEK_END);
@@ -442,9 +378,8 @@ SIGNAL sortiraj(LISTA* lista, SMER_SORTIRANJA smer, ALGORITAM_SORTIRANJA algorit
 	if (broj_bajtova <= (sizeof(int) * 2)) {
 		//printf("< Prazno >\n");
 		fclose(datoteka);
-		signal.status = Upozorenje;
-		signal.poruka = poruka.UPOZORENJE.sortiraj;
-		return signal;
+		PRIJAVI(UPOZORENJE_SORTIRAJ);
+		return;
 	}
 
 	int broj_bajtova_za_element, adresa_glave, adresa_prvog, adresa_drugog;
@@ -454,59 +389,52 @@ SIGNAL sortiraj(LISTA* lista, SMER_SORTIRANJA smer, ALGORITAM_SORTIRANJA algorit
 	if (adresa_glave <= -1) {
 		//printf("< Prazno >\n");
 		fclose(datoteka);
-		signal.status = Upozorenje;
-		signal.poruka = poruka.UPOZORENJE.sortiraj;
-		return signal;
+		PRIJAVI(UPOZORENJE_SORTIRAJ);
+		return;
 	}
 
-	//fclose(datoteka);
-
 	if (algoritam == Bubble)
-		signal = bubble_sort(datoteka, adresa_glave, broj_bajtova_za_element, smer);
+		bubble_sort(datoteka, adresa_glave, broj_bajtova_za_element, smer);
 	if (algoritam == Insertion)
-		signal = insertion_sort(datoteka, adresa_glave, broj_bajtova_za_element, smer);
+		insertion_sort(datoteka, adresa_glave, broj_bajtova_za_element, smer);
 	if (algoritam == Selection)
-		signal = selection_sort(datoteka, adresa_glave, broj_bajtova_za_element, smer);
-
+		selection_sort(datoteka, adresa_glave, broj_bajtova_za_element, smer);
 
 	fclose(datoteka);
-	return signal;
 }
 
-SIGNAL prazna(LISTA lista) {
-	SIGNAL signal;
-	signal.status = Info;
+bool prazna(LISTA lista) {
+	bool prazna;
 	if (lista == NULL || lista->skladiste == NULL || lista->skladiste == ErrorList
-		|| lista->broj_elemenata == 0)
-		signal.poruka = poruka.INFO.lista_prazna;
-	else
-		signal.poruka = poruka.INFO.lista_nije_prazna;
-	return signal;
+		|| lista->broj_elemenata == 0) {
+		PRIJAVI(INFO_LISTA_PRAZNA);
+		prazna = true;
+	}
+	else {
+		PRIJAVI(INFO_LISTA_NIJE_PRAZNA);
+		prazna = false;
+	}
+	return prazna;
 }
 
-SIGNAL sadrzi(LISTA* lista, PODATAK podatak, VRSTA_PRETRAGE vrsta) {
-	SIGNAL signal;
-	signal.status = Info;
+void sadrzi(LISTA* lista, PODATAK podatak, VRSTA_PRETRAGE vrsta) {
 	if (lista == NULL || (*lista)->skladiste == NULL || (*lista)->skladiste == ErrorList
 		|| (*lista)->broj_elemenata == 0) {
-		signal.poruka = poruka.INFO.podatak_ne_postoji;
-		return signal;
+		PRIJAVI(INFO_PODATAK_NE_POSTOJI, podatak);
+		return false;
 	}
 
 	FILE* datoteka = fopen((*lista)->skladiste, "rb");
 	if (datoteka == NULL) {
-		printf("Greska pri otvaranju datoteke!\n");
-		signal.status = Upozorenje;
-		signal.poruka = poruka.UPOZORENJE.ucitavanje;
-		return signal;
+		PRIJAVI(GRESKA_UCITAVANJE_DATOTEKE);
+		return false;
 	}
 	int adresa_glave, adresa_trenutnog;
 	fseek(datoteka, sizeof(int), SEEK_SET); //pomeramo se za velicinu jednog int-a od pocetka
 	fread(&adresa_glave, sizeof(int), 1, datoteka); //citamo adresu glave
 	if (adresa_glave == -1) {
-		printf("< Prazno >\n");
-		signal.poruka = poruka.INFO.podatak_ne_postoji;
-		return signal;
+		PRIJAVI(INFO_PODATAK_NE_POSTOJI, podatak);
+		return false;
 	}
 
 	//binarno pretrazivanje se ne moze vrsiti kada je lista implementirana preko datoteke, pa cemo raditi
@@ -519,28 +447,24 @@ SIGNAL sadrzi(LISTA* lista, PODATAK podatak, VRSTA_PRETRAGE vrsta) {
 		fread(&trenutni, sizeof(ELEMENT), 1, datoteka);
 		if (trenutni.podatak == podatak) {
 			fclose(datoteka);
-			signal.poruka = poruka.INFO.podatak_postoji;
-			return signal;
+			PRIJAVI(INFO_PODATAK_POSTOJI, podatak);
+			return true;
 		}
 		adresa_trenutnog = (int)(intptr_t)trenutni.sledeci;
 	} while (adresa_trenutnog != adresa_glave);
 
 	fclose(datoteka);
-	signal.poruka = poruka.INFO.podatak_ne_postoji;
-	return signal;
+	PRIJAVI(INFO_PODATAK_NE_POSTOJI, podatak);
+	return false;
 }
 
 //implementacija pomocnih funkcija 
 
-SIGNAL izbaci_sa_pocetka(LISTA* lista, PODATAK* podatak) {
-	SIGNAL signal;
-
+void izbaci_sa_pocetka(LISTA* lista, PODATAK* podatak) {
 	FILE* datoteka = fopen((*lista)->skladiste, "r+b");
 	if (datoteka == NULL) {
-		printf("Greska pri otvaranju datoteke!\n");
-		signal.status = Upozorenje;
-		signal.poruka = poruka.UPOZORENJE.ucitavanje;
-		return signal;
+		PRIJAVI(GRESKA_UCITAVANJE_DATOTEKE);
+		return;
 	}
 
 	fseek(datoteka, 0, SEEK_END);
@@ -643,25 +567,19 @@ kraj_true:
 	(*lista)->broj_elemenata--;
 	skrati_datoteku(datoteka, broj_bajtova_za_element);
 	fclose(datoteka);
-	signal.status = Info;
-	signal.poruka = poruka.INFO.izbaci;
-	return signal;
+	PRIJAVI(INFO_IZBACI, *podatak);
+	return;
 kraj_false: //lista je prazna, nema sta da se izbaci
 	fclose(datoteka);
-	signal.status = Upozorenje;
-	signal.poruka = poruka.UPOZORENJE.izbaci;
-	return signal;
+	PRIJAVI(UPOZORENJE_IZBACI);
+	return;
 }
 
-SIGNAL izbaci_sa_kraja(LISTA* lista, PODATAK* podatak) {
-	SIGNAL signal;
-
+void izbaci_sa_kraja(LISTA* lista, PODATAK* podatak) {
 	FILE* datoteka = fopen((*lista)->skladiste, "r+b");
 	if (datoteka == NULL) {
-		printf("Greska pri otvaranju datoteke!\n");
-		signal.status = Upozorenje;
-		signal.poruka = poruka.UPOZORENJE.ucitavanje;
-		return signal;
+		PRIJAVI(GRESKA_UCITAVANJE_DATOTEKE);
+		return;
 	}
 
 	fseek(datoteka, 0, SEEK_END);
@@ -765,25 +683,19 @@ kraj_true:
 	skrati_datoteku(datoteka, broj_bajtova_za_element);
 	fclose(datoteka);
 	(*lista)->broj_elemenata--;
-	signal.status = Info;
-	signal.poruka = poruka.INFO.izbaci;
-	return signal;
+	PRIJAVI(INFO_IZBACI, *podatak);
+	return;
 kraj_false:
 	fclose(datoteka);
-	signal.status = Upozorenje;
-	signal.poruka = poruka.UPOZORENJE.izbaci;
-	return signal;
+	PRIJAVI(UPOZORENJE_IZBACI);
+	return;
 }
 
-SIGNAL izbaci_po_vrednosti(LISTA* lista, PODATAK* podatak) {
-	SIGNAL signal;
-
+void izbaci_po_vrednosti(LISTA* lista, PODATAK* podatak) {
 	FILE* datoteka = fopen((*lista)->skladiste, "r+b");
 	if (datoteka == NULL) {
-		printf("Greska pri otvaranju datoteke!\n");
-		signal.status = Upozorenje;
-		signal.poruka = poruka.UPOZORENJE.ucitavanje;
-		return signal;
+		PRIJAVI(GRESKA_UCITAVANJE_DATOTEKE);
+		return;
 	}
 
 	fseek(datoteka, 0, SEEK_END);
@@ -824,14 +736,14 @@ SIGNAL izbaci_po_vrednosti(LISTA* lista, PODATAK* podatak) {
 			if (adresa_trenutnog == glava) {
 				//izbacuje se glava, pozvacemo funkciju za izbacivanje sa pocetka
 				fclose(datoteka);
-				signal = izbaci_sa_pocetka(lista, podatak);
-				return signal;
+				izbaci_sa_pocetka(lista, podatak);
+				return;
 			}
 			if (adresa_trenutnog == adresa_poslednjeg) {
 				//izbacuje se poslednji element, pozvacemo funkciju za izbacivanje sa kraja
 				fclose(datoteka);
-				signal = izbaci_sa_kraja(lista, podatak);
-				return signal;
+				izbaci_sa_kraja(lista, podatak);
+				return;
 			}
 
 			// ako se nalazimo ovde, znaci izbacuje se neki element koji nije ni prvi ni poslednji (sto takodje 
@@ -883,18 +795,15 @@ SIGNAL izbaci_po_vrednosti(LISTA* lista, PODATAK* podatak) {
 kraj_false:
 	//ovde smo izmedju ostalog i ukoliko smo prosli kroz celu listu a nismo nasli taj podatak
 	fclose(datoteka);
-	signal.status = Upozorenje;
-	signal.poruka = poruka.UPOZORENJE.izbaci;
-	return signal;
+	PRIJAVI(UPOZORENJE_IZBACI);
+	return;
 kraj_true:
 	skrati_datoteku(datoteka, broj_bajtova_za_element);
 	fclose(datoteka);
 	(*lista)->broj_elemenata--;
-	signal.status = Info;
-	signal.poruka = poruka.INFO.izbaci;
-	return signal;
+	PRIJAVI(INFO_IZBACI, *podatak);
+	return;
 }
-
 
 void azuriraj_susede(FILE* datoteka, int adresa, int nova_adresa, int velicina) { //kada pomeramo element na fizicki novu adresu
 	ELEMENT element;
@@ -937,9 +846,7 @@ void skrati_datoteku(FILE* datoteka, int broj_bajtova_za_skracivanje) {
 	_chsize(file_descriptor, nova_velicina); // skracivanje datoteke
 }
 
-SIGNAL bubble_sort(FILE* datoteka, int adresa_glave, int broj_bajtova_za_element, SMER_SORTIRANJA smer) {
-	SIGNAL signal;
-
+void bubble_sort(FILE* datoteka, int adresa_glave, int broj_bajtova_za_element, SMER_SORTIRANJA smer) {
 	ELEMENT prvi, drugi;
 	int adresa_prvog, adresa_drugog;
 	adresa_prvog = adresa_glave;
@@ -970,13 +877,10 @@ SIGNAL bubble_sort(FILE* datoteka, int adresa_glave, int broj_bajtova_za_element
 		fread(&prvi, broj_bajtova_za_element, 1, datoteka);
 	} while ((int)(intptr_t)prvi.sledeci != adresa_glave);
 
-	signal.status = Info;
-	signal.poruka = poruka.INFO.sortiraj;
-	return signal;
+	PRIJAVI(INFO_SORTIRAJ, (smer == Rastuce ? "rastuce" : "opadajuce"));
 }
 
-SIGNAL insertion_sort(FILE* datoteka, int adresa_glave, int velicina_elementa, SMER_SORTIRANJA smer) {
-	SIGNAL signal;
+void insertion_sort(FILE* datoteka, int adresa_glave, int velicina_elementa, SMER_SORTIRANJA smer) {
 	ELEMENT trenutni, pomerani, prethodni;
 
 	// ucitaj glavu
@@ -1037,13 +941,10 @@ SIGNAL insertion_sort(FILE* datoteka, int adresa_glave, int velicina_elementa, S
 		adr_trenutni = trenutni.sledeci;
 	}
 
-	signal.status = Info;
-	signal.poruka = poruka.INFO.sortiraj;
-	return signal;
+	PRIJAVI(INFO_SORTIRAJ, (smer == Rastuce ? "rastuce" : "opadajuce"));
 }
 
-SIGNAL selection_sort(FILE* datoteka, int adresa_glave, int broj_bajtova_za_element, SMER_SORTIRANJA smer) {
-	SIGNAL signal;
+void selection_sort(FILE* datoteka, int adresa_glave, int broj_bajtova_za_element, SMER_SORTIRANJA smer) {
 	ELEMENT i, j, min_max;
 	int adr_i = adresa_glave;
 
@@ -1088,59 +989,44 @@ SIGNAL selection_sort(FILE* datoteka, int adresa_glave, int broj_bajtova_za_elem
 
 	} while (adr_i != adresa_glave);
 
-	signal.status = Info;
-	signal.poruka = poruka.INFO.sortiraj;
-	return signal;
+	PRIJAVI(INFO_SORTIRAJ, (smer == Rastuce ? "rastuce" : "opadajuce"));
 }
 
 //main
 int main() {
 
 	LISTA lista = NULL;
-	SIGNAL signal;
-	signal = kreiraj(&lista);
-	obrada_statusa(signal.status, signal.poruka, lista->skladiste, __LINE__);
 
-	signal = unisti(&lista);
-	obrada_statusa(signal.status, signal.poruka, lista->skladiste, __LINE__);
+	kreiraj(&lista);
 
-	signal = kreiraj(&lista);
-	obrada_statusa(signal.status, signal.poruka, lista->skladiste, __LINE__);
+	unisti(&lista);
+
+	kreiraj(&lista);
 
 	int a = 50;
-	signal = ubaci(&lista, a, Kraj);
-	obrada_statusa(signal.status, signal.poruka, lista->skladiste, __LINE__);
+	ubaci(&lista, a, Kraj);
 
 	int b = 30;
-	signal = ubaci(&lista, b, Kraj);
-	obrada_statusa(signal.status, signal.poruka, lista->skladiste, __LINE__);
+	ubaci(&lista, b, Kraj);
 
 	int c = 70;
-	signal = ubaci(&lista, c, Vrednost);
-	obrada_statusa(signal.status, signal.poruka, lista->skladiste, __LINE__);
+	ubaci(&lista, c, Vrednost);
 
 	int d = 80;
-	signal = ubaci(&lista, d, Pocetak);
-	obrada_statusa(signal.status, signal.poruka, lista->skladiste, __LINE__);
+	ubaci(&lista, d, Pocetak);
 
 	prikazi(lista);
 
 	int izbaceni = 50;
-	signal = izbaci(&lista, &izbaceni, Vrednost);
-	obrada_statusa(signal.status, signal.poruka, lista->skladiste, __LINE__);
-	printf("\nIzbaceni: %d\n", izbaceni);
+	izbaci(&lista, &izbaceni, Vrednost);
 
 	prikazi(lista);
 
-	//lista->skladiste = NULL;
-	signal = prazna(lista);
-	obrada_statusa(signal.status, signal.poruka, lista->skladiste, __LINE__);
+	prazna(lista);
 
-	signal = sadrzi(&lista, 7, Binarno);
-	obrada_statusa(signal.status, signal.poruka, lista->skladiste, __LINE__);
+	sadrzi(&lista, 7, Binarno);
 
-	signal = sortiraj(&lista, Opadajuce, Selection);
-	obrada_statusa(signal.status, signal.poruka, lista->skladiste, __LINE__);
+	sortiraj(&lista, Opadajuce, Selection);
 
 	prikazi(lista);
 

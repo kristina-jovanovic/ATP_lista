@@ -19,7 +19,7 @@ PORUKA poruke[BROJ_KODOVA] = {
 	[UPOZORENJE_SORTIRAJ] = { Upozorenje, "Nije moguce sortirati listu jer ima manje od 2 elementa."},
 	//greska poruke
 	[GRESKA_UCITAVANJE_DATOTEKE] = { Greska, "Neuspesno ucitavanje datoteke."},
-	[GRESKA_KREIRAJ] = { Greska, "Nije moguce kreirati datoteku."},
+	[GRESKA_KREIRAJ] = { Greska, "Nije moguce kreirati listu."},
 	[GRESKA_UNISTI] = { Greska, "Nije moguce unistiti listu."},
 	[GRESKA_UBACI] = { Greska, "Nije moguce ubaciti element u listu."},
 	[GRESKA_LISTA_NE_POSTOJI] = { Greska, "Nije moguce izvrsiti operaciju jer lista ne postoji."},

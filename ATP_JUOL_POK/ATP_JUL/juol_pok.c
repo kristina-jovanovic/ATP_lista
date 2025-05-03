@@ -13,25 +13,25 @@ void selection_sort(LISTA*, SMER_SORTIRANJA);
 void kreiraj(LISTA* lista) {
 	*lista = malloc(sizeof(struct lista));
 	if (*lista == NULL) {
-		PRIJAVI(GRESKA_KREIRAJ);
+		PRIJAVI(Kod.Greska.Kreiraj);
 	}
 	else {
 		(*lista)->skladiste = NULL;
 		(*lista)->kapacitet = 100;
 		(*lista)->broj_elemenata = 0;
 
-		PRIJAVI(INFO_KREIRAJ);
+		PRIJAVI(Kod.Info.Kreiraj);
 	}
 }
 
 void unisti(LISTA* lista) {
 	if ((*lista == NULL) || ((*lista)->skladiste) == NULL || (*lista == ErrorList)) {
-		PRIJAVI(GRESKA_LISTA_NE_POSTOJI);
+		PRIJAVI(Kod.Greska.Lista_ne_postoji);
 		return;
 	}
 	ELEMENT* trenutni = (ELEMENT*)(*lista)->skladiste;
 	if (trenutni == NULL) {
-		PRIJAVI(GRESKA_UNISTI);
+		PRIJAVI(Kod.Greska.Unisti);
 		return;
 	}
 	while (trenutni != NULL) {
@@ -41,16 +41,16 @@ void unisti(LISTA* lista) {
 		//free(trenutni);
 		trenutni = (*lista)->skladiste;
 	}
-	PRIJAVI(INFO_UNISTI);
+	PRIJAVI(Kod.Info.Unisti);
 }
 
 void ubaci(LISTA* lista, PODATAK podatak, NACIN nacin) {
 	if (*lista == NULL || *lista == ErrorList) {
-		PRIJAVI(GRESKA_LISTA_NE_POSTOJI);
+		PRIJAVI(Kod.Greska.Lista_ne_postoji);
 		return;
 	}
 	if ((*lista)->broj_elemenata >= (*lista)->kapacitet) {
-		PRIJAVI(UPOZORENJE_UBACI);
+		PRIJAVI(Kod.Upozorenje.Ubaci);
 		return;
 	}
 
@@ -99,16 +99,16 @@ void ubaci(LISTA* lista, PODATAK podatak, NACIN nacin) {
 	}
 
 	(*lista)->broj_elemenata++;
-	PRIJAVI(INFO_UBACI);
+	PRIJAVI(Kod.Info.Ubaci);
 }
 
 void izbaci(LISTA* lista, PODATAK* podatak, NACIN nacin) {
 	if (*lista == NULL || *lista == ErrorList) {
-		PRIJAVI(GRESKA_LISTA_NE_POSTOJI);
+		PRIJAVI(Kod.Greska.Lista_ne_postoji);
 		return;
 	}
 	if ((*lista)->skladiste == NULL || (*lista)->broj_elemenata == 0) {
-		PRIJAVI(UPOZORENJE_LISTA_PRAZNA);
+		PRIJAVI(Kod.Upozorenje.Lista_prazna);
 	}
 
 	ELEMENT* pom = (*lista)->skladiste;
@@ -166,10 +166,10 @@ void izbaci(LISTA* lista, PODATAK* podatak, NACIN nacin) {
 kraj_true:
 	(*lista)->broj_elemenata--;
 	if ((*lista)->broj_elemenata == 0) (*lista)->skladiste = NULL;
-	PRIJAVI(INFO_IZBACI, *podatak);
+	PRIJAVI(Kod.Info.Izbaci, *podatak);
 	return;
 kraj_false:
-	PRIJAVI(UPOZORENJE_IZBACI, *podatak);
+	PRIJAVI(Kod.Upozorenje.Izbaci, *podatak);
 	return;
 }
 
@@ -193,11 +193,11 @@ void prikazi(LISTA lista) {
 
 void sortiraj(LISTA* lista, SMER_SORTIRANJA smer, ALGORITAM_SORTIRANJA algoritam) {
 	if (*lista == NULL || (*lista)->skladiste == ErrorList) {
-		PRIJAVI(GRESKA_LISTA_NE_POSTOJI);
+		PRIJAVI(Kod.Greska.Lista_ne_postoji);
 		return;
 	}
 	if ((*lista)->skladiste == NULL || (*lista)->broj_elemenata == 0) {
-		PRIJAVI(UPOZORENJE_LISTA_PRAZNA);
+		PRIJAVI(Kod.Upozorenje.Lista_prazna);
 		return;
 	}
 
@@ -211,11 +211,11 @@ void sortiraj(LISTA* lista, SMER_SORTIRANJA smer, ALGORITAM_SORTIRANJA algoritam
 
 bool prazna(LISTA lista) {
 	if (lista == NULL || lista->skladiste == NULL || lista->broj_elemenata == 0) {
-		PRIJAVI(INFO_LISTA_PRAZNA);
+		PRIJAVI(Kod.Info.Lista_prazna);
 		return true;
 	}
 	else {
-		PRIJAVI(INFO_LISTA_NIJE_PRAZNA);
+		PRIJAVI(Kod.Info.Lista_nije_prazna);
 		return false;
 	}
 }
@@ -223,7 +223,7 @@ bool prazna(LISTA lista) {
 bool sadrzi(LISTA* lista, PODATAK trazeni_podatak, VRSTA_PRETRAGE vrsta_pretrage) {
 	if (lista == NULL || (*lista)->skladiste == NULL || (*lista)->skladiste == ErrorList
 		|| (*lista)->broj_elemenata == 0) {
-		PRIJAVI(INFO_PODATAK_NE_POSTOJI, trazeni_podatak);
+		PRIJAVI(Kod.Info.Podatak_ne_postoji, trazeni_podatak);
 		return false;
 	}
 
@@ -236,11 +236,11 @@ bool sadrzi(LISTA* lista, PODATAK trazeni_podatak, VRSTA_PRETRAGE vrsta_pretrage
 		trenutni = trenutni->sledeci;
 	}
 	if (trenutni != NULL) { // ako smo dosli do kraja (trenutni == NULL) znaci da nismo nasli trazeni podatak
-		PRIJAVI(INFO_PODATAK_POSTOJI, trazeni_podatak);
+		PRIJAVI(Kod.Info.Podatak_postoji, trazeni_podatak);
 		return true;
 	}
 	else {
-		PRIJAVI(INFO_PODATAK_NE_POSTOJI, trazeni_podatak);
+		PRIJAVI(Kod.Info.Podatak_ne_postoji, trazeni_podatak);
 		return false;
 	}
 }
@@ -257,7 +257,7 @@ void bubble_sort(LISTA* lista, SMER_SORTIRANJA smer) {
 	ELEMENT* prvi = (ELEMENT*)(*lista)->skladiste;
 	ELEMENT* drugi = ((ELEMENT*)(*lista)->skladiste)->sledeci;
 	if (prvi == NULL || drugi == NULL) {
-		PRIJAVI(UPOZORENJE_SORTIRAJ);
+		PRIJAVI(Kod.Upozorenje.Sortiraj);
 		return;
 	}
 	while (prvi->sledeci != NULL) {
@@ -271,13 +271,13 @@ void bubble_sort(LISTA* lista, SMER_SORTIRANJA smer) {
 		prvi = prvi->sledeci;
 		drugi = prvi->sledeci;
 	}
-	PRIJAVI(INFO_SORTIRAJ, (smer == Rastuce ? "rastuce" : "opadajuce"));
+	PRIJAVI(Kod.Info.Sortiraj, (smer == Rastuce ? "rastuce" : "opadajuce"));
 }
 
 void insertion_sort(LISTA* lista, SMER_SORTIRANJA smer) {
 	if ((*lista)->broj_elemenata < 2) {
 		//ako imamo 0 ili 1 element, nema sta da se sortira
-		PRIJAVI(UPOZORENJE_SORTIRAJ);
+		PRIJAVI(Kod.Upozorenje.Sortiraj);
 		return;
 	}
 
@@ -306,13 +306,13 @@ void insertion_sort(LISTA* lista, SMER_SORTIRANJA smer) {
 		trenutni = sledeci;
 	}
 	(*lista)->skladiste = sortirano;
-	PRIJAVI(INFO_SORTIRAJ, (smer == Rastuce ? "rastuce" : "opadajuce"));
+	PRIJAVI(Kod.Info.Sortiraj, (smer == Rastuce ? "rastuce" : "opadajuce"));
 }
 
 void selection_sort(LISTA* lista, SMER_SORTIRANJA smer) {
 	if ((*lista)->broj_elemenata < 2) {
 		//ako imamo 0 ili 1 element, nema sta da se sortira
-		PRIJAVI(UPOZORENJE_SORTIRAJ);
+		PRIJAVI(Kod.Upozorenje.Sortiraj);
 		return;
 	}
 
@@ -329,7 +329,7 @@ void selection_sort(LISTA* lista, SMER_SORTIRANJA smer) {
 			pom->podatak = tmp;
 		}
 	}
-	PRIJAVI(INFO_SORTIRAJ, (smer == Rastuce ? "rastuce" : "opadajuce"));
+	PRIJAVI(Kod.Info.Sortiraj, (smer == Rastuce ? "rastuce" : "opadajuce"));
 }
 
 //main
