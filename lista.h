@@ -101,6 +101,8 @@ const UTF8_STRING nadji_poruku(int kod) {
 // funkcija koja ispisuje poruku o statusu
 static inline void prijavi(int kod, const STRING datoteka, int linija, ...) {
 	STATUS status;
+	wchar_t w_datoteka[260];
+	mbstowcs(w_datoteka, datoteka, 260); //multibyte string to wide char string, 260 je kapacitet w_datoteka
 
 	if (kod >= 1 && kod < 10)
 		status = Greska;
@@ -116,20 +118,20 @@ static inline void prijavi(int kod, const STRING datoteka, int linija, ...) {
 	switch (status)
 	{
 	case Info:
-		wprintf(L"[ИНФО] ");
-		vwprintf(poruka, args);
-		wprintf(L"\n");
+		fwprintf(stdout, L"[ИНФО] ");
+		vfwprintf(stdout, poruka, args);
+		fwprintf(stdout, L"\n");
 		break;
 	case Upozorenje:
-		wprintf("[УПОЗОРЕЊЕ] ");
-		vwprintf(poruka, args);
-		wprintf("\nДАТОТЕКА: %s, ЛИНИЈА: %d\n", datoteka, linija);
+		fwprintf(stderr, L"[УПОЗОРЕЊЕ] ");
+		vfwprintf(stderr, poruka, args);
+		fwprintf(stderr, L"\nДАТОТЕКА: %ls, ЛИНИЈА: %d\n", w_datoteka, linija);
 		break;
 	case Greska:
-		wprintf("[ГРЕШКА] ");
-		vwprintf(poruka, args);
-		wprintf("\nДАТОТЕКА: %s, ЛИНИЈА: %d\n", datoteka, linija);
-		wprintf("Програм ће бити прекинут.\n");
+		fwprintf(stderr, L"[ГРЕШКА] ");
+		vfwprintf(stderr, poruka, args);
+		fwprintf(stderr, L"\nДАТОТЕКА: %ls, ЛИНИЈА: %d\n", w_datoteka, linija);
+		fwprintf(stderr, L"Програм ће бити прекинут.\n");
 		exit(EXIT_FAILURE);
 		break;
 	default:

@@ -336,8 +336,9 @@ void selection_sort(LISTA* lista, SMER_SORTIRANJA smer) {
 
 int main(void) {
 	_setmode(_fileno(stdout), _O_U8TEXT); // neophodno za ispis na cirilici 
-	//+ moraju da se koriste wide funckije - wprintf() i slicne 
+	_setmode(_fileno(stderr), _O_U8TEXT); // neophodno za ispis na cirilici 
 	setlocale(LC_ALL, "");
+	//+ moraju da se koriste wide funckije - wprintf() i slicne 
 
 	LISTA lista;
 	kreiraj(&lista);
