@@ -42,6 +42,7 @@ void	sortiraj(LISTA*, SMER_SORTIRANJA, ALGORITAM_SORTIRANJA);
 bool	prazna(LISTA);
 bool	sadrzi(LISTA*, PODATAK, VRSTA_PRETRAGE);
 
+/////////////////////////////////////
 // status -> obrada gresaka ; deklaracija struktura
 extern const struct status_kodovi {
 	struct { int Kreiraj, Unisti, Ubaci, Lista_ne_postoji, Ucitavanje_datoteke; } Greska;
@@ -68,7 +69,7 @@ extern const struct status_poruke {
 } Poruka;
 
 // funkcija koja automatski vraca poruku na osnovu koda
-const STRING nadji_poruku(int kod) {
+const UTF8_STRING nadji_poruku(int kod) {
 	switch (kod) {
 		// Greska
 	case 0: return Poruka.Greska.Kreiraj;
@@ -94,7 +95,7 @@ const STRING nadji_poruku(int kod) {
 	case 27: return Poruka.Info.Lista_nije_prazna;
 	case 28: return Poruka.Info.Sortiraj;
 
-	default: return "Nepoznat status kod.";
+	default: return L"Непознат статус код.";
 	}
 }
 // funkcija koja ispisuje poruku o statusu
@@ -111,24 +112,24 @@ static inline void prijavi(int kod, const STRING datoteka, int linija, ...) {
 	va_list args;
 	va_start(args, linija);
 
-	const STRING poruka = nadji_poruku(kod);
+	const UTF8_STRING poruka = nadji_poruku(kod);
 	switch (status)
 	{
 	case Info:
-		fprintf(stdout, "[INFO] ");
-		vfprintf(stdout, poruka, args);
-		fprintf(stdout, "\n");
+		wprintf(L"[ИНФО] ");
+		vwprintf(poruka, args);
+		wprintf(L"\n");
 		break;
 	case Upozorenje:
-		fprintf(stderr, "[UPOZORENJE] ");
-		vfprintf(stderr, poruka, args);
-		fprintf(stderr, "\nDATOTEKA: %s, LINIJA: %d\n", datoteka, linija);
+		wprintf("[УПОЗОРЕЊЕ] ");
+		vwprintf(poruka, args);
+		wprintf("\nДАТОТЕКА: %s, ЛИНИЈА: %d\n", datoteka, linija);
 		break;
 	case Greska:
-		fprintf(stderr, "[GRESKA] ");
-		vfprintf(stderr, poruka, args);
-		fprintf(stderr, "\nDATOTEKA: %s, LINIJA: %d\n", datoteka, linija);
-		fprintf(stderr, "Program ce biti prekinut.\n");
+		wprintf("[ГРЕШКА] ");
+		vwprintf(poruka, args);
+		wprintf("\nДАТОТЕКА: %s, ЛИНИЈА: %d\n", datoteka, linija);
+		wprintf("Програм ће бити прекинут.\n");
 		exit(EXIT_FAILURE);
 		break;
 	default:
@@ -148,28 +149,28 @@ const struct status_kodovi Kod = {
 
 const struct status_poruke Poruka = {
 	.Greska = {
-		.Kreiraj = "Nije moguce kreirati listu.",
-		.Unisti = "Nije moguce unistiti listu.",
-		.Ubaci = "Nije moguce ubaciti element u listu.",
-		.Lista_ne_postoji = "Nije moguce izvrsiti operaciju jer lista ne postoji.",
-		.Ucitavanje_datoteke = "Neuspesno ucitavanje datoteke.",
+		.Kreiraj = L"Није могуће креирати листу.",
+		.Unisti = L"Није могуће уништити листу.",
+		.Ubaci = L"Није могуће убацити елемент у листу.",
+		.Lista_ne_postoji = L"Није могуће извршити операцију јер листа не постоји.",
+		.Ucitavanje_datoteke = L"Неуспешно учитавање датотеке.",
 	},
 	.Upozorenje = {
-		.Sortiraj = "Nije moguce sortirati listu jer ima manje od 2 elementa.",
-		.Ubaci = "Nije moguce ubaciti element u listu jer je dostignut maksimalni kapacitet.",
-		.Izbaci = "Nije moguce izbaciti element sa vrednoscu %d jer ne postoji u listi.",
-		.Lista_prazna = "Nije moguce izvrsiti operaciju jer je lista prazna.",
+		.Sortiraj = L"Није могуће сортирати листу јер има мање од 2 елемента.",
+		.Ubaci = L"Није могуће убацити елемент у листу јер је достигнут максимални капацитет.",
+		.Izbaci = L"Није могуће избацити елемент са вредношћу %d јер не постоји у листи.",
+		.Lista_prazna = L"Није могуће извршити операцију јер је листа празна.",
 	},
 	.Info = {
-		.Kreiraj = "Lista je uspesno kreirana.",
-		.Unisti = "Lista je uspesno unistena.",
-		.Ubaci = "Element je uspesno ubacen u listu.",
-		.Izbaci = "Element sa vrednoscu %d je uspesno izbacen iz liste.",
-		.Podatak_postoji = "Element %d postoji u listi.",
-		.Podatak_ne_postoji = "Element %d ne postoji u listi.",
-		.Lista_prazna = "Lista je prazna.",
-		.Lista_nije_prazna = "Lista nije prazna.",
-		.Sortiraj = "Lista je uspesno sortirana %s.",
+		.Kreiraj = L"Листа је успешно креирана.",
+		.Unisti = L"Листа је успешно уништена.",
+		.Ubaci = L"Елемент је успешно убачен у листу.",
+		.Izbaci = L"Елемент са вредношћу %d је успешно избачен из листе.",
+		.Podatak_postoji = L"Елемент %d постоји у листи.",
+		.Podatak_ne_postoji = L"Елемент %d не постоји у листи.",
+		.Lista_prazna = L"Листа је празна.",
+		.Lista_nije_prazna = L"Листа није празна.",
+		.Sortiraj = L"Листа је успешно сортирана %s.",
 	}
 };
 

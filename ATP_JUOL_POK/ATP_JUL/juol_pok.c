@@ -1,4 +1,4 @@
-#include "defs.h"
+﻿#include "defs.h"
 #include "lista.h"
 
 // ono sto je bilo POKAZIVAC zamenili smo sa ELEMENT*
@@ -174,21 +174,21 @@ kraj_false:
 }
 
 void prikazi(LISTA lista) {
-	printf("\n///// Lista: ");
+	wprintf(L"\nЛиста: ");
 	if ((lista == NULL) || (lista->skladiste == NULL) || (lista->skladiste == ErrorList)) {
-		(lista == NULL || lista->skladiste == NULL) ? printf("< Null > \n") : printf("< ErrorList > \n");
+		(lista == NULL || lista->skladiste == NULL) ? wprintf(L"< Null > \n\n") : wprintf(L"< ErrorList > \n\n");
 		return;
 	}
 	if (lista->broj_elemenata == 0) {
-		printf("< Prazna >\n");
+		wprintf(L"< Празна >\n\n");
 		return;
 	}
 	ELEMENT* trenutni = lista->skladiste; // mora ovako, ako se ide direktno preko lista->skladiste, promene tj. pomeranja ostaju vidljiva, tj. na kraju ce lista->skladiste biti NULL
 	while (trenutni != NULL) {
-		printf("%d  ", trenutni->podatak);
+		wprintf(L"%d  ", trenutni->podatak);
 		trenutni = trenutni->sledeci;
 	}
-	printf("\n\n");
+	wprintf(L"\n\n");
 }
 
 void sortiraj(LISTA* lista, SMER_SORTIRANJA smer, ALGORITAM_SORTIRANJA algoritam) {
@@ -271,7 +271,7 @@ void bubble_sort(LISTA* lista, SMER_SORTIRANJA smer) {
 		prvi = prvi->sledeci;
 		drugi = prvi->sledeci;
 	}
-	PRIJAVI(Kod.Info.Sortiraj, (smer == Rastuce ? "rastuce" : "opadajuce"));
+	PRIJAVI(Kod.Info.Sortiraj, (smer == Rastuce ? L"растуће" : L"опадајуће"));
 }
 
 void insertion_sort(LISTA* lista, SMER_SORTIRANJA smer) {
@@ -306,7 +306,7 @@ void insertion_sort(LISTA* lista, SMER_SORTIRANJA smer) {
 		trenutni = sledeci;
 	}
 	(*lista)->skladiste = sortirano;
-	PRIJAVI(Kod.Info.Sortiraj, (smer == Rastuce ? "rastuce" : "opadajuce"));
+	PRIJAVI(Kod.Info.Sortiraj, (smer == Rastuce ? L"растуће" : L"опадајуће"));
 }
 
 void selection_sort(LISTA* lista, SMER_SORTIRANJA smer) {
@@ -329,12 +329,16 @@ void selection_sort(LISTA* lista, SMER_SORTIRANJA smer) {
 			pom->podatak = tmp;
 		}
 	}
-	PRIJAVI(Kod.Info.Sortiraj, (smer == Rastuce ? "rastuce" : "opadajuce"));
+	PRIJAVI(Kod.Info.Sortiraj, (smer == Rastuce ? L"растуће" : L"опадајуће"));
 }
 
 //main
 
 int main(void) {
+	_setmode(_fileno(stdout), _O_U8TEXT); // neophodno za ispis na cirilici 
+	//+ moraju da se koriste wide funckije - wprintf() i slicne 
+	setlocale(LC_ALL, "");
+
 	LISTA lista;
 	kreiraj(&lista);
 

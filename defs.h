@@ -6,6 +6,11 @@
 #include <stdbool.h>
 #include <string.h>
 #include <io.h>
+/////////////////////
+#include <wchar.h>
+#include <locale.h>
+#include <fcntl.h>
+//#include <windows.h>
 
 #define EXIT_SUCCESS 0
 #define MAX_SIZE 100
