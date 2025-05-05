@@ -59,13 +59,13 @@ extern const struct status_kodovi {
 
 extern const struct status_poruke {
 	struct {
-		STRING Kreiraj, Unisti, Ubaci, Lista_ne_postoji, Ucitavanje_datoteke;
+		UTF8_STRING Kreiraj, Unisti, Ubaci, Lista_ne_postoji, Ucitavanje_datoteke;
 	} Greska;
 	struct {
-		STRING Sortiraj, Ubaci, Izbaci, Lista_prazna;
+		UTF8_STRING Sortiraj, Ubaci, Izbaci, Lista_prazna;
 	} Upozorenje;
 	struct {
-		STRING Kreiraj, Unisti, Ubaci, Izbaci, Podatak_postoji,
+		UTF8_STRING Kreiraj, Unisti, Ubaci, Izbaci, Podatak_postoji,
 			Podatak_ne_postoji, Lista_prazna, Lista_nije_prazna, Sortiraj;
 	} Info;
 } Poruka;

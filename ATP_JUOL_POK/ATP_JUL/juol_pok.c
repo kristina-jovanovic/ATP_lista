@@ -7,9 +7,9 @@
 
 // pomocne funkcije
 static void zameni(ELEMENT*, ELEMENT*);
-void bubble_sort(LISTA*, SMER_SORTIRANJA);
-void insertion_sort(LISTA*, SMER_SORTIRANJA);
-void selection_sort(LISTA*, SMER_SORTIRANJA);
+void bubble_sort(LISTA, SMER_SORTIRANJA);
+void insertion_sort(LISTA, SMER_SORTIRANJA);
+void selection_sort(LISTA, SMER_SORTIRANJA);
 
 void kreiraj(LISTA* lista) {
 	*lista = malloc(sizeof(struct lista));
