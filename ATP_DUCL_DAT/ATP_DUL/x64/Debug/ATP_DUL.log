@@ -1,17 +1,4 @@
-﻿  status.c
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\status.c(32,9): warning C4101: 'tip_poruke': unreferenced local variable
-  ducl_dat.c
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUCL_DAT\ATP_DUL\ducl_dat.c(385,59): warning C4101: 'adresa_drugog': unreferenced local variable
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUCL_DAT\ATP_DUL\ducl_dat.c(385,45): warning C4101: 'adresa_prvog': unreferenced local variable
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUCL_DAT\ATP_DUL\ducl_dat.c(420,6): warning C4142: 'sadrzi': benign redefinition of type
-      C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\lista.h(43,6):
-      see declaration of 'sadrzi'
-  
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUCL_DAT\ATP_DUL\ducl_dat.c(424,3): warning C4098: 'sadrzi': 'void' function returning a value
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUCL_DAT\ATP_DUL\ducl_dat.c(430,3): warning C4098: 'sadrzi': 'void' function returning a value
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUCL_DAT\ATP_DUL\ducl_dat.c(437,3): warning C4098: 'sadrzi': 'void' function returning a value
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUCL_DAT\ATP_DUL\ducl_dat.c(451,4): warning C4098: 'sadrzi': 'void' function returning a value
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUCL_DAT\ATP_DUL\ducl_dat.c(458,2): warning C4098: 'sadrzi': 'void' function returning a value
+﻿  ducl_dat.c
 C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUCL_DAT\ATP_DUL\ducl_dat.c(819,16): warning C4047: '!=': 'int' differs in levels of indirection from 'void *'
 C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUCL_DAT\ATP_DUL\ducl_dat.c(830,14): warning C4047: '!=': 'int' differs in levels of indirection from 'void *'
 C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUCL_DAT\ATP_DUL\ducl_dat.c(927,18): warning C4047: '=': 'int' differs in levels of indirection from 'POKAZIVAC'
@@ -21,5 +8,4 @@ C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUCL_DAT\ATP_
 C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUCL_DAT\ATP_DUL\ducl_dat.c(972,10): warning C4047: '=': 'int' differs in levels of indirection from 'POKAZIVAC'
 C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUCL_DAT\ATP_DUL\ducl_dat.c(988,9): warning C4047: '=': 'int' differs in levels of indirection from 'POKAZIVAC'
 C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUCL_DAT\ATP_DUL\ducl_dat.c(959,7): warning C4047: 'initializing': 'int' differs in levels of indirection from 'POKAZIVAC'
-  Generating Code...
   ATP_DUL.vcxproj -> C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUCL_DAT\x64\Debug\ATP_DUL.exe

@@ -2,9 +2,9 @@
 #include "lista.h"
 
 //specifikacija pomocnih funkcija
-void izbaci_sa_pocetka(LISTA*, PODATAK*);
-void izbaci_sa_kraja(LISTA*, PODATAK*);
-void izbaci_po_vrednosti(LISTA*, PODATAK*);
+void izbaci_sa_pocetka(LISTA, PODATAK*);
+void izbaci_sa_kraja(LISTA, PODATAK*);
+void izbaci_po_vrednosti(LISTA, PODATAK*);
 void azuriraj_susede(FILE*, int, int, int);
 void skrati_datoteku(FILE*, int);
 void bubble_sort(FILE*, int, int, SMER_SORTIRANJA);
@@ -14,13 +14,13 @@ void selection_sort(FILE*, int, int, SMER_SORTIRANJA);
 void kreiraj(LISTA* lista) {
 	*lista = malloc(sizeof(struct lista));
 	if (*lista == NULL) {
-		PRIJAVI(GRESKA_KREIRAJ);
+		PRIJAVI(Kod.Greska.Kreiraj);
 		return;
 	}
 	(*lista)->skladiste = "lista.dat";
 	FILE* datoteka = fopen((*lista)->skladiste, "ab");
 	if (datoteka == NULL) {
-		PRIJAVI(GRESKA_UCITAVANJE_DATOTEKE);
+		PRIJAVI(Kod.Greska.Ucitavanje_datoteke);
 		return;
 	}
 	fseek(datoteka, 0, SEEK_END);
@@ -34,38 +34,38 @@ void kreiraj(LISTA* lista) {
 	(*lista)->kapacitet = 100;
 	fclose(datoteka);
 
-	PRIJAVI(INFO_KREIRAJ);
+	PRIJAVI(Kod.Info.Kreiraj);
 }
 
-void unisti(LISTA* lista) {
-	if (*lista == NULL || (*lista)->skladiste == NULL || (*lista)->skladiste == ErrorList) {
-		PRIJAVI(GRESKA_LISTA_NE_POSTOJI);
+void unisti(LISTA lista) {
+	if (lista == NULL || lista->skladiste == NULL || lista->skladiste == ErrorList) {
+		PRIJAVI(Kod.Greska.Lista_ne_postoji);
 		return;
 	}
-	remove((*lista)->skladiste);
+	remove(lista->skladiste);
 	// da li ovako obrisati celu datoteku ili "izbaciti" sve tj. staviti da je glava=-1?
 	// u tom slucaju bi sve fizicki ostalo i dalje u fajlu, tako da mislim da je mozda bolje obrisati ga skroz
 	//(*lista)->skladiste = NULL;
-	(*lista)->broj_elemenata = 0;
+	lista->broj_elemenata = 0;
 
-	PRIJAVI(INFO_UNISTI);
+	PRIJAVI(Kod.Info.Unisti);
 }
 
-void ubaci(LISTA* lista, PODATAK podatak, NACIN nacin) {
-	if (*lista == NULL) {
-		PRIJAVI(GRESKA_LISTA_NE_POSTOJI);
+void ubaci(LISTA lista, PODATAK podatak, NACIN nacin) {
+	if (lista == NULL) {
+		PRIJAVI(Kod.Greska.Lista_ne_postoji);
 		return;
 	}
-	if ((*lista)->broj_elemenata >= (*lista)->kapacitet) {
-		PRIJAVI(UPOZORENJE_UBACI);
+	if (lista->broj_elemenata >= lista->kapacitet) {
+		PRIJAVI(Kod.Upozorenje.Ubaci);
 		return;
 	}
 
-	FILE* datoteka = fopen((*lista)->skladiste, "r+b");
+	FILE* datoteka = fopen(lista->skladiste, "r+b");
 	if (datoteka == NULL) {
-		datoteka = fopen((*lista)->skladiste, "w+b");
+		datoteka = fopen(lista->skladiste, "w+b");
 		if (datoteka == NULL) {
-			PRIJAVI(GRESKA_UCITAVANJE_DATOTEKE);
+			PRIJAVI(Kod.Greska.Ucitavanje_datoteke);
 			return;
 		}
 	}
@@ -98,9 +98,9 @@ void ubaci(LISTA* lista, PODATAK podatak, NACIN nacin) {
 		fflush(datoteka);
 		fclose(datoteka);
 		sortiraj(lista, Rastuce, Bubble); ////////////////
-		datoteka = fopen((*lista)->skladiste, "r+b");
+		datoteka = fopen(lista->skladiste, "r+b");
 		if (datoteka == NULL) {
-			PRIJAVI(GRESKA_UCITAVANJE_DATOTEKE);
+			PRIJAVI(Kod.Greska.Ucitavanje_datoteke);
 			return;
 		}
 
@@ -108,7 +108,7 @@ void ubaci(LISTA* lista, PODATAK podatak, NACIN nacin) {
 		int adresa_novog = ftell(datoteka); // ovo je naredna slobodna pozicija (kraj datoteke)
 
 		//ako lista ima samo jedan element
-		if ((*lista)->broj_elemenata == 1) {
+		if (lista->broj_elemenata == 1) {
 			ELEMENT prvi;
 			fseek(datoteka, glava, SEEK_SET);
 			fread(&prvi, broj_bajtova_za_element, 1, datoteka);
@@ -256,7 +256,7 @@ void ubaci(LISTA* lista, PODATAK podatak, NACIN nacin) {
 				stara_glava.podatak == poslednji.podatak) {
 
 			}*/
-			if ((*lista)->broj_elemenata == 1) {
+			if (lista->broj_elemenata == 1) {
 				// azuriranje veza
 				stara_glava.prethodni = (void*)(intptr_t)adresa_novog;
 				stara_glava.sledeci = (void*)(intptr_t)adresa_novog;
@@ -293,18 +293,18 @@ void ubaci(LISTA* lista, PODATAK podatak, NACIN nacin) {
 	}
 
 kraj_true:
-	(*lista)->broj_elemenata++;
+	lista->broj_elemenata++;
 	fclose(datoteka);
-	PRIJAVI(INFO_UBACI);
+	PRIJAVI(Kod.Info.Ubaci);
 }
 
-void izbaci(LISTA* lista, PODATAK* podatak, NACIN nacin) {
-	if (*lista == NULL || (*lista)->skladiste == NULL || (*lista)->skladiste == ErrorList) {
-		PRIJAVI(GRESKA_LISTA_NE_POSTOJI);
+void izbaci(LISTA lista, PODATAK* podatak, NACIN nacin) {
+	if (lista == NULL || lista->skladiste == NULL || lista->skladiste == ErrorList) {
+		PRIJAVI(Kod.Greska.Lista_ne_postoji);
 		return;
 	}
-	if ((*lista)->broj_elemenata == 0) {
-		PRIJAVI(UPOZORENJE_IZBACI);
+	if (lista->broj_elemenata == 0) {
+		PRIJAVI(Kod.Upozorenje.Izbaci);
 		return;
 	}
 
@@ -317,21 +317,21 @@ void izbaci(LISTA* lista, PODATAK* podatak, NACIN nacin) {
 }
 
 void prikazi(LISTA lista) {
-	printf("\n///// Lista: ");
+	wprintf(L"\nЛиста: ");
 	if ((lista == NULL) || (lista->skladiste == NULL) || (lista->skladiste == ErrorList)) {
-		(lista == NULL || lista->skladiste == NULL) ? printf("< Null > \n") : printf("< ErrorList > \n");
+		(lista == NULL || lista->skladiste == NULL) ? wprintf(L"< Null > \n") : wprintf(L"< ErrorList > \n");
 		return;
 	}
 	FILE* datoteka = fopen(lista->skladiste, "rb");
 	if (datoteka == NULL) {
-		PRIJAVI(GRESKA_UCITAVANJE_DATOTEKE);
+		PRIJAVI(Kod.Greska.Ucitavanje_datoteke);
 		return;
 	}
 
 	fseek(datoteka, 0, SEEK_END);
 	int broj_bajtova = ftell(datoteka);
 	if (broj_bajtova <= (sizeof(int) * 2)) {
-		printf("< Prazno >\n");
+		wprintf(L"< Празно >\n");
 		fclose(datoteka);
 		return;
 	}
@@ -340,7 +340,7 @@ void prikazi(LISTA lista) {
 	fseek(datoteka, sizeof(int), SEEK_SET); //pomeramo se za velicinu jednog int-a od pocetka
 	fread(&adresa_glave, sizeof(int), 1, datoteka); //citamo adresu glave
 	if (adresa_glave <= -1) {
-		printf("< Prazno >\n");
+		wprintf(L"< Празно >\n");
 		fclose(datoteka);
 		return;
 	}
@@ -349,27 +349,27 @@ void prikazi(LISTA lista) {
 	do {
 		fseek(datoteka, adresa_trenutnog, SEEK_SET);
 		fread(&trenutni, sizeof(ELEMENT), 1, datoteka);
-		printf("%d ", trenutni.podatak);
+		wprintf(L"%d ", trenutni.podatak);
 		adresa_trenutnog = (int)(intptr_t)trenutni.sledeci;
 	} while (adresa_trenutnog != adresa_glave);
-	printf("(ciklicno)\n");
+	wprintf(L"(циклично)\n");
 
 	fclose(datoteka);
 }
 
-void sortiraj(LISTA* lista, SMER_SORTIRANJA smer, ALGORITAM_SORTIRANJA algoritam) {
-	if (*lista == NULL || (*lista)->skladiste == NULL || (*lista)->skladiste == ErrorList) {
-		PRIJAVI(GRESKA_LISTA_NE_POSTOJI);
+void sortiraj(LISTA lista, SMER_SORTIRANJA smer, ALGORITAM_SORTIRANJA algoritam) {
+	if (lista == NULL || lista->skladiste == NULL || lista->skladiste == ErrorList) {
+		PRIJAVI(Kod.Greska.Lista_ne_postoji);
 		return;
 	}
-	if ((*lista)->broj_elemenata < 2) {
-		PRIJAVI(UPOZORENJE_SORTIRAJ);
+	if (lista->broj_elemenata < 2) {
+		PRIJAVI(Kod.Upozorenje.Sortiraj);
 		return;
 	}
 
-	FILE* datoteka = fopen((*lista)->skladiste, "r+b");
+	FILE* datoteka = fopen(lista->skladiste, "r+b");
 	if (datoteka == NULL) {
-		PRIJAVI(GRESKA_UCITAVANJE_DATOTEKE);
+		PRIJAVI(Kod.Greska.Ucitavanje_datoteke);
 		return;
 	}
 
@@ -378,18 +378,18 @@ void sortiraj(LISTA* lista, SMER_SORTIRANJA smer, ALGORITAM_SORTIRANJA algoritam
 	if (broj_bajtova <= (sizeof(int) * 2)) {
 		//printf("< Prazno >\n");
 		fclose(datoteka);
-		PRIJAVI(UPOZORENJE_SORTIRAJ);
+		PRIJAVI(Kod.Upozorenje.Sortiraj);
 		return;
 	}
 
-	int broj_bajtova_za_element, adresa_glave, adresa_prvog, adresa_drugog;
+	int broj_bajtova_za_element, adresa_glave;
 	fseek(datoteka, 0, SEEK_SET); //pomeramo se na pocetak
 	fread(&broj_bajtova_za_element, sizeof(int), 1, datoteka);
 	fread(&adresa_glave, sizeof(int), 1, datoteka); //citamo adresu glave
 	if (adresa_glave <= -1) {
 		//printf("< Prazno >\n");
 		fclose(datoteka);
-		PRIJAVI(UPOZORENJE_SORTIRAJ);
+		PRIJAVI(Kod.Upozorenje.Sortiraj);
 		return;
 	}
 
@@ -407,33 +407,33 @@ bool prazna(LISTA lista) {
 	bool prazna;
 	if (lista == NULL || lista->skladiste == NULL || lista->skladiste == ErrorList
 		|| lista->broj_elemenata == 0) {
-		PRIJAVI(INFO_LISTA_PRAZNA);
+		PRIJAVI(Kod.Info.Lista_prazna);
 		prazna = true;
 	}
 	else {
-		PRIJAVI(INFO_LISTA_NIJE_PRAZNA);
+		PRIJAVI(Kod.Info.Lista_nije_prazna);
 		prazna = false;
 	}
 	return prazna;
 }
 
-void sadrzi(LISTA* lista, PODATAK podatak, VRSTA_PRETRAGE vrsta) {
-	if (lista == NULL || (*lista)->skladiste == NULL || (*lista)->skladiste == ErrorList
-		|| (*lista)->broj_elemenata == 0) {
-		PRIJAVI(INFO_PODATAK_NE_POSTOJI, podatak);
+bool sadrzi(LISTA lista, PODATAK podatak, VRSTA_PRETRAGE vrsta) {
+	if (lista == NULL || lista->skladiste == NULL || lista->skladiste == ErrorList
+		|| lista->broj_elemenata == 0) {
+		PRIJAVI(Kod.Info.Podatak_ne_postoji, podatak);
 		return false;
 	}
 
-	FILE* datoteka = fopen((*lista)->skladiste, "rb");
+	FILE* datoteka = fopen(lista->skladiste, "rb");
 	if (datoteka == NULL) {
-		PRIJAVI(GRESKA_UCITAVANJE_DATOTEKE);
+		PRIJAVI(Kod.Greska.Ucitavanje_datoteke);
 		return false;
 	}
 	int adresa_glave, adresa_trenutnog;
 	fseek(datoteka, sizeof(int), SEEK_SET); //pomeramo se za velicinu jednog int-a od pocetka
 	fread(&adresa_glave, sizeof(int), 1, datoteka); //citamo adresu glave
 	if (adresa_glave == -1) {
-		PRIJAVI(INFO_PODATAK_NE_POSTOJI, podatak);
+		PRIJAVI(Kod.Info.Podatak_ne_postoji, podatak);
 		return false;
 	}
 
@@ -447,23 +447,23 @@ void sadrzi(LISTA* lista, PODATAK podatak, VRSTA_PRETRAGE vrsta) {
 		fread(&trenutni, sizeof(ELEMENT), 1, datoteka);
 		if (trenutni.podatak == podatak) {
 			fclose(datoteka);
-			PRIJAVI(INFO_PODATAK_POSTOJI, podatak);
+			PRIJAVI(Kod.Info.Podatak_postoji, podatak);
 			return true;
 		}
 		adresa_trenutnog = (int)(intptr_t)trenutni.sledeci;
 	} while (adresa_trenutnog != adresa_glave);
 
 	fclose(datoteka);
-	PRIJAVI(INFO_PODATAK_NE_POSTOJI, podatak);
+	PRIJAVI(Kod.Info.Podatak_ne_postoji, podatak);
 	return false;
 }
 
 //implementacija pomocnih funkcija 
 
-void izbaci_sa_pocetka(LISTA* lista, PODATAK* podatak) {
-	FILE* datoteka = fopen((*lista)->skladiste, "r+b");
+void izbaci_sa_pocetka(LISTA lista, PODATAK* podatak) {
+	FILE* datoteka = fopen(lista->skladiste, "r+b");
 	if (datoteka == NULL) {
-		PRIJAVI(GRESKA_UCITAVANJE_DATOTEKE);
+		PRIJAVI(Kod.Greska.Ucitavanje_datoteke);
 		return;
 	}
 
@@ -564,21 +564,21 @@ void izbaci_sa_pocetka(LISTA* lista, PODATAK* podatak) {
 	}
 
 kraj_true:
-	(*lista)->broj_elemenata--;
+	lista->broj_elemenata--;
 	skrati_datoteku(datoteka, broj_bajtova_za_element);
 	fclose(datoteka);
-	PRIJAVI(INFO_IZBACI, *podatak);
+	PRIJAVI(Kod.Info.Izbaci, *podatak);
 	return;
 kraj_false: //lista je prazna, nema sta da se izbaci
 	fclose(datoteka);
-	PRIJAVI(UPOZORENJE_IZBACI);
+	PRIJAVI(Kod.Upozorenje.Izbaci);
 	return;
 }
 
-void izbaci_sa_kraja(LISTA* lista, PODATAK* podatak) {
-	FILE* datoteka = fopen((*lista)->skladiste, "r+b");
+void izbaci_sa_kraja(LISTA lista, PODATAK* podatak) {
+	FILE* datoteka = fopen(lista->skladiste, "r+b");
 	if (datoteka == NULL) {
-		PRIJAVI(GRESKA_UCITAVANJE_DATOTEKE);
+		PRIJAVI(Kod.Greska.Ucitavanje_datoteke);
 		return;
 	}
 
@@ -608,7 +608,7 @@ void izbaci_sa_kraja(LISTA* lista, PODATAK* podatak) {
 	int adresa_fizicki_poslednjeg = broj_bajtova_u_datoteci - broj_bajtova_za_element;
 	ELEMENT fizicki_poslednji;
 
-	if ((*lista)->broj_elemenata == 1) {
+	if (lista->broj_elemenata == 1) {
 		//lista ima jedan element, znaci samo cemo izmeniti metapodatak za glavu 
 		glava = -1;
 		fseek(datoteka, sizeof(int), SEEK_SET);
@@ -682,19 +682,19 @@ void izbaci_sa_kraja(LISTA* lista, PODATAK* podatak) {
 kraj_true:
 	skrati_datoteku(datoteka, broj_bajtova_za_element);
 	fclose(datoteka);
-	(*lista)->broj_elemenata--;
-	PRIJAVI(INFO_IZBACI, *podatak);
+	lista->broj_elemenata--;
+	PRIJAVI(Kod.Info.Izbaci, *podatak);
 	return;
 kraj_false:
 	fclose(datoteka);
-	PRIJAVI(UPOZORENJE_IZBACI);
+	PRIJAVI(Kod.Upozorenje.Izbaci);
 	return;
 }
 
-void izbaci_po_vrednosti(LISTA* lista, PODATAK* podatak) {
-	FILE* datoteka = fopen((*lista)->skladiste, "r+b");
+void izbaci_po_vrednosti(LISTA lista, PODATAK* podatak) {
+	FILE* datoteka = fopen(lista->skladiste, "r+b");
 	if (datoteka == NULL) {
-		PRIJAVI(GRESKA_UCITAVANJE_DATOTEKE);
+		PRIJAVI(Kod.Greska.Ucitavanje_datoteke);
 		return;
 	}
 
@@ -725,7 +725,7 @@ void izbaci_po_vrednosti(LISTA* lista, PODATAK* podatak) {
 		if (trenutni.podatak == *podatak) {
 			//ovo je element koji treba da izbacimo, i to njegovo prvo pojavljivanje
 
-			if ((*lista)->broj_elemenata == 1) {
+			if (lista->broj_elemenata == 1) {
 				//ako je ovo jedini element u listi, izmenimo metapodatke i skratimo datoteku
 				glava = -1;
 				fseek(datoteka, sizeof(int), SEEK_SET);
@@ -795,13 +795,13 @@ void izbaci_po_vrednosti(LISTA* lista, PODATAK* podatak) {
 kraj_false:
 	//ovde smo izmedju ostalog i ukoliko smo prosli kroz celu listu a nismo nasli taj podatak
 	fclose(datoteka);
-	PRIJAVI(UPOZORENJE_IZBACI);
+	PRIJAVI(Kod.Upozorenje.Izbaci);
 	return;
 kraj_true:
 	skrati_datoteku(datoteka, broj_bajtova_za_element);
 	fclose(datoteka);
-	(*lista)->broj_elemenata--;
-	PRIJAVI(INFO_IZBACI, *podatak);
+	lista->broj_elemenata--;
+	PRIJAVI(Kod.Info.Izbaci, *podatak);
 	return;
 }
 
@@ -877,7 +877,7 @@ void bubble_sort(FILE* datoteka, int adresa_glave, int broj_bajtova_za_element, 
 		fread(&prvi, broj_bajtova_za_element, 1, datoteka);
 	} while ((int)(intptr_t)prvi.sledeci != adresa_glave);
 
-	PRIJAVI(INFO_SORTIRAJ, (smer == Rastuce ? "rastuce" : "opadajuce"));
+	PRIJAVI(Kod.Info.Sortiraj, (smer == Rastuce ? L"растуће" : L"опадајуће"));
 }
 
 void insertion_sort(FILE* datoteka, int adresa_glave, int velicina_elementa, SMER_SORTIRANJA smer) {
@@ -941,7 +941,7 @@ void insertion_sort(FILE* datoteka, int adresa_glave, int velicina_elementa, SME
 		adr_trenutni = trenutni.sledeci;
 	}
 
-	PRIJAVI(INFO_SORTIRAJ, (smer == Rastuce ? "rastuce" : "opadajuce"));
+	PRIJAVI(Kod.Info.Sortiraj, (smer == Rastuce ? L"растуће" : L"опадајуће"));
 }
 
 void selection_sort(FILE* datoteka, int adresa_glave, int broj_bajtova_za_element, SMER_SORTIRANJA smer) {
@@ -989,44 +989,47 @@ void selection_sort(FILE* datoteka, int adresa_glave, int broj_bajtova_za_elemen
 
 	} while (adr_i != adresa_glave);
 
-	PRIJAVI(INFO_SORTIRAJ, (smer == Rastuce ? "rastuce" : "opadajuce"));
+	PRIJAVI(Kod.Info.Sortiraj, (smer == Rastuce ? L"растуће" : L"опадајуће"));
 }
 
 //main
 int main() {
-
+	_setmode(_fileno(stdout), _O_U8TEXT); // neophodno za ispis na cirilici 
+	_setmode(_fileno(stderr), _O_U8TEXT); // neophodno za ispis na cirilici 
+	setlocale(LC_ALL, "");
+	//+ moraju da se koriste wide funckije - wprintf() i slicne 
 	LISTA lista = NULL;
 
 	kreiraj(&lista);
 
-	unisti(&lista);
+	unisti(lista);
 
 	kreiraj(&lista);
 
 	int a = 50;
-	ubaci(&lista, a, Kraj);
+	ubaci(lista, a, Kraj);
 
 	int b = 30;
-	ubaci(&lista, b, Kraj);
+	ubaci(lista, b, Kraj);
 
 	int c = 70;
-	ubaci(&lista, c, Vrednost);
+	ubaci(lista, c, Vrednost);
 
 	int d = 80;
-	ubaci(&lista, d, Pocetak);
+	ubaci(lista, d, Pocetak);
 
 	prikazi(lista);
 
 	int izbaceni = 50;
-	izbaci(&lista, &izbaceni, Vrednost);
+	izbaci(lista, &izbaceni, Vrednost);
 
 	prikazi(lista);
 
 	prazna(lista);
 
-	sadrzi(&lista, 7, Binarno);
+	sadrzi(lista, 7, Binarno);
 
-	sortiraj(&lista, Opadajuce, Selection);
+	sortiraj(lista, Opadajuce, Selection);
 
 	prikazi(lista);
 
