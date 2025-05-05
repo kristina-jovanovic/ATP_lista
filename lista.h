@@ -34,18 +34,20 @@ typedef enum algoritam_sortiranja { Bubble, Insertion, Selection } ALGORITAM_SOR
 
 // funkcije
 void	kreiraj(LISTA*);
-void	unisti(LISTA*);
-void	ubaci(LISTA*, PODATAK, NACIN);
-void	izbaci(LISTA*, PODATAK*, NACIN);
+void	unisti(LISTA);
+void	ubaci(LISTA, PODATAK, NACIN);
+void	izbaci(LISTA, PODATAK*, NACIN);
 void	prikazi(LISTA);
-void	sortiraj(LISTA*, SMER_SORTIRANJA, ALGORITAM_SORTIRANJA);
+void	sortiraj(LISTA, SMER_SORTIRANJA, ALGORITAM_SORTIRANJA);
 bool	prazna(LISTA);
-bool	sadrzi(LISTA*, PODATAK, VRSTA_PRETRAGE);
+bool	sadrzi(LISTA, PODATAK, VRSTA_PRETRAGE);
 
 /////////////////////////////////////
 // status -> obrada gresaka ; deklaracija struktura
 extern const struct status_kodovi {
-	struct { int Kreiraj, Unisti, Ubaci, Lista_ne_postoji, Ucitavanje_datoteke; } Greska;
+	struct {
+		int Kreiraj, Unisti, Ubaci, Lista_ne_postoji, Ucitavanje_datoteke;
+	} Greska;
 	struct {
 		int Sortiraj, Ubaci, Izbaci, Lista_prazna;
 	} Upozorenje;
@@ -69,7 +71,7 @@ extern const struct status_poruke {
 } Poruka;
 
 // funkcija koja automatski vraca poruku na osnovu koda
-const UTF8_STRING nadji_poruku(int kod) {
+const UTF8_STRING nadji_poruku(KOD kod) {
 	switch (kod) {
 		// Greska
 	case 0: return Poruka.Greska.Kreiraj;
@@ -99,7 +101,7 @@ const UTF8_STRING nadji_poruku(int kod) {
 	}
 }
 // funkcija koja ispisuje poruku o statusu
-static inline void prijavi(int kod, const STRING datoteka, int linija, ...) {
+static inline void prijavi(KOD kod, const STRING datoteka, int linija, ...) {
 	STATUS status;
 	wchar_t w_datoteka[260];
 	mbstowcs(w_datoteka, datoteka, 260); //multibyte string to wide char string, 260 je kapacitet w_datoteka

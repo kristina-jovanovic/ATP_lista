@@ -13,7 +13,6 @@
 
 #define EXIT_SUCCESS 0
 #define MAX_SIZE 100
-#define MAX_OPTIONS 10
 
 typedef char* STRING;
 

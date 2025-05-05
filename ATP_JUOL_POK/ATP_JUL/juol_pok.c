@@ -25,32 +25,32 @@ void kreiraj(LISTA* lista) {
 	}
 }
 
-void unisti(LISTA* lista) {
-	if ((*lista == NULL) || ((*lista)->skladiste) == NULL || (*lista == ErrorList)) {
+void unisti(LISTA lista) {
+	if ((lista == NULL) || (lista->skladiste) == NULL || (lista == ErrorList)) {
 		PRIJAVI(Kod.Greska.Lista_ne_postoji);
 		return;
 	}
-	ELEMENT* trenutni = (ELEMENT*)(*lista)->skladiste;
+	ELEMENT* trenutni = (ELEMENT*)lista->skladiste;
 	if (trenutni == NULL) {
 		PRIJAVI(Kod.Greska.Unisti);
 		return;
 	}
 	while (trenutni != NULL) {
-		(*lista)->skladiste = ((ELEMENT*)((*lista)->skladiste))->sledeci;
-		(*lista)->broj_elemenata--;
+		lista->skladiste = ((ELEMENT*)(lista->skladiste))->sledeci;
+		lista->broj_elemenata--;
 		trenutni->sledeci = NULL;
 		//free(trenutni);
-		trenutni = (*lista)->skladiste;
+		trenutni = lista->skladiste;
 	}
 	PRIJAVI(Kod.Info.Unisti);
 }
 
-void ubaci(LISTA* lista, PODATAK podatak, NACIN nacin) {
-	if (*lista == NULL || *lista == ErrorList) {
+void ubaci(LISTA lista, PODATAK podatak, NACIN nacin) {
+	if (lista == NULL || lista == ErrorList) {
 		PRIJAVI(Kod.Greska.Lista_ne_postoji);
 		return;
 	}
-	if ((*lista)->broj_elemenata >= (*lista)->kapacitet) {
+	if (lista->broj_elemenata >= lista->kapacitet) {
 		PRIJAVI(Kod.Upozorenje.Ubaci);
 		return;
 	}
@@ -59,7 +59,7 @@ void ubaci(LISTA* lista, PODATAK podatak, NACIN nacin) {
 	novi->prethodni = NULL; //jer je ovo JUL
 	novi->podatak = podatak;
 
-	ELEMENT* glava = (ELEMENT*)((*lista)->skladiste);
+	ELEMENT* glava = (ELEMENT*)(lista->skladiste);
 	if (nacin == Vrednost) {
 		//lista treba da bude sortirana i da se element ubaci tamo gde pripada po vrednosti
 		sortiraj(lista, Rastuce, Bubble);
@@ -95,28 +95,28 @@ void ubaci(LISTA* lista, PODATAK podatak, NACIN nacin) {
 	}
 	if (nacin == Pocetak) {
 	pocetak:
-		novi->sledeci = (*lista)->skladiste;
-		(*lista)->skladiste = (void*)novi;
+		novi->sledeci = lista->skladiste;
+		lista->skladiste = (void*)novi;
 	}
 
-	(*lista)->broj_elemenata++;
+	lista->broj_elemenata++;
 	PRIJAVI(Kod.Info.Ubaci);
 }
 
-void izbaci(LISTA* lista, PODATAK* podatak, NACIN nacin) {
-	if (*lista == NULL || *lista == ErrorList) {
+void izbaci(LISTA lista, PODATAK* podatak, NACIN nacin) {
+	if (lista == NULL || lista == ErrorList) {
 		PRIJAVI(Kod.Greska.Lista_ne_postoji);
 		return;
 	}
-	if ((*lista)->skladiste == NULL || (*lista)->broj_elemenata == 0) {
+	if (lista->skladiste == NULL || lista->broj_elemenata == 0) {
 		PRIJAVI(Kod.Upozorenje.Lista_prazna);
 	}
 
-	ELEMENT* pom = (*lista)->skladiste;
+	ELEMENT* pom = lista->skladiste;
 
 	if (nacin == Vrednost) {
 		//brisemo element sa vrednoscu podatka prosledjenog parametrom
-		if (((ELEMENT*)((*lista)->skladiste))->podatak == *podatak)
+		if (((ELEMENT*)(lista->skladiste))->podatak == *podatak)
 			goto pocetak;
 		else {
 			ELEMENT* prethodni = pom;
@@ -140,8 +140,8 @@ void izbaci(LISTA* lista, PODATAK* podatak, NACIN nacin) {
 		}
 	}
 	if (nacin == Kraj) {
-		if ((*lista)->broj_elemenata == 1) {
-			*podatak = ((ELEMENT*)((*lista)->skladiste))->podatak;
+		if (lista->broj_elemenata == 1) {
+			*podatak = ((ELEMENT*)(lista->skladiste))->podatak;
 			goto pocetak; // kao da brisemo sa pocetka ako imamo samo 1 element
 		}
 		else {
@@ -156,17 +156,17 @@ void izbaci(LISTA* lista, PODATAK* podatak, NACIN nacin) {
 		}
 	}
 	if (nacin == Pocetak) {
-		*podatak = ((ELEMENT*)((*lista)->skladiste))->podatak;
+		*podatak = ((ELEMENT*)(lista->skladiste))->podatak;
 	pocetak:
-		(*lista)->skladiste = ((ELEMENT*)((*lista)->skladiste))->sledeci;
+		lista->skladiste = ((ELEMENT*)(lista->skladiste))->sledeci;
 		free(pom);
 		pom = NULL;
 		goto kraj_true;
 	}
 
 kraj_true:
-	(*lista)->broj_elemenata--;
-	if ((*lista)->broj_elemenata == 0) (*lista)->skladiste = NULL;
+	lista->broj_elemenata--;
+	if (lista->broj_elemenata == 0) lista->skladiste = NULL;
 	PRIJAVI(Kod.Info.Izbaci, *podatak);
 	return;
 kraj_false:
@@ -192,12 +192,12 @@ void prikazi(LISTA lista) {
 	wprintf(L"\n\n");
 }
 
-void sortiraj(LISTA* lista, SMER_SORTIRANJA smer, ALGORITAM_SORTIRANJA algoritam) {
-	if (*lista == NULL || (*lista)->skladiste == ErrorList) {
+void sortiraj(LISTA lista, SMER_SORTIRANJA smer, ALGORITAM_SORTIRANJA algoritam) {
+	if (lista == NULL || lista->skladiste == ErrorList) {
 		PRIJAVI(Kod.Greska.Lista_ne_postoji);
 		return;
 	}
-	if ((*lista)->skladiste == NULL || (*lista)->broj_elemenata == 0) {
+	if (lista->skladiste == NULL || lista->broj_elemenata == 0) {
 		PRIJAVI(Kod.Upozorenje.Lista_prazna);
 		return;
 	}
@@ -221,9 +221,9 @@ bool prazna(LISTA lista) {
 	}
 }
 
-bool sadrzi(LISTA* lista, PODATAK trazeni_podatak, VRSTA_PRETRAGE vrsta_pretrage) {
-	if (lista == NULL || (*lista)->skladiste == NULL || (*lista)->skladiste == ErrorList
-		|| (*lista)->broj_elemenata == 0) {
+bool sadrzi(LISTA lista, PODATAK trazeni_podatak, VRSTA_PRETRAGE vrsta_pretrage) {
+	if (lista == NULL || lista->skladiste == NULL || lista->skladiste == ErrorList
+		|| lista->broj_elemenata == 0) {
 		PRIJAVI(Kod.Info.Podatak_ne_postoji, trazeni_podatak);
 		return false;
 	}
@@ -231,7 +231,7 @@ bool sadrzi(LISTA* lista, PODATAK trazeni_podatak, VRSTA_PRETRAGE vrsta_pretrage
 	//binarno pretrazivanje se ne moze raditi kada je lista implementirana preko pokazivaca
 	//tako da cemo raditi iterativni pristup bez obzira na to koja vrsta pretrage je prosledjena
 
-	ELEMENT* trenutni = (*lista)->skladiste;
+	ELEMENT* trenutni = lista->skladiste;
 	while (trenutni != NULL) {
 		if (trazeni_podatak == trenutni->podatak) break;
 		trenutni = trenutni->sledeci;
@@ -254,9 +254,9 @@ static void zameni(ELEMENT* p1, ELEMENT* p2) {
 	p2->podatak = pom;
 }
 
-void bubble_sort(LISTA* lista, SMER_SORTIRANJA smer) {
-	ELEMENT* prvi = (ELEMENT*)(*lista)->skladiste;
-	ELEMENT* drugi = ((ELEMENT*)(*lista)->skladiste)->sledeci;
+void bubble_sort(LISTA lista, SMER_SORTIRANJA smer) {
+	ELEMENT* prvi = (ELEMENT*)lista->skladiste;
+	ELEMENT* drugi = ((ELEMENT*)lista->skladiste)->sledeci;
 	if (prvi == NULL || drugi == NULL) {
 		PRIJAVI(Kod.Upozorenje.Sortiraj);
 		return;
@@ -275,15 +275,15 @@ void bubble_sort(LISTA* lista, SMER_SORTIRANJA smer) {
 	PRIJAVI(Kod.Info.Sortiraj, (smer == Rastuce ? L"растуће" : L"опадајуће"));
 }
 
-void insertion_sort(LISTA* lista, SMER_SORTIRANJA smer) {
-	if ((*lista)->broj_elemenata < 2) {
+void insertion_sort(LISTA lista, SMER_SORTIRANJA smer) {
+	if (lista->broj_elemenata < 2) {
 		//ako imamo 0 ili 1 element, nema sta da se sortira
 		PRIJAVI(Kod.Upozorenje.Sortiraj);
 		return;
 	}
 
 	ELEMENT* sortirano = NULL;
-	ELEMENT* trenutni = (*lista)->skladiste;
+	ELEMENT* trenutni = lista->skladiste;
 
 	while (trenutni) {
 		ELEMENT* sledeci = (ELEMENT*)trenutni->sledeci;
@@ -306,18 +306,18 @@ void insertion_sort(LISTA* lista, SMER_SORTIRANJA smer) {
 
 		trenutni = sledeci;
 	}
-	(*lista)->skladiste = sortirano;
+	lista->skladiste = sortirano;
 	PRIJAVI(Kod.Info.Sortiraj, (smer == Rastuce ? L"растуће" : L"опадајуће"));
 }
 
-void selection_sort(LISTA* lista, SMER_SORTIRANJA smer) {
-	if ((*lista)->broj_elemenata < 2) {
+void selection_sort(LISTA lista, SMER_SORTIRANJA smer) {
+	if (lista->broj_elemenata < 2) {
 		//ako imamo 0 ili 1 element, nema sta da se sortira
 		PRIJAVI(Kod.Upozorenje.Sortiraj);
 		return;
 	}
 
-	for (ELEMENT* i = (ELEMENT*)(*lista)->skladiste; i != NULL; i = i->sledeci) {
+	for (ELEMENT* i = (ELEMENT*)lista->skladiste; i != NULL; i = i->sledeci) {
 		ELEMENT* pom = i; //ako sortiramo rastuce, ovo je minimum, a ako sortiramo opadajuce, ovo je maksimum
 		for (ELEMENT* j = (ELEMENT*)i->sledeci; j != NULL; j = j->sledeci) {
 			if ((smer == Rastuce && j->podatak < pom->podatak) ||
@@ -338,52 +338,52 @@ void selection_sort(LISTA* lista, SMER_SORTIRANJA smer) {
 int main(void) {
 
 #pragma region Liste
-	//_setmode(_fileno(stdout), _O_U8TEXT); // neophodno za ispis na cirilici 
-	//_setmode(_fileno(stderr), _O_U8TEXT); // neophodno za ispis na cirilici 
-	//setlocale(LC_ALL, "");
-	////+ moraju da se koriste wide funckije - wprintf() i slicne 
+	_setmode(_fileno(stdout), _O_U8TEXT); // neophodno za ispis na cirilici 
+	_setmode(_fileno(stderr), _O_U8TEXT); // neophodno za ispis na cirilici 
+	setlocale(LC_ALL, "");
+	//+ moraju da se koriste wide funckije - wprintf() i slicne 
 
-	//LISTA lista;
-	//kreiraj(&lista);
+	LISTA lista;
+	kreiraj(&lista);
 
-	//int a = 5;
-	//ubaci(&lista, a, Kraj);
+	int a = 5;
+	ubaci(lista, a, Kraj);
 
-	//int b = 9;
-	//ubaci(&lista, b, Pocetak);
+	int b = 9;
+	ubaci(lista, b, Pocetak);
 
-	//int c = 7;
-	//ubaci(&lista, c, Kraj);
+	int c = 7;
+	ubaci(lista, c, Kraj);
 
-	//prikazi(lista);
-	//sortiraj(&lista, Rastuce, Selection);
-	//prikazi(lista);
+	prikazi(lista);
+	sortiraj(lista, Rastuce, Selection);
+	prikazi(lista);
 
-	//sadrzi(&lista, 5, Binarno);
+	sadrzi(lista, 5, Binarno);
 
-	//int izbaceni = 5;
-	//izbaci(&lista, &izbaceni, Vrednost);
+	int izbaceni = 5;
+	izbaci(lista, &izbaceni, Vrednost);
 
-	//prikazi(lista);
+	prikazi(lista);
 
-	//sadrzi(&lista, 5, Binarno);
+	sadrzi(lista, 5, Binarno);
 
-	//prazna(lista);
+	prazna(lista);
 
-	//sadrzi(&lista, 15, Binarno);
+	sadrzi(lista, 15, Binarno);
 
-	//unisti(&lista);
+	unisti(lista);
 
-	//prikazi(lista);
-	//prazna(lista);
+	prikazi(lista);
+	prazna(lista);
 
 #pragma endregion
 
 
-	MENI meni;
+	/*MENI meni;
 	kreiraj_meni(&meni, "lala.txt");
 	prikazi_meni(meni);
-	obradi_opciju(meni, 1);
+	obradi_opciju(meni, 1);*/
 
 	return 0;
 }

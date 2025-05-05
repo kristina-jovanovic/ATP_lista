@@ -1,6 +1,7 @@
 #pragma once
 
 #include "defs.h"
+#define MAX_ITEMS 10
 
 // tipovi
 
@@ -15,7 +16,7 @@ typedef struct stavka_menija {
 typedef struct meni {
 	STRING naziv;
 	int broj_stavki;
-	STAVKA_MENIJA stavke[MAX_OPTIONS];
+	STAVKA_MENIJA stavke[MAX_ITEMS];
 } MENI;
 
 // funkcije
