@@ -1,7 +1,9 @@
-#pragma once
+﻿#pragma once
 
 #include "defs.h"
 #define MAX_ITEMS 10
+#define MAX_DESCRIPTION 100
+#define MAX_NAME 30
 
 // tipovi
 
@@ -9,12 +11,12 @@
 typedef void (*FUNKCIJA)();
 
 typedef struct stavka_menija {
-	STRING opis;		// tekstualni opis stavke menija
+	wchar_t opis[MAX_DESCRIPTION];		// tekstualni opis stavke menija
 	FUNKCIJA funkcija;  //pokazivac na f-ju koja se poziva prilikom izbora ove stavke menija
 } STAVKA_MENIJA;
 
 typedef struct meni {
-	STRING naziv;
+	wchar_t naziv[MAX_NAME];
 	int broj_stavki;
 	STAVKA_MENIJA stavke[MAX_ITEMS];
 } MENI;

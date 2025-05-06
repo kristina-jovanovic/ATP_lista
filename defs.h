@@ -15,4 +15,6 @@
 #define MAX_SIZE 100
 
 typedef char* STRING;
+typedef wchar_t* UTF8_STRING;
+
 

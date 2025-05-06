@@ -6,7 +6,6 @@
 #define KOD int
 
 // tipovi
-typedef wchar_t* UTF8_STRING;
 
 typedef enum { Info, Upozorenje, Greska } STATUS;
 
