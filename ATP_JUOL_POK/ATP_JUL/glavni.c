@@ -1,6 +1,7 @@
 
 #include "meni.h"
-#include "lista.h"
+//#include "lista.h"
+
 
 int main() {
 	_setmode(_fileno(stdout), _O_U8TEXT); // neophodno za ispis na cirilici 
@@ -10,8 +11,9 @@ int main() {
 
 	MENI meni;
 	kreiraj_meni(&meni, "../../meni.txt");
-	prikazi_meni(meni);
-	obradi_opciju(meni, 1);
+	pokreni_meni(meni);
+	/*obradi_stavku(meni, 1);
+	obradi_stavku(meni, 3);*/
 
 	return 0;
 }

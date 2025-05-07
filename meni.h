@@ -23,6 +23,7 @@ typedef struct meni {
 
 // funkcije
 void kreiraj_meni(MENI* meni, STRING naziv_datoteke); // ucitavanje podataka o meniju iz datoteke
+void pokreni_meni(MENI meni);
 void prikazi_meni(MENI meni);
-void obradi_opciju(MENI meni, int opcija);
+void obradi_stavku(MENI meni, int stavka);
 

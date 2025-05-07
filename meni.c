@@ -1,39 +1,166 @@
 ﻿
 #include "meni.h"
-//#include "lista.h"
+#include "lista.h"
 
-void fja1() {
-	wprintf(L"fja1\n");
-}
-void fja2() {
-	wprintf(L"fja2\n");
+// specifikacija pomocnih funkcija
+void ubaci_element();
+void ubaci_element_na_pocetak();
+void ubaci_element_na_kraj();
+void ubaci_element_sortirano();
+void izbaci_element();
+void prikazi_elemente();
+void sortiraj_elemente();
+void da_li_je_lista_prazna();
+void da_li_element_postoji();
+void dodeli_funkciju(MENI* meni, int i);
+
+// globalna promenljiva
+LISTA lista;
+
+void kreiraj_meni(MENI* meni, STRING naziv_datoteke) {
+
+	FILE* datoteka = fopen(naziv_datoteke, "r, ccs=UTF-8");
+	if (datoteka == NULL) {
+		wprintf(L"Грешка при учитавању датотеке.\n");
+		return;
+	}
+
+	wchar_t linija[256];
+
+	// naziv menija
+	if (fgetws(linija, sizeof(linija) / sizeof(wchar_t), datoteka) == NULL) { //kao fgets() samo za wide char
+		wprintf(L"Грешка: датотека је празна.\n");
+		fclose(datoteka);
+		return;
+	}
+	linija[wcscspn(linija, L"\n")] = L'\0'; // uklanjanje novog reda - wcscspn() vraca indeks prvog pojavljivanja '\n' u liniji
+	wcscpy(meni->naziv, linija); // wide verzija strcpy() funkcije
+
+	// broj stavki
+	if (fgetws(linija, sizeof(linija) / sizeof(wchar_t), datoteka) == NULL) {
+		wprintf(L"Грешка: нема броја ставки.\n");
+		fclose(datoteka);
+		return;
+	}
+	meni->broj_stavki = _wtoi(linija);  // konverzija wide stringa u int
+
+	// ucitavanje opisa stavki
+	for (int i = 0; i < meni->broj_stavki; i++) {
+		if (fgetws(linija, sizeof(linija) / sizeof(wchar_t), datoteka) == NULL) {
+			wprintf(L"Грешка: недовољно ставки.\n");
+			break;
+		}
+		linija[wcscspn(linija, L"\n")] = L'\0'; // ukloni novi red
+		wcscpy(meni->stavke[i].opis, linija);
+		dodeli_funkciju(meni, i);
+	}
+
+	fclose(datoteka);
+
+	//inicijalizacija liste == da li ovde ili gde?
+	if (strcmp(meni->naziv, L"Главни мени") == 0)
+		kreiraj(&lista);
 }
 
-// pomocne funkcije
+void prikazi_meni(MENI meni) {
+	wprintf(L"\n==========================================\n");
+	wprintf(L"%25ls\n", meni.naziv);
+	for (int i = 0;i < meni.broj_stavki;i++) {
+		wprintf(L"%d. %ls\n", i + 1, meni.stavke[i].opis);
+	}
+	wprintf(L"0. ПОВРАТАК/КРАЈ РАДА\n");
+	wprintf(L"==========================================\n");
+}
+
+void pokreni_meni(MENI meni) {
+	int stavka = 0;
+	do {
+		prikazi_meni(meni);
+		wprintf(L"Унесите редни број жељене ставке: ");
+		wscanf(L"%d", &stavka);
+		fflush(stdin);
+		obradi_stavku(meni, stavka);
+	} while (stavka != 0);
+
+	if (strcmp(meni.naziv, L"Главни мени") == 0) {
+		unisti(lista); /// da li ovde?
+		wprintf(L"Гашење програма...\n");
+	}
+}
+
+void obradi_stavku(MENI meni, int stavka) {
+	if (stavka < 0 || stavka > meni.broj_stavki) {
+		wprintf(L"\nПогрешна опција!\n");
+		return;
+	}
+	if (stavka == 0) {
+		//kraj rada ili vracanje u prethodni meni
+		// .......
+		return;
+	}
+	int indeks_stavke = stavka - 1;
+	meni.stavke[indeks_stavke].funkcija();
+}
+
+// implementacija pomocnih funkcija
+void ubaci_element() {
+	MENI meni_ubaci;
+	kreiraj_meni(&meni_ubaci, "../../meni_ubaci.txt");
+	pokreni_meni(meni_ubaci);
+
+	//ubaci(lista, 2, Pocetak);
+}
+
+void izbaci_element() {
+	int izbaceni = 2;
+	izbaci(lista, &izbaceni, Vrednost);
+}
+
+void prikazi_elemente() {
+	prikazi(lista);
+}
+
+void sortiraj_elemente() {
+	sortiraj(lista, Rastuce, Bubble);
+}
+
+void da_li_je_lista_prazna() {
+	prazna(lista);
+}
+
+void da_li_element_postoji() {
+	sadrzi(lista, 5, Iterativno);
+}
+
+void ubaci_element_na_pocetak() {
+	int broj;
+	wprintf(L"Унесите целобројни елемент који желите да убаците: ");
+	wscanf(L"%d", &broj);
+	fflush(stdin);
+	ubaci(lista, broj, Pocetak);
+}
+
+void ubaci_element_na_kraj() {
+
+}
+
+void ubaci_element_sortirano() {
+
+}
+
 void dodeli_funkciju(MENI* meni, int i) {
-#pragma region MyRegion
-
-	//if (wcscmp(meni->stavke[i].opis, L"Убаци елемент") == 0) { //kao strcmp() samo za wide char
-	//	meni->stavke[i].funkcija = fja1;
-	//}
-	//else if (wcscmp(meni->stavke[i].opis, L"Избаци елемент") == 0) {
-	//	meni->stavke[i].funkcija = fja2;
-	//}
-	////... ostale opcije
-	//else {
-	//	meni->stavke[i].funkcija = NULL;
-	//}
-#pragma endregion
-
 	// da ne bismo radili mnogo if-else grana, pravimo mapu sa parovima opisa i funkcija
 	//proverimo koji tacno opis je procitan iz datoteke i u skladu sa tim dodelimo odgovarajucu funkciju
 	static const STAVKA_MENIJA mapa[] = {
-		{ L"Убаци елемент", fja1 },
-		{ L"Избаци елемент", fja2 },
-		{ L"Прикажи елементе", fja1 },
-		{ L"Сортирај елементе", fja1 },
-		{ L"Да ли је листа празна", fja1 },
-		{ L"Да ли одређени елемент постоји", fja1 },
+		{ L"Убаци елемент", ubaci_element },
+		{ L"Избаци елемент", izbaci_element },
+		{ L"Прикажи елементе", prikazi_elemente },
+		{ L"Сортирај елементе", sortiraj_elemente },
+		{ L"Да ли је листа празна", da_li_je_lista_prazna },
+		{ L"Да ли одређени елемент постоји", da_li_element_postoji },
+		{ L"Убаци елемент на почетак", ubaci_element_na_pocetak },
+		{ L"Убаци елемент на крај", ubaci_element_na_kraj },
+		{ L"Убаци елемент сортирано на основу вредности", ubaci_element_sortirano},
 	};
 
 	int broj_opcija = sizeof(mapa) / sizeof(mapa[0]);
@@ -46,70 +173,5 @@ void dodeli_funkciju(MENI* meni, int i) {
 	}
 	// ako se opis ne poklapa ni sa jednom poznatom opcijom
 	meni->stavke[i].funkcija = NULL;
-}
-
-void kreiraj_meni(MENI* meni, STRING naziv_datoteke) {
-
-	FILE* datoteka = fopen(naziv_datoteke, "r, ccs=UTF-8");
-	if (datoteka == NULL) {
-		wprintf(L"Greska - Ucitavanje datoteke\n");
-		return;
-	}
-
-	wchar_t linija[256];
-
-	// naziv menija
-	if (fgetws(linija, sizeof(linija) / sizeof(wchar_t), datoteka) == NULL) { //kao fgets() samo za wide char
-		wprintf(L"Greska: prazna datoteka.\n");
-		fclose(datoteka);
-		return;
-	}
-	linija[wcscspn(linija, L"\n")] = L'\0'; // uklanjanje novog reda - wcscspn() vraca indeks prvog pojavljivanja '\n' u liniji
-	wcscpy(meni->naziv, linija); // wide verzija strcpy() funkcije
-
-	// broj stavki
-	if (fgetws(linija, sizeof(linija) / sizeof(wchar_t), datoteka) == NULL) {
-		wprintf(L"Greska: nema broja stavki.\n");
-		fclose(datoteka);
-		return;
-	}
-	meni->broj_stavki = _wtoi(linija);  // konverzija wide stringa u int
-
-	// ucitavanje opisa stavki
-	for (int i = 0; i < meni->broj_stavki; i++) {
-		if (fgetws(linija, sizeof(linija) / sizeof(wchar_t), datoteka) == NULL) {
-			wprintf(L"Greska: nedovoljno stavki.\n");
-			break;
-		}
-		linija[wcscspn(linija, L"\n")] = L'\0'; // ukloni novi red
-		wcscpy(meni->stavke[i].opis, linija);
-		dodeli_funkciju(meni, i);
-	}
-
-	fclose(datoteka);
-}
-
-void prikazi_meni(MENI meni) {
-	wprintf(L"\n==========================================\n");
-	wprintf(L"%25ls\n", meni.naziv);
-	for (int i = 0;i < meni.broj_stavki;i++) {
-		wprintf(L"%d. %ls\n", i + 1, meni.stavke[i].opis);
-	}
-	wprintf(L"0. КРАЈ РАДА\n");
-	wprintf(L"==========================================\n");
-}
-
-void obradi_opciju(MENI meni, int opcija) {
-	if (opcija<0 || opcija > meni.broj_stavki) {
-		wprintf(L"\nПогрешна опција!\n");
-		return;
-	}
-	if (opcija == 0) {
-		//kraj rada ili vracanje u prethodni meni
-		// .......
-		return;
-	}
-	int indeks_opcije = opcija - 1;
-	meni.stavke[indeks_opcije].funkcija();
 }
 
