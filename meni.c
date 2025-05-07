@@ -36,9 +36,9 @@ void dodeli_funkciju(MENI* meni, int i) {
 		{ L"Да ли одређени елемент постоји", fja1 },
 	};
 
-	int brojOpcija = sizeof(mapa) / sizeof(mapa[0]);
+	int broj_opcija = sizeof(mapa) / sizeof(mapa[0]);
 
-	for (int j = 0; j < brojOpcija; j++) {
+	for (int j = 0; j < broj_opcija; j++) {
 		if (wcscmp(meni->stavke[i].opis, mapa[j].opis) == 0) {
 			meni->stavke[i].funkcija = mapa[j].funkcija;
 			return;
@@ -47,7 +47,6 @@ void dodeli_funkciju(MENI* meni, int i) {
 	// ako se opis ne poklapa ni sa jednom poznatom opcijom
 	meni->stavke[i].funkcija = NULL;
 }
-
 
 void kreiraj_meni(MENI* meni, STRING naziv_datoteke) {
 
@@ -102,7 +101,7 @@ void prikazi_meni(MENI meni) {
 
 void obradi_opciju(MENI meni, int opcija) {
 	if (opcija<0 || opcija > meni.broj_stavki) {
-		wprintf(L"\nPogresna opcija!\n");
+		wprintf(L"\nПогрешна опција!\n");
 		return;
 	}
 	if (opcija == 0) {
@@ -114,17 +113,3 @@ void obradi_opciju(MENI meni, int opcija) {
 	meni.stavke[indeks_opcije].funkcija();
 }
 
-//main
-int main() {
-	_setmode(_fileno(stdout), _O_U8TEXT); // neophodno za ispis na cirilici 
-	_setmode(_fileno(stderr), _O_U8TEXT); // neophodno za ispis na cirilici 
-	setlocale(LC_ALL, "");
-	//+ moraju da se koriste wide funckije - wprintf() i slicne 
-
-	MENI meni;
-	kreiraj_meni(&meni, "../../meni.txt");
-	prikazi_meni(meni);
-	obradi_opciju(meni, 1);
-
-	return 0;
-}

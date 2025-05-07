@@ -21,5 +21,11 @@
     <ClCompile Include="..\..\meni.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="glavni.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lista.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
