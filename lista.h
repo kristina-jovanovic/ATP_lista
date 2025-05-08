@@ -28,7 +28,7 @@ typedef struct lista* LISTA;
 
 typedef enum nacin { Pocetak, Kraj, Vrednost } NACIN; // na koji nacin treba da se ubaci/izbaci element
 typedef enum smer_sortiranja { Rastuce, Opadajuce } SMER_SORTIRANJA;
-typedef enum vrsta_pretrage { Iterativno, Binarno } VRSTA_PRETRAGE;
+typedef enum vrsta_pretrage { Sekvencijalno, Binarno } VRSTA_PRETRAGE;
 typedef enum algoritam_sortiranja { Bubble, Insertion, Selection } ALGORITAM_SORTIRANJA;
 
 // funkcije

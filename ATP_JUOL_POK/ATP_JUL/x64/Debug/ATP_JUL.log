@@ -1,6 +1,1 @@
-﻿  meni.c
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\meni.c(61,17): warning C4133: 'function': incompatible types - from 'wchar_t [30]' to 'const char *'
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\meni.c(61,26): warning C4133: 'function': incompatible types - from 'unsigned short [12]' to 'const char *'
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\meni.c(85,17): warning C4133: 'function': incompatible types - from 'wchar_t [30]' to 'const char *'
-C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\meni.c(85,25): warning C4133: 'function': incompatible types - from 'unsigned short [12]' to 'const char *'
-  ATP_JUL.vcxproj -> C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_JUOL_POK\x64\Debug\ATP_JUL.exe
+﻿  ATP_JUL.vcxproj -> C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_JUOL_POK\x64\Debug\ATP_JUL.exe

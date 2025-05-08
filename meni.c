@@ -8,10 +8,22 @@ void ubaci_element_na_pocetak();
 void ubaci_element_na_kraj();
 void ubaci_element_sortirano();
 void izbaci_element();
+void izbaci_element_sa_pocetka();
+void izbaci_element_sa_kraja();
+void izbaci_element_po_vrednosti();
 void prikazi_elemente();
 void sortiraj_elemente();
+void sortiraj_elemente_rastuce_bubble();
+void sortiraj_elemente_rastuce_insertion();
+void sortiraj_elemente_rastuce_selection();
+void sortiraj_elemente_opadajuce_bubble();
+void sortiraj_elemente_opadajuce_insertion();
+void sortiraj_elemente_opadajuce_selection();
 void da_li_je_lista_prazna();
-void da_li_element_postoji();
+void pretrazi_element();
+void pretrazi_element_sekvencijalno();
+void pretrazi_element_binarno();
+
 void dodeli_funkciju(MENI* meni, int i);
 
 // globalna promenljiva
@@ -63,13 +75,13 @@ void kreiraj_meni(MENI* meni, STRING naziv_datoteke) {
 }
 
 void prikazi_meni(MENI meni) {
-	wprintf(L"\n==========================================\n");
-	wprintf(L"%25ls\n", meni.naziv);
+	wprintf(L"\n========================================================\n");
+	wprintf(L"%32ls\n", meni.naziv);
 	for (int i = 0;i < meni.broj_stavki;i++) {
 		wprintf(L"%d. %ls\n", i + 1, meni.stavke[i].opis);
 	}
 	wprintf(L"0. ПОВРАТАК/КРАЈ РАДА\n");
-	wprintf(L"==========================================\n");
+	wprintf(L"========================================================\n");
 }
 
 void pokreni_meni(MENI meni) {
@@ -95,7 +107,6 @@ void obradi_stavku(MENI meni, int stavka) {
 	}
 	if (stavka == 0) {
 		//kraj rada ili vracanje u prethodni meni
-		// .......
 		return;
 	}
 	int indeks_stavke = stavka - 1;
@@ -105,15 +116,14 @@ void obradi_stavku(MENI meni, int stavka) {
 // implementacija pomocnih funkcija
 void ubaci_element() {
 	MENI meni_ubaci;
-	kreiraj_meni(&meni_ubaci, "../../meni_ubaci.txt");
+	kreiraj_meni(&meni_ubaci, "../../meni_datoteke/meni_ubaci.txt");
 	pokreni_meni(meni_ubaci);
-
-	//ubaci(lista, 2, Pocetak);
 }
 
 void izbaci_element() {
-	int izbaceni = 2;
-	izbaci(lista, &izbaceni, Vrednost);
+	MENI meni_izbaci;
+	kreiraj_meni(&meni_izbaci, "../../meni_datoteke/meni_izbaci.txt");
+	pokreni_meni(meni_izbaci);
 }
 
 void prikazi_elemente() {
@@ -121,15 +131,19 @@ void prikazi_elemente() {
 }
 
 void sortiraj_elemente() {
-	sortiraj(lista, Rastuce, Bubble);
+	MENI meni_sortiraj;
+	kreiraj_meni(&meni_sortiraj, "../../meni_datoteke/meni_sortiraj.txt");
+	pokreni_meni(meni_sortiraj);
 }
 
 void da_li_je_lista_prazna() {
 	prazna(lista);
 }
 
-void da_li_element_postoji() {
-	sadrzi(lista, 5, Iterativno);
+void pretrazi_element() {
+	MENI meni_pretrazi;
+	kreiraj_meni(&meni_pretrazi, "../../meni_datoteke/meni_pretrazivanje.txt");
+	pokreni_meni(meni_pretrazi);
 }
 
 void ubaci_element_na_pocetak() {
@@ -141,11 +155,77 @@ void ubaci_element_na_pocetak() {
 }
 
 void ubaci_element_na_kraj() {
-
+	int broj;
+	wprintf(L"Унесите целобројни елемент који желите да убаците: ");
+	wscanf(L"%d", &broj);
+	fflush(stdin);
+	ubaci(lista, broj, Kraj);
 }
 
 void ubaci_element_sortirano() {
+	int broj;
+	wprintf(L"Унесите целобројни елемент који желите да убаците: ");
+	wscanf(L"%d", &broj);
+	fflush(stdin);
+	ubaci(lista, broj, Vrednost);
+}
 
+void izbaci_element_sa_pocetka() {
+	int izbaceni = -1;
+	izbaci(lista, &izbaceni, Pocetak);
+}
+
+void izbaci_element_sa_kraja() {
+	int izbaceni = -1;
+	izbaci(lista, &izbaceni, Kraj);
+}
+
+void izbaci_element_po_vrednosti() {
+	int broj_za_izbacivanje;
+	wprintf(L"Унесите целобројни елемент који желите да избаците: ");
+	wscanf(L"%d", &broj_za_izbacivanje);
+	fflush(stdin);
+	izbaci(lista, &broj_za_izbacivanje, Vrednost);
+}
+
+void sortiraj_elemente_rastuce_bubble() {
+	sortiraj(lista, Rastuce, Bubble);
+}
+
+void sortiraj_elemente_rastuce_insertion() {
+	sortiraj(lista, Rastuce, Insertion);
+}
+
+void sortiraj_elemente_rastuce_selection() {
+	sortiraj(lista, Rastuce, Selection);
+}
+
+void sortiraj_elemente_opadajuce_bubble() {
+	sortiraj(lista, Opadajuce, Bubble);
+}
+
+void sortiraj_elemente_opadajuce_insertion() {
+	sortiraj(lista, Opadajuce, Insertion);
+}
+
+void sortiraj_elemente_opadajuce_selection() {
+	sortiraj(lista, Opadajuce, Selection);
+}
+
+void pretrazi_element_sekvencijalno() {
+	int broj;
+	wprintf(L"Унесите целобројни елемент који желите да претражите: ");
+	wscanf(L"%d", &broj);
+	fflush(stdin);
+	sadrzi(lista, broj, Sekvencijalno);
+}
+
+void pretrazi_element_binarno() {
+	int broj;
+	wprintf(L"Унесите целобројни елемент који желите да претражите: ");
+	wscanf(L"%d", &broj);
+	fflush(stdin);
+	sadrzi(lista, broj, Binarno);
 }
 
 void dodeli_funkciju(MENI* meni, int i) {
@@ -157,10 +237,21 @@ void dodeli_funkciju(MENI* meni, int i) {
 		{ L"Прикажи елементе", prikazi_elemente },
 		{ L"Сортирај елементе", sortiraj_elemente },
 		{ L"Да ли је листа празна", da_li_je_lista_prazna },
-		{ L"Да ли одређени елемент постоји", da_li_element_postoji },
+		{ L"Претражи одређени елемент", pretrazi_element },
 		{ L"Убаци елемент на почетак", ubaci_element_na_pocetak },
 		{ L"Убаци елемент на крај", ubaci_element_na_kraj },
 		{ L"Убаци елемент сортирано на основу вредности", ubaci_element_sortirano},
+		{ L"Избаци елемент са почетка", izbaci_element_sa_pocetka},
+		{ L"Избаци елемент са краја", izbaci_element_sa_kraja},
+		{ L"Избаци елемент одређене вредности", izbaci_element_po_vrednosti},
+		{ L"Сортирај елементе растуће користећи Bubble sort", sortiraj_elemente_rastuce_bubble},
+		{ L"Сортирај елементе растуће користећи Insertion sort", sortiraj_elemente_rastuce_insertion},
+		{ L"Сортирај елементе растуће користећи Selection sort", sortiraj_elemente_rastuce_selection},
+		{ L"Сортирај елементе опадајуће користећи Bubble sort", sortiraj_elemente_opadajuce_bubble},
+		{ L"Сортирај елементе опадајуће користећи Insertion sort", sortiraj_elemente_opadajuce_insertion},
+		{ L"Сортирај елементе опадајуће користећи Selection sort", sortiraj_elemente_opadajuce_selection},
+		{ L"Претражи елемент секвенцијално", pretrazi_element_sekvencijalno },
+		{ L"Претражи елемент бинарно", pretrazi_element_binarno },
 	};
 
 	int broj_opcija = sizeof(mapa) / sizeof(mapa[0]);

@@ -25,8 +25,13 @@ void kreiraj(LISTA* lista) {
 }
 
 void unisti(LISTA lista) {
-	if ((lista == NULL) || (lista->skladiste) == NULL || (lista == ErrorList)) {
+	if ((lista == NULL) || (lista == ErrorList)) {
 		PRIJAVI(Kod.Greska.Lista_ne_postoji);
+		return;
+	}
+	else if (lista->skladiste == NULL) {
+		lista = NULL;
+		PRIJAVI(Kod.Info.Unisti);
 		return;
 	}
 	ELEMENT* trenutni = (ELEMENT*)lista->skladiste;
@@ -61,18 +66,25 @@ void ubaci(LISTA lista, PODATAK podatak, NACIN nacin) {
 	ELEMENT* glava = (ELEMENT*)(lista->skladiste);
 	if (nacin == Vrednost) {
 		//lista treba da bude sortirana i da se element ubaci tamo gde pripada po vrednosti
-		sortiraj(lista, Rastuce, Bubble);
-		//poruka = sortiraj(lista, Rastuce);
-		//if (poruka.status == Greska) return poruka;
+		if (lista->broj_elemenata >= 2)
+			sortiraj(lista, Rastuce, Bubble);
 		if (glava == NULL)
 			goto pocetak;
+		else if (glava->sledeci == NULL) {
+			//lista ima samo jedan element
+			if (podatak < glava->podatak)
+				goto pocetak;
+			else
+				goto kraj;
+		}
 		else {
 			ELEMENT* prethodni = glava;
 			ELEMENT* trenutni = glava->sledeci;
 			while (trenutni != NULL) {
 				if (trenutni->podatak > podatak) break;
 				trenutni = trenutni->sledeci;
-				prethodni = trenutni->sledeci;
+				//prethodni = trenutni->sledeci;
+				prethodni = prethodni->sledeci;
 			}
 			//postaviti novi element izmedju 'prethodnog' i 'trenutnog'
 			prethodni->sledeci = novi;
@@ -80,6 +92,7 @@ void ubaci(LISTA lista, PODATAK podatak, NACIN nacin) {
 		}
 	}
 	if (nacin == Kraj) {
+	kraj:
 		novi->sledeci = NULL; // novi ide na kraj
 		if (glava == NULL) {
 			//lista je prazna, dodajemo prvi element, isto je kao da ga dodajemo na pocetak
@@ -109,6 +122,7 @@ void izbaci(LISTA lista, PODATAK* podatak, NACIN nacin) {
 	}
 	if (lista->skladiste == NULL || lista->broj_elemenata == 0) {
 		PRIJAVI(Kod.Upozorenje.Lista_prazna);
+		return;
 	}
 
 	ELEMENT* pom = lista->skladiste;
@@ -228,7 +242,7 @@ bool sadrzi(LISTA lista, PODATAK trazeni_podatak, VRSTA_PRETRAGE vrsta_pretrage)
 	}
 
 	//binarno pretrazivanje se ne moze raditi kada je lista implementirana preko pokazivaca
-	//tako da cemo raditi iterativni pristup bez obzira na to koja vrsta pretrage je prosledjena
+	//tako da cemo raditi sekvencijalni pristup bez obzira na to koja vrsta pretrage je prosledjena
 
 	ELEMENT* trenutni = lista->skladiste;
 	while (trenutni != NULL) {

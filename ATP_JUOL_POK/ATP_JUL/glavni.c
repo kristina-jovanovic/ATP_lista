@@ -10,7 +10,7 @@ int main() {
 	//+ moraju da se koriste wide funckije - wprintf() i slicne 
 
 	MENI meni;
-	kreiraj_meni(&meni, "../../meni.txt");
+	kreiraj_meni(&meni, "../../meni_datoteke/meni.txt");
 	pokreni_meni(meni);
 	/*obradi_stavku(meni, 1);
 	obradi_stavku(meni, 3);*/
