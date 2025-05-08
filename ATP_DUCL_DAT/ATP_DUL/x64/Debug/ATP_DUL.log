@@ -1,4 +1,9 @@
-﻿  ducl_dat.c
+﻿  meni.c
+C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\meni.c(73,17): warning C4133: 'function': incompatible types - from 'wchar_t [30]' to 'const char *'
+C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\meni.c(73,26): warning C4133: 'function': incompatible types - from 'unsigned short [12]' to 'const char *'
+C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\meni.c(97,17): warning C4133: 'function': incompatible types - from 'wchar_t [30]' to 'const char *'
+C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\meni.c(97,25): warning C4133: 'function': incompatible types - from 'unsigned short [12]' to 'const char *'
+  ducl_dat.c
 C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUCL_DAT\ATP_DUL\ducl_dat.c(819,16): warning C4047: '!=': 'int' differs in levels of indirection from 'void *'
 C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUCL_DAT\ATP_DUL\ducl_dat.c(830,14): warning C4047: '!=': 'int' differs in levels of indirection from 'void *'
 C:\Users\jovan\OneDrive\Radna površina\SILAB\ATP JK\ATP_lista\ATP_DUCL_DAT\ATP_DUL\ducl_dat.c(927,18): warning C4047: '=': 'int' differs in levels of indirection from 'POKAZIVAC'

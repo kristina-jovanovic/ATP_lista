@@ -34,12 +34,13 @@ void kreiraj(LISTA* lista) {
 }
 
 void unisti(LISTA lista) {
-	if (lista == NULL) {
+	if (lista == NULL || lista==ErrorList) {
 		PRIJAVI(Kod.Greska.Lista_ne_postoji);
 		return;
 	}
-	if (lista->skladiste == NULL || lista->broj_elemenata == 0) {
-		PRIJAVI(Kod.Upozorenje.Lista_prazna);
+	else if (lista->skladiste == NULL || lista->broj_elemenata == 0) {
+		lista = NULL;
+		PRIJAVI(Kod.Info.Unisti);
 		return;
 	}
 
@@ -259,7 +260,7 @@ bool sadrzi(LISTA lista, PODATAK podatak, VRSTA_PRETRAGE vrsta) {
 	}
 	bool sadrzi;
 	int(*matrica)[3] = (int(*)[3])lista->skladiste;
-	if (vrsta == Iterativno) {
+	if (vrsta == Sekvencijalno) {
 		int trenutni_red = 0; //uzimamo ceo prvi red
 		do {
 			if (matrica[trenutni_red][1] == podatak) {
@@ -392,47 +393,4 @@ void selection_sort(LISTA lista, SMER_SORTIRANJA smer) {
 		}
 	}
 	PRIJAVI(Kod.Info.Sortiraj, (smer == Rastuce ? L"растуће" : L"опадајуће"));
-}
-
-//main
-
-int main() {
-	_setmode(_fileno(stdout), _O_U8TEXT); // neophodno za ispis na cirilici 
-	_setmode(_fileno(stderr), _O_U8TEXT); // neophodno za ispis na cirilici 
-	setlocale(LC_ALL, "");
-	//+ moraju da se koriste wide funckije - wprintf() i slicne 
-
-	LISTA lista = NULL;
-	kreiraj(&lista);
-
-	prazna(lista);
-
-	sadrzi(lista, 5, Binarno);
-
-	ubaci(lista, 5, Kraj);
-
-	ubaci(lista, 7, Kraj);
-
-	ubaci(lista, 6, Vrednost);
-
-	ubaci(lista, 9, Pocetak);
-
-	prikazi(lista);
-	prazna(lista);
-
-	/*signal = sadrzi(lista, 5, Binarno);
-	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);
-
-	signal = sadrzi(lista, 2, Binarno);
-	obrada_statusa(signal.status, signal.poruka, NULL, __LINE__);*/
-
-	int izbaceni = 10;
-	izbaci(lista, &izbaceni, Vrednost);
-	//signal = izbaci_sa_pocetka(lista, &izbaceni);
-	prikazi(lista);
-
-	sortiraj(lista, Rastuce, Selection);
-	prikazi(lista);
-
-	return 0;
 }

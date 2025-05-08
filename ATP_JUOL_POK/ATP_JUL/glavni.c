@@ -1,6 +1,5 @@
 
 #include "meni.h"
-//#include "lista.h"
 
 
 int main() {
@@ -12,8 +11,6 @@ int main() {
 	MENI meni;
 	kreiraj_meni(&meni, "../../meni_datoteke/meni.txt");
 	pokreni_meni(meni);
-	/*obradi_stavku(meni, 1);
-	obradi_stavku(meni, 3);*/
-
+	
 	return 0;
 }

@@ -95,7 +95,16 @@ void pokreni_meni(MENI meni) {
 	} while (stavka != 0);
 
 	if (strcmp(meni.naziv, L"Главни мени") == 0) {
-		unisti(lista); /// da li ovde?
+		//unisti(lista); // da li ovde? --implementacija preko datoteke onda nece cuvati podatke tj. obrisace ih na kraju svaki put
+		// pa cemo zato rucno samo osloboditi memoriju u tom slucaju
+		if (strcmp((STRING)lista->skladiste, "lista.dat") == 0) {
+			lista->skladiste = NULL;
+			lista->broj_elemenata = 0;
+			lista = NULL;
+		}
+		else {
+			unisti(lista);
+		}
 		wprintf(L"Гашење програма...\n");
 	}
 }

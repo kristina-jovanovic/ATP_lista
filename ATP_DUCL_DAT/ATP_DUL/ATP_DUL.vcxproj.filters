@@ -18,5 +18,14 @@
     <ClCompile Include="ducl_dat.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\glavni.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lista.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\meni.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
