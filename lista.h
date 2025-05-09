@@ -1,6 +1,7 @@
 #pragma once
 
 #include "status.h"
+#include "meni.h"
 
 // ErrorList
 #ifndef ErrorList
@@ -77,5 +78,9 @@ void prijavi(KOD kod, const STRING datoteka, int linija, ...);
 // definicije status kodova i poruka
 const struct status_kodovi Kod;
 const struct status_poruke Poruka;
+
+////////////////////////////////////
+// funkcije za meni
+void dodeli_funkciju_lista(MENI*);
 
 
