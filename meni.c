@@ -51,7 +51,7 @@ void kreiraj_meni(MENI* meni, STRING naziv_datoteke) {
 void prikazi_meni(MENI meni) {
 	wprintf(L"\n========================================================\n");
 	wprintf(L"%32ls\n", meni.naziv);
-	if (strcmp(meni.naziv, L"Главни мени") == 0) {
+	if (wcscmp(meni.naziv, L"Главни мени") == 0) {
 		//u pitanju je glavni meni - prva stavka je unisti koju ne prikazujemo
 		for (int i = 1;i < meni.broj_stavki;i++) {
 			wprintf(L"%d. %ls\n", i, meni.stavke[i].opis);
@@ -78,7 +78,7 @@ void pokreni_meni(MENI meni) {
 		obradi_stavku(meni, stavka);
 	} while (stavka != 0);
 
-	if (strcmp(meni.naziv, L"Главни мени") == 0) {
+	if (wcscmp(meni.naziv, L"Главни мени") == 0) {
 		wprintf(L"Крај рада...\n");
 	}
 }
@@ -88,9 +88,20 @@ void obradi_stavku(MENI meni, int stavka) {
 		wprintf(L"\nПогрешна опција!\n");
 		return;
 	}
-	if (stavka == 0 && strcmp(meni.naziv, L"Главни мени") != 0) {
-		//povratak u prethodni meni
-		return;
+	if (wcscmp(meni.naziv, L"Главни мени") == 0) {
+		//glavni meni - 0. stavka je unisti koju ne prikazujemo, ostale idu od 1 kao u prikazu
+		if (meni.stavke[stavka].funkcija != NULL)
+			meni.stavke[stavka].funkcija();
 	}
-	meni.stavke[stavka].funkcija();
+	else {
+		//podmeni - stavke idu od 0, za 1 manje u odnosu na prikaz
+		if (stavka == 0) {
+			return;
+		}
+		else {
+			int indeks_stavke = stavka - 1;
+			if (meni.stavke[indeks_stavke].funkcija != NULL)
+				meni.stavke[indeks_stavke].funkcija();
+		}
+	}
 }

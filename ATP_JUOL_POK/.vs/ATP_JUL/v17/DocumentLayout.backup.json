@@ -3,17 +3,16 @@
   "WorkspaceRootPath": "C:\\Users\\jovan\\OneDrive\\Radna povr\u0161ina\\SILAB\\ATP JK\\ATP_lista\\ATP_JUOL_POK\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{E3A8B759-DE20-4C1A-A243-22F0D027CD9A}|ATP_JUL\\ATP_JUL.vcxproj|C:\\Users\\jovan\\OneDrive\\Radna povr\u0161ina\\SILAB\\ATP JK\\ATP_lista\\glavni.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{E3A8B759-DE20-4C1A-A243-22F0D027CD9A}|ATP_JUL\\ATP_JUL.vcxproj|C:\\Users\\jovan\\OneDrive\\Radna povr\u0161ina\\SILAB\\ATP JK\\ATP_lista\\meni.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{E3A8B759-DE20-4C1A-A243-22F0D027CD9A}|ATP_JUL\\ATP_JUL.vcxproj|C:\\Users\\jovan\\OneDrive\\Radna povr\u0161ina\\SILAB\\ATP JK\\ATP_lista\\lista.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{E3A8B759-DE20-4C1A-A243-22F0D027CD9A}|ATP_JUL\\ATP_JUL.vcxproj|C:\\Users\\jovan\\OneDrive\\Radna povr\u0161ina\\SILAB\\ATP JK\\ATP_lista\\ATP_JUOL_POK\\ATP_JUL\\glavni.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{E3A8B759-DE20-4C1A-A243-22F0D027CD9A}|ATP_JUL\\ATP_JUL.vcxproj|solutionrelative:ATP_JUL\\glavni.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\jovan\\OneDrive\\Radna povr\u0161ina\\SILAB\\ATP JK\\ATP_lista\\meni.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E3A8B759-DE20-4C1A-A243-22F0D027CD9A}|ATP_JUL\\ATP_JUL.vcxproj|C:\\Users\\jovan\\OneDrive\\Radna povr\u0161ina\\SILAB\\ATP JK\\ATP_lista\\lista.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{E3A8B759-DE20-4C1A-A243-22F0D027CD9A}|ATP_JUL\\ATP_JUL.vcxproj|C:\\Users\\jovan\\OneDrive\\Radna povr\u0161ina\\SILAB\\ATP JK\\ATP_lista\\ATP_JUOL_POK\\ATP_JUL\\juol_pok.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
@@ -38,19 +37,32 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "glavni.c",
+              "DocumentMoniker": "C:\\Users\\jovan\\OneDrive\\Radna povr\u0161ina\\SILAB\\ATP JK\\ATP_lista\\glavni.c",
+              "RelativeDocumentMoniker": "..\\glavni.c",
+              "ToolTip": "C:\\Users\\jovan\\OneDrive\\Radna povr\u0161ina\\SILAB\\ATP JK\\ATP_lista\\glavni.c",
+              "RelativeToolTip": "..\\glavni.c",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAeAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-05-19T13:31:51.237Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
               "Title": "meni.c",
               "DocumentMoniker": "C:\\Users\\jovan\\OneDrive\\Radna povr\u0161ina\\SILAB\\ATP JK\\ATP_lista\\meni.c",
               "RelativeDocumentMoniker": "..\\meni.c",
               "ToolTip": "C:\\Users\\jovan\\OneDrive\\Radna povr\u0161ina\\SILAB\\ATP JK\\ATP_lista\\meni.c",
               "RelativeToolTip": "..\\meni.c",
-              "ViewState": "AgIAABwAAAAAAAAAAAAkwFAAAAAvAAAAAAAAAA==",
+              "ViewState": "AgIAAD8AAAAAAAAAAAAkwEUAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
               "WhenOpened": "2025-05-03T21:19:12.259Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 2,
               "Title": "meni.h",
               "DocumentMoniker": "C:\\Users\\jovan\\OneDrive\\Radna povr\u0161ina\\SILAB\\ATP JK\\ATP_lista\\meni.h",
               "RelativeDocumentMoniker": "..\\meni.h",
@@ -58,12 +70,11 @@
               "RelativeToolTip": "..\\meni.h",
               "ViewState": "AgIAAAwAAAAAAAAAAAAAABkAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-05-07T13:19:29.524Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-07T13:19:29.524Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 3,
               "Title": "lista.c",
               "DocumentMoniker": "C:\\Users\\jovan\\OneDrive\\Radna povr\u0161ina\\SILAB\\ATP JK\\ATP_lista\\lista.c",
               "RelativeDocumentMoniker": "..\\lista.c",
@@ -71,21 +82,7 @@
               "RelativeToolTip": "..\\lista.c",
               "ViewState": "AgIAAIwAAAAAAAAAAAAAAIwAAAAPAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
-              "WhenOpened": "2025-05-07T12:56:28.894Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "glavni.c",
-              "DocumentMoniker": "C:\\Users\\jovan\\OneDrive\\Radna povr\u0161ina\\SILAB\\ATP JK\\ATP_lista\\ATP_JUOL_POK\\ATP_JUL\\glavni.c",
-              "RelativeDocumentMoniker": "ATP_JUL\\glavni.c",
-              "ToolTip": "C:\\Users\\jovan\\OneDrive\\Radna povr\u0161ina\\SILAB\\ATP JK\\ATP_lista\\ATP_JUOL_POK\\ATP_JUL\\glavni.c",
-              "RelativeToolTip": "ATP_JUL\\glavni.c",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAEAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
-              "WhenOpened": "2025-05-07T11:06:28.372Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-07T12:56:28.894Z"
             },
             {
               "$type": "Document",
@@ -97,8 +94,7 @@
               "RelativeToolTip": "ATP_JUL\\juol_pok.c",
               "ViewState": "AgIAAB4AAAAAAAAAAAAkwCoAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
-              "WhenOpened": "2025-04-03T15:38:59.192Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-04-03T15:38:59.192Z"
             },
             {
               "$type": "Document",
@@ -122,8 +118,7 @@
               "RelativeToolTip": "..\\lista.h",
               "ViewState": "AgIAABsAAAAAAAAAAAAAACQAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-04-03T16:23:49.414Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-04-03T16:23:49.414Z"
             }
           ]
         }

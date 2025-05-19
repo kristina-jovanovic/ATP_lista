@@ -42,11 +42,14 @@ void unisti(LISTA lista) {
 		PRIJAVI(Kod.Greska.Lista_ne_postoji);
 		return;
 	}
-	remove(lista->skladiste);
-	// da li ovako obrisati celu datoteku ili "izbaciti" sve tj. staviti da je glava=-1?
-	// u tom slucaju bi sve fizicki ostalo i dalje u fajlu, tako da mislim da je mozda bolje obrisati ga skroz
-	//(*lista)->skladiste = NULL;
-	lista->broj_elemenata = 0;
+	//remove(lista->skladiste);
+	// uvescemo samo unistavanje liste u memoriji, a u datoteci ostaje sve
+
+	if (lista != NULL) {
+		lista->skladiste = NULL;
+		lista->broj_elemenata = 0;
+		lista = NULL;
+	}
 
 	PRIJAVI(Kod.Info.Unisti);
 }
@@ -97,7 +100,7 @@ void ubaci(LISTA lista, PODATAK podatak, NACIN nacin) {
 		// gde pripada po vrednosti
 		fflush(datoteka);
 		fclose(datoteka);
-		sortiraj(lista, Rastuce, Bubble); ////////////////
+		sortiraj(lista, Rastuce, Bubble);
 		datoteka = fopen(lista->skladiste, "r+b");
 		if (datoteka == NULL) {
 			PRIJAVI(Kod.Greska.Ucitavanje_datoteke);
