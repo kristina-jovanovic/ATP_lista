@@ -1,6 +1,13 @@
 ﻿
 #include "meni.h"
 
+void init() {
+	_setmode(_fileno(stdout), _O_U8TEXT); // neophodno za ispis na cirilici 
+	_setmode(_fileno(stderr), _O_U8TEXT); // neophodno za ispis na cirilici 
+	const char* result = setlocale(LC_ALL, "Serbian (Latin)_Serbia.1252");
+	//+ moraju da se koriste wide funckije - wprintf() i slicne 
+}
+
 void kreiraj_meni(MENI* meni, STRING naziv_datoteke) {
 
 	FILE* datoteka = fopen(naziv_datoteke, "r, ccs=UTF-8");
@@ -44,10 +51,20 @@ void kreiraj_meni(MENI* meni, STRING naziv_datoteke) {
 void prikazi_meni(MENI meni) {
 	wprintf(L"\n========================================================\n");
 	wprintf(L"%32ls\n", meni.naziv);
-	for (int i = 0;i < meni.broj_stavki;i++) {
-		wprintf(L"%d. %ls\n", i + 1, meni.stavke[i].opis);
+	if (strcmp(meni.naziv, L"Главни мени") == 0) {
+		//u pitanju je glavni meni - prva stavka je unisti koju ne prikazujemo
+		for (int i = 1;i < meni.broj_stavki;i++) {
+			wprintf(L"%d. %ls\n", i, meni.stavke[i].opis);
+		}
+		wprintf(L"0. КРАЈ РАДА\n");
 	}
-	wprintf(L"0. ПОВРАТАК/КРАЈ РАДА\n");
+	else {
+		//u pitanju je neki od podmenija
+		for (int i = 0;i < meni.broj_stavki;i++) {
+			wprintf(L"%d. %ls\n", i + 1, meni.stavke[i].opis);
+		}
+		wprintf(L"0. ПОВРАТАК НА ПРЕТХОДНИ МЕНИ\n");
+	}
 	wprintf(L"========================================================\n");
 }
 
@@ -62,7 +79,7 @@ void pokreni_meni(MENI meni) {
 	} while (stavka != 0);
 
 	if (strcmp(meni.naziv, L"Главни мени") == 0) {
-		wprintf(L"Гашење програма...\n");
+		wprintf(L"Крај рада...\n");
 	}
 }
 
@@ -71,10 +88,9 @@ void obradi_stavku(MENI meni, int stavka) {
 		wprintf(L"\nПогрешна опција!\n");
 		return;
 	}
-	if (stavka == 0) {
-		//kraj rada ili vracanje u prethodni meni
+	if (stavka == 0 && strcmp(meni.naziv, L"Главни мени") != 0) {
+		//povratak u prethodni meni
 		return;
 	}
-	int indeks_stavke = stavka - 1;
-	meni.stavke[indeks_stavke].funkcija();
+	meni.stavke[stavka].funkcija();
 }

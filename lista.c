@@ -4,6 +4,7 @@
 #include "meni.h"
 
 // specifikacija pomocnih funkcija
+void unisti_listu();
 void ubaci_element();
 void ubaci_element_na_pocetak();
 void ubaci_element_na_kraj();
@@ -136,6 +137,10 @@ const struct status_poruke Poruka = {
 };
 
 // implementacija pomocnih funkcija
+void unisti_listu() {
+	unisti(lista);
+}
+
 void ubaci_element() {
 	MENI meni_ubaci;
 	kreiraj_meni(&meni_ubaci, "../../meni_datoteke/meni_ubaci.txt");
@@ -258,6 +263,7 @@ void dodeli_funkciju_lista(MENI* meni) {
 	// da ne bismo radili mnogo if-else grana, pravimo mapu sa parovima opisa i funkcija
 	//proverimo koji tacno opis je procitan iz datoteke i u skladu sa tim dodelimo odgovarajucu funkciju
 	static const STAVKA_MENIJA mapa[] = {
+		{ L"Уништи листу", unisti_listu },
 		{ L"Убаци елемент", ubaci_element },
 		{ L"Избаци елемент", izbaci_element },
 		{ L"Прикажи елементе", prikazi_elemente },
