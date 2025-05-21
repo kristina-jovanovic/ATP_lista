@@ -18,6 +18,7 @@ void kreiraj(LISTA* lista) {
 		return;
 	}
 	(*lista)->skladiste = "lista.dat";
+	//remove((*lista)->skladiste);
 	FILE* datoteka = fopen((*lista)->skladiste, "ab");
 	if (datoteka == NULL) {
 		PRIJAVI(Kod.Greska.Ucitavanje_datoteke);

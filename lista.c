@@ -289,7 +289,7 @@ void dodeli_funkciju_lista(MENI* meni) {
 	int broj_opcija = sizeof(mapa) / sizeof(mapa[0]);
 	bool postavljeno = false;
 
-	for (int i = 0;i < broj_opcija;i++) {
+	for (int i = 0;i < meni->broj_stavki;i++) {
 		for (int j = 0; j < broj_opcija; j++) {
 			if (wcscmp(meni->stavke[i].opis, mapa[j].opis) == 0) {
 				meni->stavke[i].funkcija = mapa[j].funkcija;
